@@ -13,30 +13,31 @@ namespace ProjectManagementSystem.Models
         public string Username { get; set; }
         public string Password { get; set; } //will be hashed in production
        //user's role in the system
-        public string Role { get; set; } // "Technician", "ProjectMAnager", "Management"
+        public string Role { get; set; } // "Technician", "ProjectManager", "Management"
         //Audit information
         public DateTime CreatedDate { get; set; }
         //Account status
         public bool IsActive { get; set; }
         //should I add email? 
-        public abstract void DisplayDashboard(Page page);
+
+        //method to get the tole of the user
+        public string GetRole()
+        {
+            return Role;
+        }
     }
 
     public class Technician : User
     {
         public decimal HourlyRate { get; set; }
-        public decimal OvertimeRate { get; }
+        public decimal OvertimeRate { get; set; }
         public decimal TotalPayment { get; set; }
         public Technician()
         {
             //Placeholder for database info(?)
             Role = "Technician";
         }
-        public override void DisplayDashboard(Page page)
-        {
-            // Redirect to Technician dashboard
-            page.Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
-        }
+
         //Use Form for some of these
         public void LogWorkHours() { }
         public void ViewProjectDetails() { }
@@ -52,10 +53,6 @@ namespace ProjectManagementSystem.Models
             //Placeholder?
             Role = "ProjectManager"; 
         }
-        public override void DisplayDashboard(Page page)
-        {
-            page.Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
-        } 
         public void CreateProject() { }
         public void ManageBudget() { } 
         public void AssignTechnicians() { } 
@@ -66,10 +63,6 @@ namespace ProjectManagementSystem.Models
         //add admin specific variables
         public Admin() { 
             Role = "Admin"; 
-        }
-        public override void DisplayDashboard(Page page)
-        {
-            page.Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
         }
     public void SetBudgetRange() { }
     public void AllocateResources() { }

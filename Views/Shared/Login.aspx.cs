@@ -15,7 +15,7 @@ namespace ProjectManagementSystem.Views.Shared
                 UserId = 1,
                 Username = "admin",
                 Password = "admin123",
-                Role = "Management",
+                Role = "Admin",
                 IsActive = true,
                 CreatedDate = DateTime.Now,
             },
@@ -33,7 +33,7 @@ namespace ProjectManagementSystem.Views.Shared
                 Password = "tech123",
                 Role = "Technician",
                 IsActive = true,
-                 CreatedDate = DateTime.Now,
+                CreatedDate = DateTime.Now,
                 HourlyRate = 120.00m,
                 TotalPayment = 0
             }
@@ -43,7 +43,8 @@ namespace ProjectManagementSystem.Views.Shared
         {
             if (Session["UserId"] != null)
             {
-                Response.Redirect("~/Views/Shared/Dashboard/Index.aspx");
+                //Response.Redirect("~/Views/Shared/Dashboard/Index.aspx");
+                Response.Redirect("~/Views/Shared/Login.aspx");
             }
 
             if (!IsPostBack)
@@ -59,6 +60,7 @@ namespace ProjectManagementSystem.Views.Shared
                 string username = txtUsername.Text.Trim();
                 string password = txtPassword.Text.Trim();
 
+                // Find the user by username and check if the password matches
                 var user = _users.Find(u =>
                     u.Username == username &&
                     u.Password == password &&
@@ -67,32 +69,11 @@ namespace ProjectManagementSystem.Views.Shared
                 if (user != null)
                 {
                     Session["UserId"] = user.UserId;
-                    Session["UserRole"] = user.Role;
+                    Session["UserRole"] = user.Role; //Use the method to get the role
+                    Session["Username"] = user.Username;
 
-                    // Use the polymorphic DisplayDashboard method
-                    user.DisplayDashboard(this);
-
-                    //redirect based on user role
-                    /*switch (user.Role.ToLower())
-                    {
-                        case "technician":
-                            Response.Redirect("~/Views/Shared/Dashboard/TechnicianDashboard.aspx");
-                            break;
-                        case "projectmanager":
-                            Response.Redirect("~/Views/Shared/Dashboard/ProjectManagerDashboard.aspx");
-                            break;
-                        case "management":
-                            Response.Redirect("~/Views/Shared/Dashboard/ManagementDashboard.aspx");
-                            break;
-                        case "user":
-                            Response.Redirect("~/Views/Shared/Dashboard/UserDashboard.aspx");
-                            break;
-                        default:
-                            Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
-                            break;
-
-                    } */
-
+                    // Redirect to the single dashboard
+                    Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
                 }
                 else
                 {

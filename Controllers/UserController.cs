@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.UI;
+using ProjectManagementSystem.Models;
 
 namespace ProjectManagementSystem.Controllers
 {
@@ -13,10 +14,15 @@ namespace ProjectManagementSystem.Controllers
         }
         protected void Login_CLick(object sender, EventArgs e)
         {
-            /*  string username = txtUsername.Text;
-              string password = txtPassword.Text; */
-            //validate credentials.
-
+           
+        }
+        private User AuthenticateUser(string username, string password)
+        {
+            // Implement your user authentication logic here
+            // This could involve checking against a database or in-memory store
+            // For example:
+            // return _userService.Authenticate(username, password);
+            return null; // Placeholder for actual authentication logic
         }
     }
 }

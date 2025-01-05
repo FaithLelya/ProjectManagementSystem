@@ -184,11 +184,8 @@
     <Content Include="ViewSwitcher.ascx" />
     <Content Include="Views\Projects\Projects.aspx" />
     <Content Include="Views\Projects\TechnicianProjects.aspx" />
-    <Content Include="Views\Shared\Dashboard\AdminDashboard.aspx" />
     <Content Include="Views\Shared\Dashboard\Edit.aspx" />
     <Content Include="Views\Shared\Dashboard\Index.aspx" />
-    <Content Include="Views\Shared\Dashboard\ProjectManagerDashboard.aspx" />
-    <Content Include="Views\Shared\Dashboard\TechnicianDashboard.aspx" />
     <Content Include="Views\Shared\Dashboard\Welcome.aspx" />
     <Content Include="Views\Shared\Login.aspx" />
     <Content Include="Web.config" />
@@ -267,13 +264,6 @@
     <Compile Include="Views\Projects\TechnicianProjects.aspx.designer.cs">
       <DependentUpon>TechnicianProjects.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Views\Shared\Dashboard\AdminDashboard.aspx.cs">
-      <DependentUpon>AdminDashboard.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Views\Shared\Dashboard\AdminDashboard.aspx.designer.cs">
-      <DependentUpon>AdminDashboard.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Views\Shared\Dashboard\Edit.aspx.cs">
       <DependentUpon>Edit.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -287,20 +277,6 @@
     </Compile>
     <Compile Include="Views\Shared\Dashboard\Index.aspx.designer.cs">
       <DependentUpon>Index.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Shared\Dashboard\ProjectManagerDashboard.aspx.cs">
-      <DependentUpon>ProjectManagerDashboard.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Views\Shared\Dashboard\ProjectManagerDashboard.aspx.designer.cs">
-      <DependentUpon>ProjectManagerDashboard.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Shared\Dashboard\TechnicianDashboard.aspx.cs">
-      <DependentUpon>TechnicianDashboard.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Views\Shared\Dashboard\TechnicianDashboard.aspx.designer.cs">
-      <DependentUpon>TechnicianDashboard.aspx</DependentUpon>
     </Compile>
     <Compile Include="Views\Shared\Dashboard\Welcome.aspx.cs">
       <DependentUpon>Welcome.aspx</DependentUpon>

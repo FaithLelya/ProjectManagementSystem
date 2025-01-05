@@ -30,14 +30,14 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
             // Set role-specific welcome message
             switch (userRole.ToLower())
             {
-                case "technician":
-                    lblRoleSpecificMessage.Text = "Access your work logs and payment information";
+                case "Technician":
+                    lblRoleSpecificMessage.Text = "Wecome! Access your work logs and payment information";
                     break;
-                case "projectmanager":
-                    lblRoleSpecificMessage.Text = "Manage projects and team resources";
+                case "ProjectManager":
+                    lblRoleSpecificMessage.Text = "Welcome! Manage projects and team resources";
                     break;
-                case "admin":
-                    lblRoleSpecificMessage.Text = "Monitor system performance and manage budgets";
+                case "Admin":
+                    lblRoleSpecificMessage.Text = "Welcome! Monitor system performance and manage budgets";
                     break;
             }
 
@@ -45,23 +45,23 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
             ConfigurePanelVisibility(userRole);
         }
 
-        private void ConfigurePanelVisibility(string role)
+        private void ConfigurePanelVisibility(string Role)
         {
             // Technician panels
-            pnlTimeLogging.Visible = role.Equals("technician", StringComparison.OrdinalIgnoreCase);
-            pnlPaymentInfo.Visible = role.Equals("technician", StringComparison.OrdinalIgnoreCase);
+            pnlTimeLogging.Visible = Role.Equals("Technician", StringComparison.OrdinalIgnoreCase);
+            pnlPaymentInfo.Visible = Role.Equals("Technician", StringComparison.OrdinalIgnoreCase);
 
             // Project Manager panels
-            pnlCreateProject.Visible = role.Equals("projectmanager", StringComparison.OrdinalIgnoreCase);
-            pnlAssignTechnicians.Visible = role.Equals("projectmanager", StringComparison.OrdinalIgnoreCase);
+            pnlCreateProject.Visible = Role.Equals("ProjectManager", StringComparison.OrdinalIgnoreCase);
+            pnlAssignTechnicians.Visible = Role.Equals("ProjectManager", StringComparison.OrdinalIgnoreCase);
 
             // Admin panels
-            pnlBudgetControl.Visible = role.Equals("admin", StringComparison.OrdinalIgnoreCase);
+            pnlBudgetControl.Visible = Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
         }
 
-        protected bool IsUserTechnician() => Session["UserRole"]?.ToString().Equals("technician", StringComparison.OrdinalIgnoreCase) ?? false;
-        protected bool IsProjectManager() => Session["UserRole"]?.ToString().Equals("projectmanager", StringComparison.OrdinalIgnoreCase) ?? false;
-        protected bool IsAdmin() => Session["UserRole"]?.ToString().Equals("admin", StringComparison.OrdinalIgnoreCase) ?? false;
+        protected bool IsUserTechnician() => Session["UserRole"]?.ToString().Equals("Technician", StringComparison.OrdinalIgnoreCase) ?? false;
+        protected bool IsProjectManager() => Session["UserRole"]?.ToString().Equals("ProjectManager", StringComparison.OrdinalIgnoreCase) ?? false;
+        protected bool IsAdmin() => Session["UserRole"]?.ToString().Equals("Admin", StringComparison.OrdinalIgnoreCase) ?? false;
 
         // Button click handlers
         protected void btnLogout_Click(object sender, EventArgs e)
