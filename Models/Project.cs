@@ -15,37 +15,25 @@ namespace ProjectManagementSystem.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Status { get; set; } //In Progress, Completed
-        public List<int> AssignedTenchicianId { get; set; }
+        public List<User> AssignedTechnicians { get; set; }
         public List<Resource> AllocatedResources { get; set; }
-        public List<Technician> Technicians { get; set; }
+        //public List<Technician> Technicians { get; set; }
         public decimal BudgetRangeMin { get; set; }
         public decimal BudgetRangeMax { get; set; }
+        public decimal TotalResourceCost { get; set; }
+        public decimal TotalTechnicianPayments { get; set; }
+        public decimal TotalExpense { get; set; } 
 
-        //Role-based Permission methods
-        public bool CanViewBudget(string userRole)
+        // Method to calculate total expenses
+        public void CalculateTotalExpense()
         {
-            return userRole != "Technician";
+            TotalExpense = TotalResourceCost + TotalTechnicianPayments;
         }
 
-        public bool CanModifyBudget(string userRole)
+        public Project()
         {
-            // return userRole == "Management" || userRole == "ProjectManager";
-            return userRole == "Management";
-        }
-
-        public bool CanCreateProject(string userRole)
-        {
-            return userRole == "ProjectManager";
-        }
-
-        public bool CanAssignTechnicians(string userRole)
-        {
-            return userRole == "ProjectManager";
-        }
-
-        public bool CanAddResources(string userRole, bool isAssignedToProject)
-        {
-            return userRole != "Technician" || isAssignedToProject;
+            AssignedTechnicians = new List<User>();
+            AllocatedResources = new List<Resource>();
         }
     }
 }

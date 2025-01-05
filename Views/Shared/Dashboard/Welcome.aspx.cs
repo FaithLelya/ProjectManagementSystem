@@ -97,9 +97,8 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
 
         protected void btnProjects_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Projects/Index.aspx");
+            Response.Redirect("~/Views/Projects/Projects.aspx");
         }
-
         protected void btnResources_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Views/Resources/Index.aspx");

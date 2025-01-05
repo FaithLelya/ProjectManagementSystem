@@ -1,0 +1,83 @@
+﻿.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.project-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+    transition: transform 0.2s;
+}
+
+    .project-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .project-card h2 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+    }
+
+.project-info p {
+    margin: 8px 0;
+    color: #34495e;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+    .status-badge.in-progress {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .status-badge.planning {
+        background-color: #f1c40f;
+        color: #2c3e50;
+    }
+
+    .status-badge.completed {
+        background-color: #2ecc71;
+        color: white;
+    }
+
+.financial-details {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+}
+
+.action-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+    .action-button:hover {
+        background-color: #2980b9;
+    }
+
+.resource-item, .technician-item {
+    padding: 8px;
+    margin: 4px 0;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}

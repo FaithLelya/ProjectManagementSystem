@@ -120,6 +120,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\css\projects.css" />
     <Content Include="Content\Images\itdolls_logo.png" />
     <Content Include="Content\Site.css" />
     <Content Include="Default.aspx" />
@@ -182,8 +183,10 @@
     <Content Include="Scripts\WebForms\WebUIValidation.js" />
     <Content Include="Site.Master" />
     <Content Include="ViewSwitcher.ascx" />
+    <Content Include="Views\Projects\ModifyBudget.aspx" />
+    <Content Include="Views\Projects\ModifyResources.aspx" />
     <Content Include="Views\Projects\Projects.aspx" />
-    <Content Include="Views\Projects\TechnicianProjects.aspx" />
+    <Content Include="Views\Projects\ModifyTechnicians.aspx" />
     <Content Include="Views\Shared\Dashboard\Edit.aspx" />
     <Content Include="Views\Shared\Dashboard\Index.aspx" />
     <Content Include="Views\Shared\Dashboard\Welcome.aspx" />
@@ -250,6 +253,20 @@
     <Compile Include="ViewSwitcher.ascx.designer.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
     </Compile>
+    <Compile Include="Views\Projects\ModifyBudget.aspx.cs">
+      <DependentUpon>ModifyBudget.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Projects\ModifyBudget.aspx.designer.cs">
+      <DependentUpon>ModifyBudget.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Projects\ModifyResources.aspx.cs">
+      <DependentUpon>ModifyResources.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Projects\ModifyResources.aspx.designer.cs">
+      <DependentUpon>ModifyResources.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Views\Projects\Projects.aspx.cs">
       <DependentUpon>Projects.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -257,12 +274,12 @@
     <Compile Include="Views\Projects\Projects.aspx.designer.cs">
       <DependentUpon>Projects.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Views\Projects\TechnicianProjects.aspx.cs">
-      <DependentUpon>TechnicianProjects.aspx</DependentUpon>
+    <Compile Include="Views\Projects\ModifyTechnicians.aspx.cs">
+      <DependentUpon>ModifyTechnicians.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Views\Projects\TechnicianProjects.aspx.designer.cs">
-      <DependentUpon>TechnicianProjects.aspx</DependentUpon>
+    <Compile Include="Views\Projects\ModifyTechnicians.aspx.designer.cs">
+      <DependentUpon>ModifyTechnicians.aspx</DependentUpon>
     </Compile>
     <Compile Include="Views\Shared\Dashboard\Edit.aspx.cs">
       <DependentUpon>Edit.aspx</DependentUpon>
