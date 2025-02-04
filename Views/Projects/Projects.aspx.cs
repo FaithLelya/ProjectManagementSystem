@@ -27,11 +27,14 @@ namespace ProjectManagementSystem.Views.Projects
 
         private void LoadProjects()
         {
-            var userRole = Session["User Role"]?.ToString();
+            var userRole = Session["UserRole"]?.ToString();
             // Retrieve the list of projects from the session
             var projects = Session["Projects"] as List<Project>;
 
-            if(projects != null & projects.Count > 0)
+            // Debugging output
+            System.Diagnostics.Debug.WriteLine($"User  Role: {userRole}, Projects Count: {projects?.Count}");
+
+            if (projects != null & projects.Count > 0)
             {
                 ProjectRepeater.DataSource = projects;
                 ProjectRepeater.DataBind();
@@ -40,24 +43,26 @@ namespace ProjectManagementSystem.Views.Projects
         }
         public bool CanViewFinancials()
         {
-            string userRole = Session["User Role"]?.ToString();
+            string userRole = Session["UserRole"]?.ToString();
+            // Debugging output
+            System.Diagnostics.Debug.WriteLine($"User  Role: {userRole}");
             return userRole == "Admin" || userRole == "ProjectManager";
         }
 
         public bool CanModifyResources()
         {
-            string userRole = Session["User Role"]?.ToString();
+            string userRole = Session["UserRole"]?.ToString();
             return userRole == "Technician" || userRole == "ProjectManager";
         }
         public bool CanModifyTechnicians()
         {
-            string userRole = Session["User Role"]?.ToString();
+            string userRole = Session["UserRole"]?.ToString();
             return userRole == "ProjectManager";
         }
 
         public bool CanModifyBudget()
         {
-            string userRole = Session["User Role"]?.ToString();
+            string userRole = Session["UserRole"]?.ToString();
             return userRole == "Admin";
         }
 

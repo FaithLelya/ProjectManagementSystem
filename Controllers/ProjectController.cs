@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using ProjectManagementSystem.Models;
@@ -32,7 +33,7 @@ namespace ProjectManagementSystem.Controllers
                     Location = "Karen",
                     StartDate = DateTime.Now.AddDays(-10),
                     EndDate = DateTime.Now.AddMonths(3),
-                    Description = "Complete installation for Faith Lelya's smarthome mansion.",
+                    Description = "Complete installation for Faith's smarthome mansion.",
                     BudgetRangeMin = 20000,
                     BudgetRangeMax = 120000,
                     TotalResourceCost = 24000,
@@ -47,7 +48,7 @@ namespace ProjectManagementSystem.Controllers
                     Location = "Runda",
                     StartDate = DateTime.Now.AddDays(-30),
                     EndDate = DateTime.Now.AddDays(-5),
-                    Description = "Installing FOR Faith cameras at her rec center.",
+                    Description = "Installing for Faith cameras at her rec center.",
                     BudgetRangeMin = 20000,
                     BudgetRangeMax = 240000,
                     TotalResourceCost = 90000,
@@ -57,12 +58,30 @@ namespace ProjectManagementSystem.Controllers
         }
         public List<Project> GetProjects()
         {
+            //fetch projects from database
             return _projects;
         }
         public Project GetProjectById(int projectId)
         {
             return _projects.Find(p => p.ProjectId == projectId);
         }
+        public bool IsTechnicianAssignedToProject(int userId, int projectId)
+        {
+            // Check if the technician is assigned to the project in the database
+            // For now, let's assume we return true as a placeholder
+            return true;
+        }
+        public double GetTechnicianHourlyRate(int userId)
+        {
+            // Fetch the technician's hourly rate from the database
+            // For now, let's assume we return the following as a placeholder
+            return 230.50;
+        }
+
+        /*public void SaveTimeEntries(int userId, int projectId, List<TimeEntry> timeEntries, string deliverables, double totalPayment)
+        {
+            // Save the time entries and payment details to the database
+        }*/
 
         public void UpdateProjectBudget(int projectId, decimal newBudget)
         {

@@ -35,5 +35,10 @@ namespace ProjectManagementSystem.Models
             AssignedTechnicians = new List<User>();
             AllocatedResources = new List<Resource>();
         }
+        public class TimeEntry
+        {
+            public DateTime Date { get; set; }
+            public double HoursWorked { get; set; }
+        }
     }
 }

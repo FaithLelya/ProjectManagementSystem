@@ -29,14 +29,15 @@ namespace ProjectManagementSystem.Models
 
     public class Technician : User
     {
-        public decimal HourlyRate { get; set; }
-        public decimal OvertimeRate { get; set; }
-        public decimal TotalPayment { get; set; }
         public Technician()
         {
             //Placeholder for database info(?)
             Role = "Technician";
         }
+        public double HourlyRate { get; set; }
+        public decimal OvertimeRate { get; set; }
+        public decimal TotalPayment { get; set; }
+        //add projects assigned?
 
         //Use Form for some of these
         public void LogWorkHours() { }
@@ -44,6 +45,12 @@ namespace ProjectManagementSystem.Models
         public void AddResourcesToProject() { }
         public void CalculatePay() { } 
         public void UpdatePay() { }
+        public double GetTechnicianHourlyRate(int userId)
+        {
+            // Fetch the technician's hourly rate from the database
+            HourlyRate = 230;
+            return HourlyRate;
+        }
     }
     public class ProjectManager : User
     {

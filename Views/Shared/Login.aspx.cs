@@ -35,8 +35,9 @@ namespace ProjectManagementSystem.Views.Shared
                 Role = "Technician",
                 IsActive = true,
                 CreatedDate = DateTime.Now,
-                HourlyRate = 120.00m,
-                TotalPayment = 0
+                HourlyRate = 120.00,
+                TotalPayment = 0,
+                OvertimeRate = 0,
             }
         };
 
