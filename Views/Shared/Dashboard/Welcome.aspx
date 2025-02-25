@@ -154,15 +154,6 @@
                 </asp:Panel>
 
                 <!-- Project Manager-specific Panels -->
-                <asp:Panel ID="pnlCreateProject" runat="server" CssClass="col-md-3" Visible='<%# IsProjectManager() %>'>
-                    <asp:LinkButton ID="btnCreateProject" runat="server" OnClick="btnCreateProject_Click" CssClass="nav-card d-block text-decoration-none">
-                        <div class="text-center">
-                            <div class="nav-icon">➕</div>
-                            <h4 class="text-dark">Create Project</h4>
-                            <p class="text-muted">Start a new project</p>
-                        </div>
-                    </asp:LinkButton>
-                </asp:Panel>
 
                 <asp:Panel ID="pnlAssignTechnicians" runat="server" CssClass="col-md-3" Visible='<%# IsProjectManager() %>'>
                     <asp:LinkButton ID="btnAssignTechnicians" runat="server" OnClick="btnAssignTechnicians_Click" CssClass="nav-card d-block text-decoration-none">
@@ -175,12 +166,22 @@
                 </asp:Panel>
 
                 <!-- Admin-specific Panels -->
-                <asp:Panel ID="pnlBudgetControl" runat="server" CssClass="col-md-3" Visible='<%# IsAdmin() %>'>
-                    <asp:LinkButton ID="btnBudgetControl" runat="server" OnClick="btnBudgetControl_Click" CssClass="nav-card d-block text-decoration-none">
+                <asp:Panel ID="pnlCreateProject" runat="server" CssClass="col-md-3"  Visible='<%# IsAdmin() %>'>
+                <asp:LinkButton ID="btnCreateProject" runat="server" OnClick="btnCreateProject_Click" CssClass="nav-card d-block text-decoration-none">
+                    <div class="text-center">
+                        <div class="nav-icon">➕</div>
+                        <h4 class="text-dark">Create Project</h4>
+                        <p class="text-muted">Start a new project</p>
+                    </div>
+                </asp:LinkButton>
+            </asp:Panel>
+
+                <asp:Panel ID="pnlReports" runat="server" CssClass="col-md-3" Visible='<%# IsAdmin() %>'>
+                    <asp:LinkButton ID="btnReports" runat="server" OnClick="btnReports_Click" CssClass="nav-card d-block text-decoration-none">
                         <div class="text-center">
-                            <div class="nav-icon">💵</div>
-                            <h4 class="text-dark">Budget Control</h4>
-                            <p class="text-muted">Set budget ranges and monitor financials</p>
+                            <div class="nav-icon">📊</div>
+                            <h4 class="text-dark">Reports</h4>
+                            <p class="text-muted">View Project Reports</p>
                         </div>
                     </asp:LinkButton>
                 </asp:Panel>
@@ -189,7 +190,7 @@
                 <asp:Panel ID="pnlProjects" runat="server" CssClass="col-md-3">
                     <asp:LinkButton ID="btnProjects" runat="server" OnClick="btnProjects_Click" CssClass="nav-card d-block text-decoration-none">
                         <div class="text-center">
-                            <div class="nav-icon">📊</div>
+                            <div class="nav-icon">📈</div>
                             <h4 class="text-dark">Projects</h4>
                             <p class="text-muted">View project details and status</p>
                         </div>

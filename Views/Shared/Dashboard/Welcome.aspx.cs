@@ -52,11 +52,11 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
             pnlPaymentInfo.Visible = Role.Equals("Technician", StringComparison.OrdinalIgnoreCase);
 
             // Project Manager panels
-            pnlCreateProject.Visible = Role.Equals("ProjectManager", StringComparison.OrdinalIgnoreCase);
             pnlAssignTechnicians.Visible = Role.Equals("ProjectManager", StringComparison.OrdinalIgnoreCase);
 
             // Admin panels
-            pnlBudgetControl.Visible = Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+            pnlReports.Visible = Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+            pnlCreateProject.Visible = Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
         }
 
         protected bool IsUserTechnician() => Session["UserRole"]?.ToString().Equals("Technician", StringComparison.OrdinalIgnoreCase) ?? false;
@@ -82,7 +82,7 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
 
         protected void btnCreateProject_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/ProjectManager/CreateProject.aspx");
+            Response.Redirect("~/Views/Admin/CreateProject.aspx");
         }
 
         protected void btnAssignTechnicians_Click(object sender, EventArgs e)
@@ -90,9 +90,9 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
             Response.Redirect("~/Views/ProjectManager/AssignTechnicians.aspx");
         }
 
-        protected void btnBudgetControl_Click(object sender, EventArgs e)
+        protected void btnReports_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Admin/BudgetControl.aspx");
+            Response.Redirect("~/Views/Admin/Reports.aspx");
         }
 
         protected void btnProjects_Click(object sender, EventArgs e)
