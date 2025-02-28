@@ -82,7 +82,7 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
 
         protected void btnCreateProject_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Admin/CreateProject.aspx");
+            Response.Redirect("~/Views/Projects/CreateProject.aspx");
         }
 
         protected void btnAssignTechnicians_Click(object sender, EventArgs e)
