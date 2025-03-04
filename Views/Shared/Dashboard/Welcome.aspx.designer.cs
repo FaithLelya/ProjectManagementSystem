@@ -150,6 +150,24 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         protected global::System.Web.UI.WebControls.LinkButton btnReports;
 
         /// <summary>
+        /// pnlCreateUser control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlCreateUser;
+
+        /// <summary>
+        /// btnCreateUser control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnCreateUser;
+
+        /// <summary>
         /// pnlProjects control.
         /// </summary>
         /// <remarks>

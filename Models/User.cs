@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using System.Web.UI;
 
 namespace ProjectManagementSystem.Models
@@ -11,7 +12,7 @@ namespace ProjectManagementSystem.Models
         public int UserId { get; set; }
         //basic login credentials
         public string Username { get; set; }
-        public string Password { get; set; } //will be hashed in production
+        public string PasswordHash { get; set; } //store the hashed password
        //user's role in the system
         public string Role { get; set; } // "Technician", "ProjectManager", "Management"
         //Audit information
@@ -24,6 +25,22 @@ namespace ProjectManagementSystem.Models
         public string GetRole()
         {
             return Role;
+        }
+
+        //hash the password before saving
+        public static string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
+            }
+        }
+
+        //verify the password against the stored hash
+        public static bool VerifyPassword(string inputPassword, string storedHash)
+        {
+            return HashPassword(inputPassword) == storedHash;
         }
     }
 

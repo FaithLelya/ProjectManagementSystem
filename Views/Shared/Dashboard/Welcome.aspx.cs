@@ -57,6 +57,7 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
             // Admin panels
             pnlReports.Visible = Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
             pnlCreateProject.Visible = Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+            pnlCreateUser.Visible = Role.Equals("Admin", StringComparison.OrdinalIgnoreCase); 
         }
 
         protected bool IsUserTechnician() => Session["UserRole"]?.ToString().Equals("Technician", StringComparison.OrdinalIgnoreCase) ?? false;
@@ -107,6 +108,10 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         protected void btnAccount_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Views/Account/Profile.aspx");
+        }
+        protected void btnCreateUser_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Views/Admin/CreateUser.aspx");
         }
     }
 }

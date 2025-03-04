@@ -185,7 +185,15 @@
                         </div>
                     </asp:LinkButton>
                 </asp:Panel>
-
+                <asp:Panel ID="pnlCreateUser" runat="server" CssClass="col-md-3" Visible='<%# IsAdmin() %>'>
+                    <asp:LinkButton ID="btnCreateUser" runat="server" OnClick="btnCreateUser_Click" CssClass="nav-card d-block text-decoration-none">
+                        <div class="text-center">
+                            <div class="nav-icon">👤</div>
+                            <h4 class="text-dark">Create User</h4>
+                            <p class="text-muted">Add new users to the system</p>
+                        </div>
+                    </asp:LinkButton>
+                </asp:Panel>
                 <!-- Common Panels -->
                 <asp:Panel ID="pnlProjects" runat="server" CssClass="col-md-3">
                     <asp:LinkButton ID="btnProjects" runat="server" OnClick="btnProjects_Click" CssClass="nav-card d-block text-decoration-none">
@@ -216,6 +224,7 @@
                         </div>
                     </asp:LinkButton>
                 </asp:Panel>
+
             </div>
         </div>
     </form>

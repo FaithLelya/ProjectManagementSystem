@@ -3,54 +3,25 @@ using System.Web.UI;
 using System.Collections.Generic;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Controllers;
+using ProjectManagementSystem.Helpers;
+using System.Diagnostics;
 
 namespace ProjectManagementSystem.Views.Shared
 {
     public partial class Login : System.Web.UI.Page
     {
-       
-        // This list simulates our database of users for now
-        private static List<User> _users = new List<User>
-        {
-            new Admin {
-                UserId = 1,
-                Username = "admin",
-                Password = "admin123",
-                Role = "Admin",
-                IsActive = true,
-                CreatedDate = DateTime.Now,
-            },
-            new ProjectManager {
-                UserId = 2,
-                Username = "projectmanager",
-                Password = "pm123",
-                Role = "ProjectManager",
-                IsActive = true,
-                CreatedDate = DateTime.Now,
-            },
-            new Technician {
-                UserId = 3,
-                Username = "technician",
-                Password = "tech123",
-                Role = "Technician",
-                IsActive = true,
-                CreatedDate = DateTime.Now,
-                HourlyRate = 120.00,
-                TotalPayment = 0,
-                OvertimeRate = 0,
-            }
-        };
-
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["UserId"] != null)
+            if (Session["UserID"] != null)
             {
-                //Response.Redirect("~/Views/Shared/Dashboard/Index.aspx");
-                Response.Redirect("~/Views/Shared/Login.aspx");
+                Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
             }
 
             if (!IsPostBack)
             {
+
+                // Run the migration script (only once!)
+                //PasswordMigrationHelp.MigratePasswords();
                 lblError.Visible = false;
             }
         }
@@ -61,33 +32,64 @@ namespace ProjectManagementSystem.Views.Shared
             {
                 string username = txtUsername.Text.Trim();
                 string password = txtPassword.Text.Trim();
+                // Debug: Print input credentials
+                System.Diagnostics.Debug.WriteLine($"Username: {username}, Password: {password}");
 
-                // Find the user by username and check if the password matches
-                var user = _users.Find(u =>
-                    u.Username == username &&
-                    u.Password == password &&
-                    u.IsActive);
+                // Fetch the user from the database
+                var user = SQLiteHelper.GetUserByUsernameAndPassword(username, password);
+
+                //Debug: Print user object
+                System.Diagnostics.Debug.WriteLine($"User: {user}");
 
                 if (user != null)
                 {
-                    Session["UserId"] = user.UserId;
-                    Session["UserRole"] = user.Role; //Use the method to get the role
+                    if (!user.IsActive)
+                    {
+                        lblError.Text = "Your account is inactive. Please contact the administrator.";
+                        lblError.Visible = true;
+                        return;
+                    }
+
+                    //Debug: print session details
+                    Console.WriteLine($"UserID: {user.UserId}, Role: {user.Role}, Username:{user.Username}");
+
+
+                    Session["UserID"] = user.UserId;
+                    Session["UserRole"] = user.Role; 
                     Session["Username"] = user.Username;
 
-                    // Redirect to the single dashboard
+                    // Debug: Print redirect message
+                    System.Diagnostics.Debug.WriteLine("Redirecting to Welcome.aspx");
+
+                    // Redirect to the dashboard
                     Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
                 }
                 else
                 {
+                    // Debug: Print invalid credentials message
+                    System.Diagnostics.Debug.WriteLine("Invalid username or password");
+
                     lblError.Text = "Invalid username or password";
                     lblError.Visible = true;
                 }
             }
             catch (Exception ex)
             {
+
+                // Debug: Print exception details
+                System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
+
                 lblError.Text = "An error occurred during login. Please try again.";
                 lblError.Visible = true;
             }
         }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Clear();
+            Session.Abandon();
+            Response.Redirect("~/Views/Shared/Login.aspx");
+        }
+
     }
 }
