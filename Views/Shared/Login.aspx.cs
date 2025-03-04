@@ -22,13 +22,13 @@ namespace ProjectManagementSystem.Views.Shared
         {
             try
             {
-                string username = txtUsername.Text.Trim();
+                string email = txtEmail.Text.Trim();
                 string password = txtPassword.Text.Trim();
                 // Debug: Print input credentials
-                System.Diagnostics.Debug.WriteLine($"Username: {username}, Password: {password}");
+                System.Diagnostics.Debug.WriteLine($"Email: {email}, Password: {password}");
 
                 // Fetch the user from the database
-                var user = SQLiteHelper.GetUserByUsernameAndPassword(username, password);
+                var user = SQLiteHelper.GetUserByEmailAndPassword(email, password);
 
                 //Debug: Print user object
                 System.Diagnostics.Debug.WriteLine($"User: {user}");
@@ -43,7 +43,7 @@ namespace ProjectManagementSystem.Views.Shared
                     }
 
                     //Debug: print session details
-                    Console.WriteLine($"UserID: {user.UserId}, Role: {user.Role}, Username:{user.Username}");
+                    Console.WriteLine($"UserID: {user.UserId}, Role: {user.Role}, Email:{user.Username}");
 
 
                     Session["UserID"] = user.UserId;
@@ -59,9 +59,9 @@ namespace ProjectManagementSystem.Views.Shared
                 else
                 {
                     // Debug: Print invalid credentials message
-                    System.Diagnostics.Debug.WriteLine("Invalid username or password");
+                    System.Diagnostics.Debug.WriteLine("Invalid email or password");
 
-                    lblError.Text = "Invalid username or password";
+                    lblError.Text = "Invalid email or password";
                     lblError.Visible = true;
                 }
             }

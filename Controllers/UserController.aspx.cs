@@ -17,12 +17,21 @@ namespace ProjectManagementSystem.Controllers
 
         protected void btnCreateUser_Click(object sender, EventArgs e)
         {
-            string username = txtUsername.Text.Trim();
+            string email = txtEmail.Text.Trim();
             string password = txtPassword.Text.Trim();
             string role = ddlRole.SelectedValue;
+            string username = txtUsername.Text.Trim();
+
+            // Check if the user already exists
+            if (SQLiteHelper.UserExists(email))
+            {
+                lblMessage.Text = "A user with this email already exists.";
+                lblMessage.ForeColor = System.Drawing.Color.Red;
+                return; // Exit the method if the user exists
+            }
 
             // No need to hash the password here, SQLiteHelper.CreateUser does it using BCrypt
-            if (SQLiteHelper.CreateUser(username, password, role))
+            if (SQLiteHelper.CreateUser(email, password, role, username))
             {
                 lblMessage.Text = "User created successfully!";
                 lblMessage.ForeColor = System.Drawing.Color.Green;
@@ -34,9 +43,9 @@ namespace ProjectManagementSystem.Controllers
             }
         }
 
-        private User AuthenticateUser(string username, string password)
+        private User AuthenticateUser(string email, string password)
         {
-            User user = SQLiteHelper.GetUserByUsernameAndPassword(username, password);
+            User user = SQLiteHelper.GetUserByEmailAndPassword(email, password);
 
             if (user == null)
             {

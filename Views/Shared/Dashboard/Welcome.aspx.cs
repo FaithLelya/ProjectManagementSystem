@@ -112,7 +112,7 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         }
         protected void btnCreateUser_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Admin/CreateUser.aspx");
+            Response.Redirect("~/Controllers/UserController.aspx"); 
         }
     }
 }

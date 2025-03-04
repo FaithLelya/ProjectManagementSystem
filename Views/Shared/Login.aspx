@@ -36,18 +36,13 @@
             <div class="login-container">
                 <h2 class="text-center mb-4">Login</h2>
                 
-                <%-- Error message panel --%>
-                <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="alert alert-danger">
-                    <asp:Label ID="lblError" runat="server"></asp:Label>
-                </asp:Panel>
-                
-                <%-- Username field --%>
+                <%-- Email field --%>
                 <div class="form-group">
-                    <asp:Label runat="server" AssociatedControlID="txtUsername">Username:</asp:Label>
-                    <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" />
+                    <asp:Label runat="server" AssociatedControlID="txtEmail">Email:</asp:Label>
+                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" />
                     <asp:RequiredFieldValidator ID="rfvUsername" runat="server"
-                        ControlToValidate="txtUsername"
-                        ErrorMessage="Username is required"
+                        ControlToValidate="txtEmail"
+                        ErrorMessage="Email is required"
                         CssClass="error-message"
                         Display="Dynamic">
                     </asp:RequiredFieldValidator>
@@ -71,6 +66,11 @@
                         OnClick="btnLogin_Click" 
                         CssClass="btn btn-primary btn-block" />
                 </div>
+
+                <%-- Error message panel --%>
+                <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="alert alert-danger">
+                    <asp:Label ID="lblError" runat="server"></asp:Label>
+                </asp:Panel>
             </div>
         </div>
     </form>

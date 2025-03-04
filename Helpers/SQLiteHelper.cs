@@ -13,16 +13,16 @@ namespace ProjectManagementSystem.Helpers
         //private static string ConnectionString = "Data Source=C:\\Projects\\ProjectManagementSystem\\App_Data\\project_tracking.db;Version=3;";
         private static string ConnectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
 
-        public static User GetUserByUsernameAndPassword(string username, string password)
+        public static User GetUserByEmailAndPassword(string email, string password)
         {
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "SELECT UserID, Username, Password, Role, IsActive, CreatedDate FROM USER WHERE Username = @Username";
+                string query = "SELECT UserID, Username, Password, Role, IsActive, CreatedDate FROM USER WHERE Email = @Email";
 
                 using (var command = new SQLiteCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Email", email);
                     using (var reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -68,15 +68,16 @@ namespace ProjectManagementSystem.Helpers
                             user.PasswordHash = storedHash; // Store the hashed password
                             user.IsActive = Convert.ToBoolean(reader["IsActive"]);
                             user.CreatedDate = Convert.ToDateTime(reader["CreatedDate"]);
+                            user.Email= email;
 
                             // Debug: Print user details
-                            System.Diagnostics.Debug.WriteLine($"User found: {user.Username}, Role: {user.Role}");
+                            System.Diagnostics.Debug.WriteLine($"User found: {user.Email}, Role: {user.Role}");
 
                             return user;
                         }
                         else {
                             // Debug: Print no user found
-                            System.Diagnostics.Debug.WriteLine("No user found with the provided username");
+                            System.Diagnostics.Debug.WriteLine("No user found with the provided email.");
 
                             return null; // No user found
                         }
@@ -136,23 +137,39 @@ namespace ProjectManagementSystem.Helpers
 
             return projectManagers;
         }
-        public static bool CreateUser(string username, string password, string role)
+        public static bool CreateUser(string email, string password, string role, string username)
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password); 
 
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "INSERT INTO USER (Username, Password, Role, CreatedDate, IsActive) VALUES (@Username, @Password, @Role, @CreatedDate, 1)";
+                string query = "INSERT INTO USER (Email, Password, Role, Username, CreatedDate, IsActive) VALUES (@Email, @Password, @Role, @Username, @CreatedDate, 1)";
 
                 using (var command = new SQLiteCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Email", email);
                     command.Parameters.AddWithValue("@Password", hashedPassword); // Use hashed password
                     command.Parameters.AddWithValue("@Role", role);
+                    command.Parameters.AddWithValue("@Username", username); // Add username parameter
                     command.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
+                    command.Parameters.AddWithValue("@IsActive", 1);
 
                     return command.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+        public static bool UserExists(string email)
+        {
+            using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
+            {
+                connection.Open();
+                string query = "SELECT COUNT(*) FROM User WHERE Email = @Email";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    return Convert.ToInt32(command.ExecuteScalar()) > 0; // Return true if user exists
                 }
             }
         }
