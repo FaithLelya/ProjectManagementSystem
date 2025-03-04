@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Web.UI;
-using System.Collections.Generic;
-using ProjectManagementSystem.Models;
-using ProjectManagementSystem.Controllers;
 using ProjectManagementSystem.Helpers;
-using System.Diagnostics;
 
 namespace ProjectManagementSystem.Views.Shared
 {

@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Controllers;
-using ProjectManagementSystem.Helpers;
 using System.Data.SQLite;
 
 namespace ProjectManagementSystem.Views.Projects

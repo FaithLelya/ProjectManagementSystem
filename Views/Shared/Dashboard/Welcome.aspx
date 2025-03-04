@@ -133,12 +133,12 @@
             <!-- Navigation Cards -->
             <div class="row">
                 <!-- Technician-specific Panels -->
-                <asp:Panel ID="pnlTimeLogging" runat="server" CssClass="col-md-3" Visible='<%# IsUserTechnician() %>'>
-                    <asp:LinkButton ID="btnTimeLogging" runat="server" OnClick="btnTimeLogging_Click" CssClass="nav-card d-block text-decoration-none">
+                <asp:Panel ID="pnlAttendance" runat="server" CssClass="col-md-3" Visible='<%# IsUserTechnician() %>'>
+                    <asp:LinkButton ID="btnAttendance" runat="server" OnClick="btnAttendance_Click" CssClass="nav-card d-block text-decoration-none">
                         <div class="text-center">
                             <div class="nav-icon">⏱️</div>
-                            <h4 class="text-dark">Log Hours</h4>
-                            <p class="text-muted">Track your work hours and view estimated payments</p>
+                            <h4 class="text-dark">Attendance</h4>
+                            <p class="text-muted">Submit Technician Attendance here</p>
                         </div>
                     </asp:LinkButton>
                 </asp:Panel>

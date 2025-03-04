@@ -60,22 +60,22 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         protected global::System.Web.UI.WebControls.Label lblRoleSpecificMessage;
 
         /// <summary>
-        /// pnlTimeLogging control.
+        /// pnlAttendance control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlTimeLogging;
+        protected global::System.Web.UI.WebControls.Panel pnlAttendance;
 
         /// <summary>
-        /// btnTimeLogging control.
+        /// btnAttendance control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnTimeLogging;
+        protected global::System.Web.UI.WebControls.LinkButton btnAttendance;
 
         /// <summary>
         /// pnlPaymentInfo control.

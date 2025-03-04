@@ -1,9 +1,6 @@
 using System;
-using BCrypt.Net;
-using System.Web.UI;
 using System.Collections.Generic;
 using ProjectManagementSystem.Models;
-using ProjectManagementSystem.Controllers;
 using System.Data.SQLite;
 
 namespace ProjectManagementSystem.Helpers

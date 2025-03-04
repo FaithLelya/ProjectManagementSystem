@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjectManagementSystem.Views.Technicians;
+using System;
 using System.Web.UI;
 
 namespace ProjectManagementSystem.Views.Shared.Dashboard
@@ -48,7 +49,7 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         private void ConfigurePanelVisibility(string Role)
         {
             // Technician panels
-            pnlTimeLogging.Visible = Role.Equals("Technician", StringComparison.OrdinalIgnoreCase);
+            pnlAttendance.Visible = Role.Equals("Technician", StringComparison.OrdinalIgnoreCase);
             pnlPaymentInfo.Visible = Role.Equals("Technician", StringComparison.OrdinalIgnoreCase);
 
             // Project Manager panels
@@ -71,9 +72,9 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
             Response.Redirect("~/Views/Shared/Login.aspx");
         }
 
-        protected void btnTimeLogging_Click(object sender, EventArgs e)
+        protected void btnAttendance_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Technician/TimeLogging.aspx");
+            Response.Redirect("~/Views/Technicians/RecordAttendance.aspx"); 
         }
 
         protected void btnPaymentInfo_Click(object sender, EventArgs e)

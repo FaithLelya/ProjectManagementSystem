@@ -230,7 +230,7 @@
     <Content Include="Views\Shared\Dashboard\Welcome.aspx" />
     <Content Include="Views\Shared\Login.aspx" />
     <Content Include="Views\Technicians\CompensationDetails.aspx" />
-    <Content Include="Views\Technicians\TimeLogging.aspx" />
+    <Content Include="Views\Technicians\RecordAttendance.aspx" />
     <Content Include="Web.config" />
     <Content Include="Bundle.config" />
     <Content Include="Site.Mobile.Master" />
@@ -369,12 +369,12 @@
     <Compile Include="Views\Technicians\CompensationDetails.aspx.designer.cs">
       <DependentUpon>CompensationDetails.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Views\Technicians\TimeLogging.aspx.cs">
-      <DependentUpon>TimeLogging.aspx</DependentUpon>
+    <Compile Include="Views\Technicians\RecordAttendance.aspx.cs">
+      <DependentUpon>RecordAttendance.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Views\Technicians\TimeLogging.aspx.designer.cs">
-      <DependentUpon>TimeLogging.aspx</DependentUpon>
+    <Compile Include="Views\Technicians\RecordAttendance.aspx.designer.cs">
+      <DependentUpon>RecordAttendance.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
