@@ -37,7 +37,7 @@ namespace ProjectManagementSystem.Controllers
                     BudgetRangeMin = 20000,
                     BudgetRangeMax = 120000,
                     TotalResourceCost = 24000,
-                    TotalTechnicianPayments = 54000,
+                    TechnicianPayment = 54000,
                 },
                 new Project
                 {
@@ -52,7 +52,7 @@ namespace ProjectManagementSystem.Controllers
                     BudgetRangeMin = 20000,
                     BudgetRangeMax = 240000,
                     TotalResourceCost = 90000,
-                    TotalTechnicianPayments = 110000,
+                    TechnicianPayment = 110000,
                 }
             };
         }

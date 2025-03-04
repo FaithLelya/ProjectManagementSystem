@@ -14,23 +14,25 @@
             <asp:Repeater ID="ProjectRepeater" runat="server">
                 <ItemTemplate>
                     <div class="project-card">
-                        <h2><%# Eval("ProjectName") %></h2>
+                        <h4><%# Eval("ProjectName") %></h4>
                         <div class="project-info">
                             <p><strong>Project ID:</strong> <%# Eval("ProjectId") %></p>
+                            <p><strong>Description:</strong> <%# Eval("Description") %></p>
                             <p><strong>Status:</strong> <span class="status-badge <%# Eval("Status").ToString().ToLower().Replace(" ", "-") %>">
                                 <%# Eval("Status") %></span></p>
                             <p><strong>Location:</strong> <%# Eval("Location") %></p>
-                            <p><strong>Start Date:</strong> <%# Eval("StartDate", "{0:d}") %></p>
-                            <p><strong>End Date:</strong> <%# Eval("EndDate", "{0:d}") %></p>
-                            <p><strong>Description:</strong> <%# Eval("Description") %></p>
+                            <p><strong>Start Date:</strong> <%# Eval("StartDate", "{0:yyyy-MM-dd}") %></p>
+                            <p><strong>End Date:</strong> <%# Eval("EndDate", "{0:yyyy-MM-dd}") %></p>
+
                         </div>
 
                         <asp:Panel ID="FinancialPanel" runat="server" CssClass="financial-details" Visible='<%# ((ProjectManagementSystem.Views.Projects.Projects)Page).CanViewFinancials() %>'>
                             <h3>Financial Details</h3>
-                            <p><strong>Budget:</strong> $<%# Eval("Budget", "{0:N2}") %></p>
-                            <p><strong>Resource Cost:</strong> $<%# Eval("TotalResourceCost", "{0:N2}") %></p>
-                            <p><strong>Technician Payments:</strong> $<%# Eval("TotalTechnicianPayments", "{0:N2}") %></p>
-                            <p><strong>Total Expense:</strong> $<%# Eval("TotalExpense", "{0:N2}") %></p>
+                            <p><strong>Budget:</strong> KES $<%# Eval("Budget", "{0:N2}") %></p>
+                            <p><strong>Resource Cost:</strong> KES $<%# Eval("TotalResourceCost", "{0:N2}") %></p>
+                            <p><strong>Materials Cost:</strong> KES <%# Eval("MaterialsCost", "{0:N2S}") %></p>
+                            <p><strong>Technician Payments:</strong> KES $<%# Eval("TechnicianPayment", "{0:N2}") %></p>
+                            <p><strong>Total Expense:</strong> KES $<%# Eval("TotalExpense", "{0:N2}") %></p>
                         </asp:Panel>
 
                         <div class="resources-section">

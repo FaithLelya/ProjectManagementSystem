@@ -262,6 +262,7 @@
     <Compile Include="Controllers\UserController.aspx.designer.cs">
       <DependentUpon>UserController.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Data\ProjectManagementSystemContext.cs" />
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -272,7 +273,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\PasswordMigrationHelper.cs" />
     <Compile Include="Helpers\SQLiteHelper.cs" />
     <Compile Include="Models\Project.cs" />
     <Compile Include="Models\Resources.cs" />

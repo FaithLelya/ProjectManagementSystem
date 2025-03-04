@@ -13,6 +13,57 @@
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Arial, sans-serif;
         }
+        /* Style the ASP.NET Calendar */
+                .aspNetCalendar {
+                    border: 1px solid #007bff;
+                    border-radius: 5px;
+                    background-color: #ffffff;
+                    width: 300px; /* Adjust the width */
+                    font-size: 14px;
+                    padding: 10px;
+                    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+                }
+
+                /* Calendar Table Styling */
+                .aspNetCalendar table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                .aspNetCalendar td {
+                    text-align: center;
+                    padding: 5px;
+                    cursor: pointer;
+                }
+
+                /* Highlight Selected Date */
+                .aspNetCalendar .SelectedDate {
+                    background-color: #007bff !important;
+                    color: #fff !important;
+                    font-weight: bold;
+                    border-radius: 5px;
+                }
+
+                /* Calendar Header Styling */
+                .aspNetCalendar .DayHeader {
+                    background-color: #007bff;
+                    color: white;
+                    font-weight: bold;
+                }
+
+                /* Style Navigation Buttons */
+                .aspNetCalendar .NextPrev {
+                    font-weight: bold;
+                    color: #007bff;
+                    cursor: pointer;
+                }
+
+                /* Hover effect */
+                .aspNetCalendar td:hover {
+                    background-color: #dfe8ff;
+                    border-radius: 5px;
+                }
+        
     </style>
 </head>
 <body>
@@ -34,16 +85,18 @@
                 <asp:TextBox ID="txtLocation" runat="server" CssClass="form-control" required></asp:TextBox>
                 <asp:RequiredFieldValidator ID="rfvLocation" runat="server" ControlToValidate="txtLocation" ErrorMessage="Location is required." CssClass="text-danger" />
             </div>
-            <div class="form-group">
-                <label for="txtStartTime">Start Time</label>
-                <asp:TextBox ID="txtStartTime" runat="server" CssClass="form-control" required></asp:TextBox>
-                <asp:RequiredFieldValidator ID="rfvStartTime" runat="server" ControlToValidate="txtStartTime" ErrorMessage="Start Time is required." CssClass="text-danger" />
+                 <div class="form-group">
+                 <label for="calStartTime">Start Time</label>
+                 <asp:Calendar ID="calStartTime" runat="server" CssClass="aspNetCalendar" OnSelectionChanged="calStartTime_SelectionChanged"></asp:Calendar>
+                 <asp:TextBox ID="txtStartTime" runat="server" CssClass="form-control" ReadOnly="true"></asp:TextBox>
             </div>
-            <div class="form-group">
-                <label for="txtEndTime">End Time</label>
-                <asp:TextBox ID="txtEndTime" runat="server" CssClass="form-control" required></asp:TextBox>
-                <asp:RequiredFieldValidator ID="rfvEndTime" runat="server" ControlToValidate="txtEndTime" ErrorMessage="End Time is required." CssClass="text-danger" />
-            </div>
+
+             <div class="form-group">
+                 <label for="calEndTime">End Time</label>
+                 <asp:Calendar ID="calEndTime" runat="server" CssClass="aspNetCalendar" OnSelectionChanged="calEndTime_SelectionChanged"></asp:Calendar>
+                 <asp:TextBox ID="txtEndTime" runat="server" CssClass="form-control" ReadOnly="true"></asp:TextBox>
+             </div> 
+            
             <div class="form-group">
                 <label for="txtTechnicianCost">Technician Payment Cost</label>
                 <asp:TextBox ID="txtTechnicianCost" runat="server" CssClass="form-control" required></asp:TextBox>
@@ -77,9 +130,6 @@
 
     <script>
         $(function () {
-            $("#<%= txtStartTime.ClientID %>").datepicker();
-            $("#<%= txtEndTime.ClientID %>").datepicker();
-
             // Calculate budget on input change
             $("#<%= txtTechnicianCost.ClientID %>, #<%= txtMaterialsCost.ClientID %>").on("input", function () {
                 calculateBudget();

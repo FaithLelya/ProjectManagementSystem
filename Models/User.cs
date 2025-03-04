@@ -15,32 +15,16 @@ namespace ProjectManagementSystem.Models
         public string PasswordHash { get; set; } //store the hashed password
        //user's role in the system
         public string Role { get; set; } // "Technician", "ProjectManager", "Management"
+        public string Email { get; set; }
         //Audit information
         public DateTime CreatedDate { get; set; }
         //Account status
         public bool IsActive { get; set; }
-        //should I add email? 
 
         //method to get the tole of the user
         public string GetRole()
         {
             return Role;
-        }
-
-        //hash the password before saving
-        public static string HashPassword(string password)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(hashedBytes);
-            }
-        }
-
-        //verify the password against the stored hash
-        public static bool VerifyPassword(string inputPassword, string storedHash)
-        {
-            return HashPassword(inputPassword) == storedHash;
         }
     }
 

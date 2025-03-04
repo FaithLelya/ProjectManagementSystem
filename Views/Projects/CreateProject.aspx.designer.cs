@@ -78,6 +78,15 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvLocation;
 
         /// <summary>
+        /// calStartTime control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Calendar calStartTime;
+
+        /// <summary>
         /// txtStartTime control.
         /// </summary>
         /// <remarks>
@@ -87,13 +96,13 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.TextBox txtStartTime;
 
         /// <summary>
-        /// rfvStartTime control.
+        /// calEndTime control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvStartTime;
+        protected global::System.Web.UI.WebControls.Calendar calEndTime;
 
         /// <summary>
         /// txtEndTime control.
@@ -103,15 +112,6 @@ namespace ProjectManagementSystem.Views.Projects
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtEndTime;
-
-        /// <summary>
-        /// rfvEndTime control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvEndTime;
 
         /// <summary>
         /// txtTechnicianCost control.

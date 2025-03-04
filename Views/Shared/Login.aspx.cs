@@ -19,9 +19,6 @@ namespace ProjectManagementSystem.Views.Shared
 
             if (!IsPostBack)
             {
-
-                // Run the migration script (only once!)
-                //PasswordMigrationHelp.MigratePasswords();
                 lblError.Visible = false;
             }
         }
