@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ProjectManagementSystem.Models;
 using System.Data.SQLite;
+using ProjectManagementSystem.Controllers;
 
 namespace ProjectManagementSystem.Helpers
 {
@@ -137,7 +138,7 @@ namespace ProjectManagementSystem.Helpers
 
             return projectManagers;
         }
-        public static bool CreateUser(string email, string password, string role, string username)
+        public static bool CreateUser(string email, string password, string role, string username, string technicianLevel = null)
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password); 
 
@@ -155,7 +156,71 @@ namespace ProjectManagementSystem.Helpers
                     command.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
                     command.Parameters.AddWithValue("@IsActive", 1);
 
-                    return command.ExecuteNonQuery() > 0;
+                    bool userCreated = command.ExecuteNonQuery() > 0;
+
+                    // If the user is a technician, insert into the Technicians table
+                    if (userCreated)
+                    {
+                        int userId = (int)connection.LastInsertRowId; // Get the last inserted UserId
+                        switch (role)
+                        {
+                            case "Technician":
+                                CreateTechnician(userId, technicianLevel);
+                                break;
+                            case "ProjectManager":
+                                CreateProjectManager(userId);
+                                break;
+                            case "Admin":
+                                CreateAdmin(userId);
+                                break;
+                        }
+                    }
+                    return userCreated;
+                }
+            }
+        }
+        public static void CreateTechnician(int userId, string technicianLevel)
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "INSERT INTO Technician (TechnicianID, TechnicianLevel) VALUES (@TechnicianID, @TechnicianLevel)";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("TechnicianID", userId);
+                    command.Parameters.AddWithValue("@TechnicianLevel", technicianLevel);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void CreateProjectManager(int userId)
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "INSERT INTO ProjectManager (ProjectManagerID) VALUES (@ProjectManagerID)";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ProjectManagerID", userId);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void CreateAdmin(int userId)
+        {
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "INSERT INTO Admin (User Id) VALUES (@User Id)";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@User Id", userId);
+                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -188,8 +253,6 @@ namespace ProjectManagementSystem.Helpers
                 }
             }
         }
-        
-
-        }
+    }
 }
 

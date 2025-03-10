@@ -5,6 +5,7 @@
 <head runat="server">
     <title>Modify Budget</title>
     <link href="~/Content/css/projects.css" rel="stylesheet" type="text/css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">

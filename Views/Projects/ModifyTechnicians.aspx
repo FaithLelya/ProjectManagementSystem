@@ -1,50 +1,31 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ModifyTechnicians.aspx.cs" Inherits="ProjectManagementSystem.Views.Projects.TechnicianProjects" %>
 
 <!DOCTYPE html>
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-   <title>Modify Technicians</title>
+    <title>Modify Technicians</title>
     <link href="~/Content/css/projects.css" rel="stylesheet" type="text/css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
-    <form id="form1" runat="server">
+    <form id="form2" runat="server">
         <div class="container">
             <h1>Modify Project Technicians</h1>
+            <asp:Label ID="lblProjectName" runat="server" CssClass="h4"></asp:Label>
             <div class="project-info">
                 <h2><asp:Literal ID="litProjectName" runat="server" /></h2>
             </div>
 
             <div class="technician-modification">
-                <h3>Assigned Technicians</h3>
-                <asp:GridView ID="TechniciansGrid" runat="server" AutoGenerateColumns="False" 
-                            CssClass="grid-view" OnRowCommand="TechniciansGrid_RowCommand">
-                    <Columns>
-                        <asp:BoundField DataField="Name" HeaderText="Technician Name" />
-                        <asp:TemplateField HeaderText="Actions">
-                            <ItemTemplate>
-                                <asp:Button ID="btnRemove" runat="server" Text="Remove" 
-                                          CommandName="RemoveTechnician" 
-                                          CommandArgument='<%# Eval("UserId") %>'
-                                          CssClass="action-button remove" />
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
-
-                <h3>Add Technician</h3>
-                <div class="add-technician-form">
-                    <asp:DropDownList ID="ddlTechnicians" runat="server" CssClass="dropdown" />
-                    <asp:Button ID="btnAddTechnician" runat="server" Text="Add Technician" 
-                              OnClick="btnAddTechnician_Click" CssClass="action-button" />
+                <h3>Assign Technicians</h3>
+                <div class="form-group">
+                    <label for="ddlTechnicians">Select Technicians:</label>
+                    <asp:DropDownList ID="ddlTechnicians" runat="server" CssClass="form-control" Multiple="true"></asp:DropDownList>
                 </div>
-            </div>
-
-            <div class="button-group">
-                <asp:Button ID="btnSave" runat="server" Text="Save Changes" 
-                          OnClick="btnSave_Click" CssClass="action-button save" />
-                <asp:Button ID="btnCancel" runat="server" Text="Cancel" 
-                          OnClick="btnCancel_Click" CssClass="action-button cancel" />
+                <div class="button-group">
+                    <asp:Button ID="btnSaveChanges" runat="server" Text="Save Changes" CssClass="btn-primary" OnClick="btnSaveChanges_Click" />
+                    <asp:Label ID="lblMessage" runat="server" CssClass="text-success"></asp:Label>
+                </div>
             </div>
         </div>
     </form>

@@ -24,40 +24,40 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.HtmlControls.HtmlForm form2;
 
         /// <summary>
-        /// litProjectName control.
+        /// lblProjectName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litProjectName;
+        protected global::System.Web.UI.WebControls.Label lblProjectName;
 
         /// <summary>
-        /// ResourcesGrid control.
+        /// ResourceRepeater control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView ResourcesGrid;
+        protected global::System.Web.UI.WebControls.Repeater ResourceRepeater;
 
         /// <summary>
-        /// ddlResources control.
+        /// txtResourceName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlResources;
+        protected global::System.Web.UI.WebControls.TextBox txtResourceName;
 
         /// <summary>
-        /// txtNewQuantity control.
+        /// txtQuantity control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtNewQuantity;
+        protected global::System.Web.UI.WebControls.TextBox txtQuantity;
 
         /// <summary>
         /// btnAddResource control.
@@ -69,21 +69,12 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Button btnAddResource;
 
         /// <summary>
-        /// btnSave control.
+        /// lblMessage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSave;
-
-        /// <summary>
-        /// btnCancel control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCancel;
+        protected global::System.Web.UI.WebControls.Label lblMessage;
     }
 }

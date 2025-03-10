@@ -38,6 +38,7 @@ namespace ProjectManagementSystem.Models
         public double HourlyRate { get; set; }
         public decimal OvertimeRate { get; set; }
         public decimal TotalPayment { get; set; }
+        public string TechnicianLevel { get; set; }
         //add projects assigned?
 
         //Use Form for some of these

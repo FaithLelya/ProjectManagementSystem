@@ -18,17 +18,28 @@ namespace ProjectManagementSystem.Views.Technicians
         }
         private void LoadTechnicians()
         {
-            // Load technicians from the database and bind to the dropdown
+            // Load junior technicians from the database and bind to the dropdown
             using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
             {
                 connection.Open();
-                string query = "SELECT UserID, Username FROM User WHERE Role = 'Technician'";
+                string query = "SELECT TechnicianID, Username FROM Technician WHERE TechnicianLevel = 'Junior'";
                 using (var command = new SQLiteCommand(query, connection))
                 using (var reader = command.ExecuteReader())
                 {
-                    while (reader.Read())
+                    ddlTechnician.Items.Clear(); // Clear existing items to avoid duplicates
+
+                    // Check if there are any rows returned
+                    if (reader.HasRows)
                     {
-                        ddlTechnician.Items.Add(new ListItem(reader["Username"].ToString(), reader["UserID"].ToString()));
+                        while (reader.Read())
+                    {
+                        ddlTechnician.Items.Add(new ListItem(reader["Username"].ToString(), reader["TechnicianID"].ToString()));
+                    }
+                    }
+                    else
+                    {
+                        // Handle the case where no technicians are found
+                        lblMessage.Text = "No technicians found.";
                     }
                 }
             }

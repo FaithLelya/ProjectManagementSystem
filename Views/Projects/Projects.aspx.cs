@@ -27,9 +27,6 @@ namespace ProjectManagementSystem.Views.Projects
         {
             var userRole = Session["UserRole"]?.ToString();
 
-            // Retrieve the list of projects from the session
-            //var projects = Session["Projects"] as List<Project>;
-
             var projects = new List<Project>();
             string connectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
             using (SQLiteConnection conn = new SQLiteConnection(connectionString))

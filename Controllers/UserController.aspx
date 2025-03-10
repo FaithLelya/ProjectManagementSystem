@@ -28,10 +28,19 @@
 
             <div class="form-group">
                 <label for="ddlRole">Role:</label>
-                <asp:DropDownList ID="ddlRole" runat="server" CssClass="form-control">
-                    <asp:ListItem Text="Admin" Value="Admin"></asp:ListItem>
+                <asp:DropDownList ID="ddlRole" runat="server" CssClass="form-control" OnSelectedIndexChanged="ddlRole_SelectedIndexChanged" AutoPostBack="true">
+                    <asp:ListItem Text ="Admin" Value="Admin"></asp:ListItem>
                     <asp:ListItem Text="Project Manager" Value="ProjectManager"></asp:ListItem>
                     <asp:ListItem Text="Technician" Value="Technician"></asp:ListItem>
+                </asp:DropDownList>
+            </div>
+
+                <div class="form-group" id="technicianLevelGroup" runat="server" style="display:none;">
+                <label for="ddlTechnicianLevel">Technician Level:</label>
+                <asp:DropDownList ID="ddlTechnicianLevel" runat="server" CssClass="form-control">
+                    <asp:ListItem Text="Select Level" Value=""></asp:ListItem>
+                    <asp:ListItem Value="Junior">Junior</asp:ListItem>
+                    <asp:ListItem Value="Senior">Senior</asp:ListItem>
                 </asp:DropDownList>
             </div>
 

@@ -21,6 +21,8 @@ namespace ProjectManagementSystem.Controllers
             string password = txtPassword.Text.Trim();
             string role = ddlRole.SelectedValue;
             string username = txtUsername.Text.Trim();
+            string technicianLevel = ddlTechnicianLevel.Visible ? ddlTechnicianLevel.SelectedValue : null; // Get technician level if visible
+
 
             // Check if the user already exists
             if (SQLiteHelper.UserExists(email))
@@ -42,6 +44,17 @@ namespace ProjectManagementSystem.Controllers
                 lblMessage.ForeColor = System.Drawing.Color.Red;
             }
         }
+        protected void ddlRole_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ddlRole.SelectedValue == "Technician")
+            {
+                ddlTechnicianLevel.Visible = true; // Show technician level dropdown
+            }
+            else
+            {
+                ddlTechnicianLevel.Visible = false; // Hide technician level dropdown
+            }
+        }
 
         private User AuthenticateUser(string email, string password)
         {
@@ -56,3 +69,4 @@ namespace ProjectManagementSystem.Controllers
         }
     }
 }
+
