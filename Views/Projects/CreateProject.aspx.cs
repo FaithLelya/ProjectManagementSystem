@@ -42,6 +42,7 @@ namespace ProjectManagementSystem.Views.Projects
         }
         protected void btnCreateProject_Click(object sender, EventArgs e)
         {
+            
             string ProjectName = txtProjectName.Text;
             string Description = txtDescription.Text;
             string Location = txtLocation.Text;
@@ -52,6 +53,51 @@ namespace ProjectManagementSystem.Views.Projects
             decimal Budget = TechnicianPayment + MaterialsCost; // Calculate total budget
             int ProjectManagerId = int.Parse(ddlProjectManager.SelectedValue);
             string Resources = txtResources.Text;
+
+            // Validate required fields
+            if (string.IsNullOrWhiteSpace(txtProjectName.Text) ||
+                string.IsNullOrWhiteSpace(txtDescription.Text) ||
+                string.IsNullOrWhiteSpace(txtLocation.Text) ||
+                string.IsNullOrWhiteSpace(txtStartTime.Text) ||
+                string.IsNullOrWhiteSpace(txtEndTime.Text) ||
+                string.IsNullOrWhiteSpace(txtTechnicianCost.Text) ||
+                string.IsNullOrWhiteSpace(txtMaterialsCost.Text) ||
+                ddlProjectManager.SelectedValue == "")
+            {
+                lblOutput.Text = "Please fill in all required fields.";
+                return;
+            }
+            // Validate date range
+            DateTime startDate;
+            DateTime endDate;
+            if (!DateTime.TryParse(txtStartTime.Text, out startDate) ||
+                !DateTime.TryParse(txtEndTime.Text, out endDate) ||
+                startDate >= endDate)
+            {
+                lblOutput.Text = "Start Date must be before End Date.";
+                return;
+            }
+            // Validate numeric fields
+            decimal technicianPayment;
+            decimal materialsCost;
+            if (!decimal.TryParse(txtTechnicianCost.Text, out technicianPayment) || technicianPayment < 0 ||
+                !decimal.TryParse(txtMaterialsCost.Text, out materialsCost) || materialsCost < 0)
+            {
+                lblOutput.Text = "Technician Payment and Materials Cost must be valid non-negative numbers.";
+                return;
+            }
+            // Calculate budget
+            //decimal budget = technicianPayment + materialsCost;
+
+            // Validate budget
+            if (Budget <= 0)
+            {
+                lblOutput.Text = "The total budget must be greater than zero.";
+                return;
+            }
+            // Proceed to save the project
+            int projectManagerId = int.Parse(ddlProjectManager.SelectedValue);
+            string resources = txtResources.Text;
 
             //debug
             System.Diagnostics.Debug.WriteLine($"Inserting Project: {ProjectName}, {Description}, {Location}, {StartDate}, {EndDate}, {TechnicianPayment}, {MaterialsCost}, {Budget}, {ProjectManagerId}, {Resources}");
@@ -72,12 +118,6 @@ namespace ProjectManagementSystem.Views.Projects
         protected void calEndTime_SelectionChanged(object sender, EventArgs e)
         {
             txtEndTime.Text = calEndTime.SelectedDate.ToString("yyyy-MM-dd");
-        }
-
-        decimal CalculateBudget()
-        {
-            // Implement logic to calculate the budget based on technician payment cost and cost of tools & materials
-            return 0; // Placeholder
         }
 
     }

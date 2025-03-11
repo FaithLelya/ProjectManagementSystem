@@ -3,6 +3,7 @@ using ProjectManagementSystem.Controllers;
 using System.Web.UI.WebControls;
 using System.Data.SQLite;
 using System.Web.UI;
+using ProjectManagementSystem.Models;
 namespace ProjectManagementSystem.Views.Technicians
 {
     public partial class RecordAttendance : System.Web.UI.Page
@@ -64,35 +65,95 @@ namespace ProjectManagementSystem.Views.Technicians
         }
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
-            int technicianId = int.Parse(ddlTechnician.SelectedValue);
-            int ProjectId = int.Parse(ddlProject.SelectedValue);
-            DateTime date = DateTime.Parse(txtDate.Text);
-            decimal hoursWorked = decimal.Parse(txtHoursWorked.Text);
-            decimal overtimeHours = string.IsNullOrEmpty(txtOvertimeHours.Text) ? 0 : decimal.Parse(txtOvertimeHours.Text);
-            string notes = txtNotes.Text;
+            
+
+            // Validate that a technician and project are selected
+            if (ddlTechnician.SelectedValue == "" || ddlProject.SelectedValue == "")
+            {
+                lblMessage.Text = "Please select a technician and a project.";
+                return;
+            }
+
+            // Validate the date
+            DateTime date;
+            if (!DateTime.TryParse(txtDate.Text, out date) || date > DateTime.Now)
+            {
+                lblMessage.Text = "Please enter a valid date that is not in the future.";
+                return;
+            }
+            // Check if the technician is marked as absent
+            bool isAbsent = rbtnAbsent.Checked; 
+
+            // Initialize hours variables
+            decimal hoursWorked = 0;
+            decimal overtimeHours = 0;
+
+            // If not absent, validate hours worked
+            if (!isAbsent)
+            {
+                if (!decimal.TryParse(txtHoursWorked.Text, out hoursWorked) || hoursWorked < 0 || hoursWorked > 24)
+                {
+                    lblMessage.Text = "Hours worked must be a positive number and cannot exceed 24.";
+                    return;
+                }
+
+                if (!string.IsNullOrEmpty(txtOvertimeHours.Text) &&
+                    (!decimal.TryParse(txtOvertimeHours.Text, out overtimeHours) || overtimeHours < 0 || overtimeHours > 24))
+                {
+                    lblMessage.Text = "Overtime hours must be a positive number and cannot exceed 24.";
+                    return;
+                }
+
+                // Validate total hours
+                if (hoursWorked + overtimeHours > 24)
+                {
+                    lblMessage.Text = "The total of hours worked and overtime hours cannot exceed 24.";
+                    return;
+                }
+            }
+
+            // Check for duplicate attendance record
+            if (IsAttendanceRecordExists(int.Parse(ddlTechnician.SelectedValue), date))
+            {
+                lblMessage.Text = "Attendance record for this technician on this date already exists.";
+                return;
+            }
 
             // Insert attendance record into the database
             using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
             {
+                    connection.Open();
+                    string insertQuery = "INSERT INTO Attendance (TechnicianId, ProjectId, Date, HoursWorked, OvertimeHours, SubmittedBy, Notes, IsAbsent) VALUES (@TechnicianId, @ProjectId, @Date, @HoursWorked, @OvertimeHours, @SubmittedBy, @Notes, @IsAbsent)";
+                    using (var command = new SQLiteCommand(insertQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@TechnicianId", int.Parse(ddlTechnician.SelectedValue));
+                        command.Parameters.AddWithValue("@ProjectId", int.Parse(ddlProject.SelectedValue));
+                        command.Parameters.AddWithValue("@Date", date);
+                        command.Parameters.AddWithValue("@HoursWorked", isAbsent ? (object)DBNull.Value : hoursWorked); // Set to DBNull if absent
+                        command.Parameters.AddWithValue("@OvertimeHours", isAbsent ? (object)DBNull.Value : overtimeHours); // Set to DBNull if absent
+                        command.Parameters.AddWithValue("@SubmittedBy", GetCurrentUserId()); // Get the current user's ID
+                        command.Parameters.AddWithValue("@Notes", txtNotes.Text);
+                        command.Parameters.AddWithValue("@IsAbsent", isAbsent ? 1 : 0); // Store absence status
+                        command.ExecuteNonQuery();
+                    }
+            }
+            lblMessage.Text = isAbsent ? "Attendance recorded as absent successfully." : "Attendance recorded successfully.";
+        }
+        private bool IsAttendanceRecordExists(int technicianId, DateTime date)
+        {
+            using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
+            {
                 connection.Open();
-                string insertQuery = "INSERT INTO Attendance (TechnicianId, ProjectId, Date, HoursWorked, OvertimeHours, SubmittedBy, Notes) VALUES (@TechnicianId, @ProjectId, @Date, @HoursWorked, @OvertimeHours, @SubmittedBy, @Notes)";
-                using (var command = new SQLiteCommand(insertQuery, connection))
+                string query = "SELECT COUNT(*) FROM Attendance WHERE TechnicianId = @TechnicianId AND Date = @Date";
+                using (var command = new SQLiteCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@TechnicianId", technicianId);
-                    command.Parameters.AddWithValue("@ProjectId", ProjectId);
                     command.Parameters.AddWithValue("@Date", date);
-                    command.Parameters.AddWithValue("@HoursWorked", hoursWorked);
-                    command.Parameters.AddWithValue("@OvertimeHours", overtimeHours);
-                    command.Parameters.AddWithValue("@SubmittedBy", GetCurrentUserId()); //  get the current user's ID
-                    command.Parameters.AddWithValue("@Notes", notes);
-
-                    command.ExecuteNonQuery();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0; // Return true if a record exists
                 }
             }
-
-            lblMessage.Text = "Attendance recorded successfully!";
         }
-
         private int GetCurrentUserId()
         {
             // Check if the session variable exists
