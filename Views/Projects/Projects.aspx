@@ -62,7 +62,7 @@
                                 </ItemTemplate>
                             </asp:Repeater>
                             
-                            <asp:Panel ID="TechnicianButtonPanel" runat="server" Visible='<%# ((ProjectManagementSystem .Views.Projects.Projects)Page).CanModifyTechnicians() %>'>
+                            <asp:Panel ID="TechnicianButtonPanel" runat="server" Visible='<%# ((ProjectManagementSystem.Views.Projects.Projects)Page).CanModifyTechnicians() %>'>
                                 <asp:Button ID="btnModifyTechnicians" runat="server" Text="Modify Technicians" 
                                             CssClass="action-button" OnClick="btnModifyTechnicians_Click" 
                                             CommandArgument='<%# Eval("ProjectId") %>' />

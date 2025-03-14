@@ -9,7 +9,7 @@ namespace ProjectManagementSystem.Views.Projects
 {
     public partial class Projects : System.Web.UI.Page
     {
-        //private List<Project> _projects;
+        private List<Project> _projects;
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["Projects"] == null)
@@ -20,8 +20,13 @@ namespace ProjectManagementSystem.Views.Projects
                 Session["Projects"] = controller.GetProjects(); // store projects in session
             }
 
-            LoadProjects();
+            if (!IsPostBack)
+            {
+                LoadProjects(); // Load projects only on the initial page load
+            }
+
         }
+    
 
         private void LoadProjects()
         {

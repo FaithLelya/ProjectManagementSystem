@@ -57,14 +57,15 @@ namespace ProjectManagementSystem.Views.Projects
                     cmd.Parameters.AddWithValue("@ProjectId", projectId);
                     using (SQLiteDataReader reader = cmd.ExecuteReader())
                     {
-                        List<Resource> resources = new List<Resource>();
+                        List<ProjectResource> resources = new List<ProjectResource>();
                         while (reader.Read())
                         {
-                            resources.Add(new Resource
+                            ProjectResource resource = new ProjectResource
                             {
-                                ResourceName = reader.GetString(0),
-                                Quantity = reader.GetInt32(1)
-                            });
+                                ResourceName = reader["ResourceName"].ToString(),
+                                QuantityUsed = Convert.ToInt32(reader["QuantityUsed"])
+                            };
+                            resources.Add(resource);
                         }
                         ResourceRepeater.DataSource = resources;
                         ResourceRepeater.DataBind();
@@ -75,14 +76,21 @@ namespace ProjectManagementSystem.Views.Projects
 
         protected void btnSaveChanges_Click(object sender, EventArgs e)
         {
-            // Validate input
-            if (string.IsNullOrWhiteSpace(txtResourceName.Text) || !int.TryParse(txtQuantity.Text, out int quantity))
+            // Get the resource name and quantity
+            string resourceName = txtResourceName.Text.Trim();
+            int quantity;
+
+            if (string.IsNullOrEmpty(resourceName))
             {
-                lblMessage.Text = "Please enter a valid resource name and quantity.";
+                lblMessage.Text = "Please enter a resource name.";
                 return;
             }
 
-            string resourceName = txtResourceName.Text; // Assuming you have a TextBox for resource name
+            if (!int.TryParse(txtQuantity.Text, out quantity) || quantity <= 0)
+            {
+                lblMessage.Text = "Please enter a valid quantity.";
+                return;
+            }
 
             using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
             {
@@ -96,6 +104,9 @@ namespace ProjectManagementSystem.Views.Projects
                     command.ExecuteNonQuery();
                 }
             }
+            // Clear form fields
+            txtResourceName.Text = "";
+            txtQuantity.Text = "";
 
             lblMessage.Text = "Resource added successfully!";
             LoadResources(); // Refresh the resource list

@@ -33,7 +33,7 @@
             </div>
             <div class="button-group">
                 <asp:Button ID="btnAddResource" runat="server" Text="Add Resource" 
-                            OnClick="btnAddResource_Click" CssClass="btn btn-primary" />
+            CssClass="btn btn-primary" />
             </div>
             <asp:Label ID="lblMessage" runat="server" CssClass="text-success"></asp:Label>
         </div>

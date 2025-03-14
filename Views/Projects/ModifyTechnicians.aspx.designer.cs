@@ -11,7 +11,7 @@ namespace ProjectManagementSystem.Views.Projects
 {
 
 
-    public partial class TechnicianProjects
+    public partial class ModifyTechnicians
     {
 
         /// <summary>
