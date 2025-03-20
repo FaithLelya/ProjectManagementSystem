@@ -9,7 +9,7 @@ namespace ProjectManagementSystem.Data
         public ProjectManagementSystemContext() { 
 
         }
-        public DbSet<User> User { get; set; }
+        public DbSet<Technician> User { get; set; }
         public DbSet<Resource> Resource { get; set; }
 
         public DbSet<Project> Project { get; set; } 

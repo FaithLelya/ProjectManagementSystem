@@ -40,7 +40,7 @@
                             <asp:Repeater ID="ResourceRepeater" runat="server" DataSource='<%# Eval("AllocatedResources") %>'>
                                 <ItemTemplate>
                                     <div class="resource-item">
-                                        <p><%# Eval("Name") %> - Quantity: <%# Eval("QuantityAllocated") %></p>
+                                        <p><%# Eval("ResourceName") %> - Quantity: <%# Eval("Quantity") %></p>
                                     </div>
                                 </ItemTemplate>
                             </asp:Repeater>
@@ -57,8 +57,8 @@
                             <asp:Repeater ID="TechnicianRepeater" runat="server" DataSource='<%# Eval("AssignedTechnicians") %>'>
                                 <ItemTemplate>
                                     <div class="technician-item">
-                                        <p><%# Eval("Name") %></p>
-                                    </div>
+                                         <p><%# Eval("Username") %> <%# (bool)Eval("IsSenior") ? "(Senior)" : "" %></p>
+                                     </div>
                                 </ItemTemplate>
                             </asp:Repeater>
                             

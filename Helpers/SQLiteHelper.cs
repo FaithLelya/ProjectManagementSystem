@@ -8,10 +8,6 @@ namespace ProjectManagementSystem.Helpers
 {
     public static class SQLiteHelper
     {
-        //private static string ConnectionString => System.Configuration.ConfigurationManager.ConnectionStrings["SQLiteDB"].ConnectionString;
-        //private static string ConnectionString = "Data Source=App_Data/project_tracking.db;Version=3;";
-
-        //private static string ConnectionString = "Data Source=C:\\Projects\\ProjectManagementSystem\\App_Data\\project_tracking.db;Version=3;";
         private static string ConnectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
 
         public static User GetUserByEmailAndPassword(string email, string password)
@@ -109,9 +105,9 @@ namespace ProjectManagementSystem.Helpers
                 }
             }
         }
-        public static List<User> GetProjectManagers()
+        public static List<ProjectManager> GetProjectManagers()
         {
-            List<User> projectManagers = new List<User>();
+            List<ProjectManager> projectManagers = new List<ProjectManager>();
 
             using (var connection = new SQLiteConnection(ConnectionString))
             {
@@ -253,6 +249,40 @@ namespace ProjectManagementSystem.Helpers
                 }
             }
         }
+
+        // Add this to your SQLiteHelper.cs file
+        public static List<ProjectResource> GetProjectResources(int projectId)
+        {
+            List<ProjectResource> resources = new List<ProjectResource>();
+
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "SELECT ResourceId, ResourceName, Quantity, ProjectId FROM ProjectResources WHERE ProjectId = @ProjectId";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ProjectId", projectId);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ProjectResource resource = new ProjectResource
+                            {
+                                ResourceId = Convert.ToInt32(reader["ResourceId"]),
+                                ResourceName = reader["ResourceName"].ToString(),
+                                QuantityUsed = Convert.ToInt32(reader["QuantityUsed"]),
+                                ProjectId = projectId
+                            };
+                            resources.Add(resource);
+                        }
+                    }
+                }
+            }
+
+            return resources;
+        }
+
     }
 }
 

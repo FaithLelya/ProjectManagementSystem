@@ -103,7 +103,7 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         }
         protected void btnResources_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Resources/Index.aspx");
+            Response.Redirect("~/Views/Resources/Resources.aspx");
         }
 
         protected void btnAccount_Click(object sender, EventArgs e)

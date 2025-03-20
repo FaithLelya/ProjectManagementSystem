@@ -58,8 +58,19 @@ namespace ProjectManagementSystem.Views.Projects
                                 ProjectManagerId = reader.GetInt32(9),
                                 Resources = reader.GetString(10),
                                 Status = reader.GetString(11),
-                                TotalExpense = reader.GetDecimal(12) // Get total expense
+                                TotalExpense = reader.GetDecimal(12),// Get total expense
+                                // Initialize collections for assigned technicians and resources
+                                AssignedTechnicians = new List<Technician>(),
+                                AllocatedResources = new List<Resource>()
+
                             };
+                            // Load assigned technicians
+                            LoadProjectTechnicians(conn, project);
+
+                            // Load allocated resources
+                            LoadProjectResources(conn, project);
+
+
                             projects.Add(project);
                         }
                     }
@@ -71,7 +82,56 @@ namespace ProjectManagementSystem.Views.Projects
             ProjectRepeater.DataBind();
 
         }
-       
+
+        private void LoadProjectTechnicians(SQLiteConnection conn, Project project)
+        {
+            string sql = @"SELECT t.TechnicianID, t.Username, pt.IsSenior 
+                  FROM ProjectTechnicians pt 
+                  JOIN Technician t ON pt.TechnicianId = t.TechnicianID 
+                  WHERE pt.ProjectId = @ProjectId";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ProjectId", project.ProjectId);
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        project.AssignedTechnicians.Add(new Models.Technician
+                        {
+                            TechnicianId = reader.GetInt32(0),
+                            Username = reader.GetString(1),
+                            IsSenior = reader.GetInt32(2) == 1
+                        });
+                    }
+                }
+            }
+        }
+        private void LoadProjectResources(SQLiteConnection conn, Project project)
+        {
+            string sql = @"SELECT pr.ResourceId, r.ResourceName, pr.Quantity 
+                  FROM ProjectResources pr 
+                  JOIN Resources r ON pr.ResourceId = r.ResourceId 
+                  WHERE pr.ProjectId = @ProjectId";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ProjectId", project.ProjectId);
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        project.AllocatedResources.Add(new Resource
+                        {
+                            ResourceId = reader.GetInt32(0),
+                            ResourceName = reader.GetString(1),
+                            Quantity = reader.GetInt32(2)
+                        });
+                    }
+                }
+            }
+        }
+
         public bool CanViewFinancials()
         {
             string userRole = Session["User Role"]?.ToString();

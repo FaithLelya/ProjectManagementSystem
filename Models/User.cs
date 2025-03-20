@@ -35,10 +35,12 @@ namespace ProjectManagementSystem.Models
             //Placeholder for database info(?)
             Role = "Technician";
         }
+        public int TechnicianId { get; set; }
         public double HourlyRate { get; set; }
         public decimal OvertimeRate { get; set; }
         public decimal TotalPayment { get; set; }
         public string TechnicianLevel { get; set; }
+        public bool IsSenior { get; set; }
         //add projects assigned?
 
         //Use Form for some of these

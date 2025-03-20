@@ -14,7 +14,7 @@ namespace ProjectManagementSystem.Models
         public DateTime EndDate { get; set; }
         public string Resources { get; set; }
         public string Status { get; set; } //In Progress, Completed
-        public List<User> AssignedTechnicians { get; set; }
+        public List<Technician> AssignedTechnicians { get; set; }
         public List<Resource> AllocatedResources { get; set; }
         //public List<Technician> Technicians { get; set; }
         public decimal BudgetRangeMin { get; set; }
@@ -23,7 +23,7 @@ namespace ProjectManagementSystem.Models
         public decimal MaterialsCost { get; set; }
         public decimal ProjectManagerId { get; set; }
         public decimal TechnicianPayment { get; set; }
-        public decimal TotalExpense { get; set; } 
+        public decimal TotalExpense { get; set; }
 
         // Method to calculate total expenses
         public void CalculateTotalExpense()
@@ -33,7 +33,7 @@ namespace ProjectManagementSystem.Models
 
         public Project()
         {
-            AssignedTechnicians = new List<User>();
+            AssignedTechnicians = new List<Technician>();
             AllocatedResources = new List<Resource>();
         }
         public class TimeEntry

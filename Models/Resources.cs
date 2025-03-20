@@ -13,9 +13,4 @@ namespace ProjectManagementSystem.Models
         public int Quantity { get; set; }
         public decimal CostPerunit { get; set; }
     }
-    public class ProjectResource
-    {
-        public string ResourceName { get; set; }
-        public int QuantityUsed { get; set; }
-    }
 }

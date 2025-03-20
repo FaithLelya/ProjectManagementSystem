@@ -108,11 +108,9 @@ namespace ProjectManagementSystem.Views.Projects
                         command.Parameters.AddWithValue("@TechnicianId", selectedTechnicianId);
                         command.Parameters.AddWithValue("@IsSenior", IsSeniorTechnician(selectedTechnicianId));
                         command.ExecuteNonQuery();
-                }
-                
+                } 
             }
-
-            lblMessage.Text = "Technicians added successfully!";
+               lblMessage.Text = "Technicians added successfully!";
         }
         private bool IsSeniorTechnician(string technicianId)
         {

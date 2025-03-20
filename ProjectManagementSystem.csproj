@@ -225,6 +225,7 @@
     <Content Include="Views\Projects\Projects.aspx" />
     <Content Include="Views\Projects\ModifyTechnicians.aspx" />
     <Content Include="Views\Projects\CreateProject.aspx" />
+    <Content Include="Views\Resources\Resources.aspx" />
     <Content Include="Views\Shared\Dashboard\Edit.aspx" />
     <Content Include="Views\Shared\Dashboard\Index.aspx" />
     <Content Include="Views\Shared\Dashboard\Welcome.aspx" />
@@ -275,6 +276,7 @@
     </Compile>
     <Compile Include="Helpers\SQLiteHelper.cs" />
     <Compile Include="Models\Project.cs" />
+    <Compile Include="Models\ProjectResource.cs" />
     <Compile Include="Models\Resources.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -334,6 +336,13 @@
     <Compile Include="Views\Projects\CreateProject.aspx.designer.cs">
       <DependentUpon>CreateProject.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Views\Resources\Resources.aspx.cs">
+      <DependentUpon>Resources.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Resources\Resources.aspx.designer.cs">
+      <DependentUpon>Resources.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Views\Shared\Dashboard\Edit.aspx.cs">
       <DependentUpon>Edit.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -377,9 +386,7 @@
       <DependentUpon>RecordAttendance.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.7.1.slim.min.map" />

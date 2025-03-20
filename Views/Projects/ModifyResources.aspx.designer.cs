@@ -42,6 +42,15 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Repeater ResourceRepeater;
 
         /// <summary>
+        /// NoResourcesPanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel NoResourcesPanel;
+
+        /// <summary>
         /// txtResourceName control.
         /// </summary>
         /// <remarks>
@@ -67,6 +76,15 @@ namespace ProjectManagementSystem.Views.Projects
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnAddResource;
+
+        /// <summary>
+        /// btnReturn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnReturn;
 
         /// <summary>
         /// lblMessage control.

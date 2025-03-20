@@ -31,7 +31,7 @@ namespace ProjectManagementSystem.Views.Projects
         private void LoadProjectManagers()
         {
             // Load project managers from the database
-            List<User> projectManagers = SQLiteHelper.GetProjectManagers();
+            List<ProjectManager> projectManagers = SQLiteHelper.GetProjectManagers();
             ddlProjectManager.DataSource = projectManagers;
             ddlProjectManager.DataTextField = "Username"; // Displayed text in the dropdown
             ddlProjectManager.DataValueField = "UserId"; // Value sent to the server
