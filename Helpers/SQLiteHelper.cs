@@ -161,7 +161,7 @@ namespace ProjectManagementSystem.Helpers
                         switch (role)
                         {
                             case "Technician":
-                                CreateTechnician(userId, technicianLevel);
+                                CreateTechnician(userId, technicianLevel, username);
                                 break;
                             case "ProjectManager":
                                 CreateProjectManager(userId);
@@ -175,17 +175,18 @@ namespace ProjectManagementSystem.Helpers
                 }
             }
         }
-        public static void CreateTechnician(int userId, string technicianLevel)
+        public static void CreateTechnician(int userId, string technicianLevel, string username)
         {
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "INSERT INTO Technician (TechnicianID, TechnicianLevel) VALUES (@TechnicianID, @TechnicianLevel)";
+                string query = "INSERT INTO Technician (TechnicianID, TechnicianLevel, Username) VALUES (@TechnicianID, @TechnicianLevel, @Username)";
 
                 using (var command = new SQLiteCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("TechnicianID", userId);
                     command.Parameters.AddWithValue("@TechnicianLevel", technicianLevel);
+                    command.Parameters.AddWithValue("@Username", username);
                     command.ExecuteNonQuery();
                 }
             }
