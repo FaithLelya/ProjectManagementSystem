@@ -1,58 +1,47 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using ProjectManagementSystem.Models;
 
 namespace ProjectManagementSystem.Views.Projects
 {
     public partial class ModifyTechnicians : System.Web.UI.Page
     {
         private int projectId;
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Initialize the projectId from the query string
-            if (Request.QueryString["projectId"] != null)
+            if (Request.QueryString["projectId"] != null && int.TryParse(Request.QueryString["projectId"], out projectId))
             {
-                if (!int.TryParse(Request.QueryString["projectId"], out projectId))
+                if (!IsPostBack)
                 {
-                    // Handle invalid ID (redirect or show error)
-                    Response.Redirect("~/Views/Projects/Projects.aspx");
-                    return;
+                    LoadTechnicians();
+                    LoadProjectDetails();
                 }
             }
             else
             {
-                // No project ID provided, redirect back
                 Response.Redirect("~/Views/Projects/Projects.aspx");
-                return;
-            }
-
-            if (!IsPostBack)
-            {
-                LoadTechnicians();
-                LoadProjectDetails();
             }
         }
+
         protected void LoadProjectDetails()
         {
-            // Load project name
             string connectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
-            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            using (var conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
                 string sql = "SELECT ProjectName FROM Projects WHERE ProjectId = @ProjectId";
-                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                using (var cmd = new SQLiteCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@ProjectId", projectId);
-                    lblProjectName.Text = cmd.ExecuteScalar()?.ToString();
+                    litProjectName.Text = cmd.ExecuteScalar()?.ToString();
                 }
             }
         }
+
         private void LoadTechnicians()
         {
-            // Load all available technicians
             using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
             {
                 connection.Open();
@@ -61,6 +50,7 @@ namespace ProjectManagementSystem.Views.Projects
                 using (var reader = command.ExecuteReader())
                 {
                     ddlTechnicians.Items.Clear();
+                    ddlTechnicians.Items.Add(new ListItem("Select Technician", ""));
                     while (reader.Read())
                     {
                         ddlTechnicians.Items.Add(new ListItem(reader["Username"].ToString(), reader["TechnicianID"].ToString()));
@@ -68,14 +58,15 @@ namespace ProjectManagementSystem.Views.Projects
                 }
             }
         }
+
         protected void btnSaveChanges_Click(object sender, EventArgs e)
         {
-            // Get selected technician ID
             string selectedTechnicianId = ddlTechnicians.SelectedValue;
-            
+
             if (string.IsNullOrEmpty(selectedTechnicianId))
             {
                 lblMessage.Text = "Please select a technician.";
+                lblMessage.CssClass = "alert alert-danger mt-3";
                 return;
             }
 
@@ -84,34 +75,35 @@ namespace ProjectManagementSystem.Views.Projects
                 connection.Open();
 
                 // Check if a senior technician is already assigned
-                bool seniorTechnicianExists = false;               
-                // Check if a senior technician is already assigned
-                string checkSeniorQuery = "SELECT COUNT(*) FROM ProjectTechnicians WHERE ProjectId = @ProjectId AND IsSenior = 1";                   
+                string checkSeniorQuery = "SELECT COUNT(*) FROM ProjectTechnicians WHERE ProjectId = @ProjectId AND IsSenior = 1";
                 using (var checkCommand = new SQLiteCommand(checkSeniorQuery, connection))
                 {
-                        checkCommand.Parameters.AddWithValue("@ProjectId", projectId);
-                        seniorTechnicianExists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+                    checkCommand.Parameters.AddWithValue("@ProjectId", projectId);
+                    bool seniorTechnicianExists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+
+                    if (IsSeniorTechnician(selectedTechnicianId) && seniorTechnicianExists)
+                    {
+                        lblMessage.Text = "Only one senior technician can be assigned to a project.";
+                        lblMessage.CssClass = "alert alert-warning mt-3";
+                        return;
+                    }
                 }
 
-                // If the technician is senior and one already exists, show an error
-                if (IsSeniorTechnician(selectedTechnicianId) && seniorTechnicianExists)
+                // Assign technician
+                string insertQuery = "INSERT INTO ProjectTechnicians (ProjectId, TechnicianId, IsSenior) VALUES (@ProjectId, @TechnicianId, @IsSenior)";
+                using (var command = new SQLiteCommand(insertQuery, connection))
                 {
-                    lblMessage.Text = "Only one senior technician can be assigned to a project.";
-                    return;
+                    command.Parameters.AddWithValue("@ProjectId", projectId);
+                    command.Parameters.AddWithValue("@TechnicianId", selectedTechnicianId);
+                    command.Parameters.AddWithValue("@IsSenior", IsSeniorTechnician(selectedTechnicianId));
+                    command.ExecuteNonQuery();
                 }
-
-                // Add selected technicians to the project
-                string insertTechnicianQuery = "INSERT INTO ProjectTechnicians (ProjectId, TechnicianId, IsSenior) VALUES (@ProjectId, @TechnicianId, @IsSenior)";
-                using (var command = new SQLiteCommand(insertTechnicianQuery, connection))
-                {
-                        command.Parameters.AddWithValue("@ProjectId", projectId);
-                        command.Parameters.AddWithValue("@TechnicianId", selectedTechnicianId);
-                        command.Parameters.AddWithValue("@IsSenior", IsSeniorTechnician(selectedTechnicianId));
-                        command.ExecuteNonQuery();
-                } 
             }
-               lblMessage.Text = "Technicians added successfully!";
+
+            lblMessage.Text = "Technician assigned successfully!";
+            lblMessage.CssClass = "alert alert-success mt-3";
         }
+
         private bool IsSeniorTechnician(string technicianId)
         {
             using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
@@ -125,6 +117,11 @@ namespace ProjectManagementSystem.Views.Projects
                     return result != null && result.ToString() == "Senior";
                 }
             }
+        }
+
+        protected void btnReturn_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Views/Projects/Projects.aspx");
         }
     }
 }

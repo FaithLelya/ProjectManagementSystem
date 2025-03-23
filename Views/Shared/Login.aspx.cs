@@ -74,7 +74,7 @@ namespace ProjectManagementSystem.Views.Shared
                     string redirectUrl = ResolveUrl("~/Views/Shared/Dashboard/Welcome.aspx");
                     System.Diagnostics.Debug.WriteLine($"Redirecting to: {redirectUrl}");
 
-                    Response.Redirect(redirectUrl, false);
+                    Response.Redirect(redirectUrl, true);
                     Context.ApplicationInstance.CompleteRequest();
                 }
                 else

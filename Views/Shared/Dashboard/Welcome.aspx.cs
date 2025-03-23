@@ -79,7 +79,7 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
 
         protected void btnPaymentInfo_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Technician/PaymentInfo.aspx");
+            Response.Redirect("~/Views/Technicians/PaymentInfo.aspx");
         }
 
         protected void btnCreateProject_Click(object sender, EventArgs e)

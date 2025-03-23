@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Web.UI.WebControls;
 using ProjectManagementSystem.Helpers;
 using ProjectManagementSystem.Models;
+using Newtonsoft.Json;
+using System.Web.UI;
 
 namespace ProjectManagementSystem.Views.Projects
 {
@@ -10,7 +12,7 @@ namespace ProjectManagementSystem.Views.Projects
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            
+
             // Check if the user is logged in and is an Admin
             if (Session["UserRole"] == null || !Session["UserRole"].ToString().Equals("Admin", StringComparison.OrdinalIgnoreCase))
             {
@@ -20,7 +22,7 @@ namespace ProjectManagementSystem.Views.Projects
                     Response.Redirect("~/Views/Shared/Login.aspx");
                     Context.ApplicationInstance.CompleteRequest(); // Prevents the thread from aborting
                 }
-            } 
+            }
 
             //Load project managers only on the first page load
             if (!IsPostBack)
@@ -28,6 +30,7 @@ namespace ProjectManagementSystem.Views.Projects
                 LoadProjectManagers();
             }
         }
+
         private void LoadProjectManagers()
         {
             // Load project managers from the database
@@ -40,9 +43,10 @@ namespace ProjectManagementSystem.Views.Projects
             // default item
             ddlProjectManager.Items.Insert(0, new ListItem("Select a Project Manager", ""));
         }
+
         protected void btnCreateProject_Click(object sender, EventArgs e)
         {
-            
+
             string ProjectName = txtProjectName.Text;
             string Description = txtDescription.Text;
             string Location = txtLocation.Text;
@@ -67,6 +71,7 @@ namespace ProjectManagementSystem.Views.Projects
                 lblOutput.Text = "Please fill in all required fields.";
                 return;
             }
+
             // Validate date range
             DateTime startDate;
             DateTime endDate;
@@ -77,6 +82,7 @@ namespace ProjectManagementSystem.Views.Projects
                 lblOutput.Text = "Start Date must be before End Date.";
                 return;
             }
+
             // Validate numeric fields
             decimal technicianPayment;
             decimal materialsCost;
@@ -86,8 +92,9 @@ namespace ProjectManagementSystem.Views.Projects
                 lblOutput.Text = "Technician Payment and Materials Cost must be valid non-negative numbers.";
                 return;
             }
+
             // Calculate budget
-            //decimal budget = technicianPayment + materialsCost;
+            decimal budget = technicianPayment + materialsCost;
 
             // Validate budget
             if (Budget <= 0)
@@ -95,30 +102,77 @@ namespace ProjectManagementSystem.Views.Projects
                 lblOutput.Text = "The total budget must be greater than zero.";
                 return;
             }
-            // Proceed to save the project
-            int projectManagerId = int.Parse(ddlProjectManager.SelectedValue);
-            string resources = txtResources.Text;
 
-            //debug
-            System.Diagnostics.Debug.WriteLine($"Inserting Project: {ProjectName}, {Description}, {Location}, {StartDate}, {EndDate}, {TechnicianPayment}, {MaterialsCost}, {Budget}, {ProjectManagerId}, {Resources}");
-            // Save to database
-            SQLiteHelper.InsertProject(ProjectName, Description, Location, StartDate, EndDate, TechnicianPayment, MaterialsCost, Budget, ProjectManagerId, Resources);
-            // Display success message
-            lblOutput.Text = "Project Created Successfully!";
+            try
+            {
+                // Save project to database and get the new project ID
+                int projectId = SQLiteHelper.InsertProject(ProjectName, Description, Location, StartDate, EndDate,
+                    TechnicianPayment, MaterialsCost, Budget, ProjectManagerId, Resources);
 
-            // Optionally, redirect to the Projects page or refresh the project list
-            Response.Redirect("~/Views/Projects/Projects.aspx");
-        
+                // Process tasks if any
+                if (!string.IsNullOrEmpty(hdnTasksData.Value))
+                {
+                    List<ProjectTask> tasks = JsonConvert.DeserializeObject<List<ProjectTask>>(hdnTasksData.Value);
+
+                    if (tasks != null && tasks.Count > 0)
+                    {
+                        foreach (var task in tasks)
+                        {
+                            // Set the project ID for each task
+                            task.ProjectId = projectId;
+
+                            // Parse dates
+                            DateTime taskStartDate = DateTime.Parse(task.StartDate);
+                            DateTime taskEndDate = DateTime.Parse(task.EndDate);
+
+                            // Insert task into database
+                            SQLiteHelper.InsertProjectTask(
+                                projectId,
+                                task.Name,
+                                task.Description,
+                                taskStartDate,
+                                taskEndDate,
+                                task.Status,
+                                0 // Default progress is 0%
+                            );
+                        }
+                    }
+                }
+
+                // Display success message
+                lblOutput.Text = "Project Created Successfully with " +
+                    (string.IsNullOrEmpty(hdnTasksData.Value) ? "0" :
+                    JsonConvert.DeserializeObject<List<ProjectTask>>(hdnTasksData.Value)?.Count.ToString() ?? "0") +
+                    " tasks!";
+
+                // Redirect to the Projects page
+                Response.Redirect("~/Views/Projects/Projects.aspx");
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                System.Diagnostics.Debug.WriteLine("Error creating project: " + ex.Message);
+
+                // Display error message
+                lblOutput.Text = "Error creating project: " + ex.Message;
+                lblOutput.CssClass = "mt-3 text-danger";
+            }
         }
+
         protected void calStartTime_SelectionChanged(object sender, EventArgs e)
         {
             txtStartTime.Text = calStartTime.SelectedDate.ToString("yyyy-MM-dd");
+            // Hide the calendar after selection
+            ScriptManager.RegisterStartupScript(this, GetType(), "hideCalendar",
+                "$('#" + calStartTime.ClientID + "').hide();", true);
         }
 
         protected void calEndTime_SelectionChanged(object sender, EventArgs e)
         {
             txtEndTime.Text = calEndTime.SelectedDate.ToString("yyyy-MM-dd");
+            // Hide the calendar after selection
+            ScriptManager.RegisterStartupScript(this, GetType(), "hideCalendar",
+                "$('#" + calEndTime.ClientID + "').hide();", true);
         }
-
     }
- }
+}

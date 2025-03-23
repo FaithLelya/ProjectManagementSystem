@@ -11,7 +11,7 @@ namespace ProjectManagementSystem.Models
         public string Location { get; set; }
         public decimal Budget { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public string Resources { get; set; }
         public string Status { get; set; } //In Progress, Completed
         public List<Technician> AssignedTechnicians { get; set; }

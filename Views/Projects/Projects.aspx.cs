@@ -16,7 +16,7 @@ namespace ProjectManagementSystem.Views.Projects
             {
                 // Initialize projects if not already done
                 ProjectController controller = new ProjectController();
-                controller.initializeSampleProjects(); // method to initialize sampleprojects
+                controller.InitializeSampleProjects();
                 Session["Projects"] = controller.GetProjects(); // store projects in session
             }
 

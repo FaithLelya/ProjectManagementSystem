@@ -7,101 +7,128 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ProjectManagementSystem.Views.Projects
+namespace ProjectManagementSystem.Views.Technicians
 {
 
 
-    public partial class ModifyResources
+    public partial class PaymentInfo
     {
 
         /// <summary>
-        /// form2 control.
+        /// form1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlForm form2;
+        protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// lblProjectName control.
+        /// ddlProjects control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblProjectName;
+        protected global::System.Web.UI.WebControls.DropDownList ddlProjects;
 
         /// <summary>
-        /// ResourceRepeater control.
+        /// lblTechnicianName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater ResourceRepeater;
+        protected global::System.Web.UI.WebControls.Label lblTechnicianName;
 
         /// <summary>
-        /// NoResourcesPanel control.
+        /// lblPaymentAmount control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel NoResourcesPanel;
+        protected global::System.Web.UI.WebControls.Label lblPaymentAmount;
 
         /// <summary>
-        /// ddlResourceName control.
+        /// txtMpesaNumber control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlResourceName;
+        protected global::System.Web.UI.WebControls.TextBox txtMpesaNumber;
 
         /// <summary>
-        /// txtQuantity control.
+        /// regexMpesa control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtQuantity;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexMpesa;
 
         /// <summary>
-        /// txtCostPerUnit control.
+        /// txtDescription control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCostPerUnit;
+        protected global::System.Web.UI.WebControls.TextBox txtDescription;
 
         /// <summary>
-        /// btnAddResource control.
+        /// btnInitiatePayment control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAddResource;
+        protected global::System.Web.UI.WebControls.Button btnInitiatePayment;
 
         /// <summary>
-        /// btnReturn control.
+        /// pnlTransactionStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnReturn;
+        protected global::System.Web.UI.WebControls.Panel pnlTransactionStatus;
 
         /// <summary>
-        /// lblMessage control.
+        /// lblTransactionTitle control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblMessage;
+        protected global::System.Web.UI.WebControls.Label lblTransactionTitle;
+
+        /// <summary>
+        /// lblTransactionMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTransactionMessage;
+
+        /// <summary>
+        /// lblTransactionRef control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTransactionRef;
+
+        /// <summary>
+        /// gvPaymentHistory control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvPaymentHistory;
     }
 }

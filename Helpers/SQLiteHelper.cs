@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ProjectManagementSystem.Models;
 using System.Data.SQLite;
 using ProjectManagementSystem.Controllers;
+using ProjectManagementSystem.Views.Projects;
 
 namespace ProjectManagementSystem.Helpers
 {
@@ -104,25 +105,124 @@ namespace ProjectManagementSystem.Helpers
                 }
             }
         }
-        public static void InsertProject(string ProjectName, string Description, string Location, DateTime StartDate, DateTime EndDate, decimal TechnicianPayment, decimal MaterialsCost, decimal Budget, int ProjectManagerId, string Resources)
+
+        public static int InsertProject(string name, string description, string location, DateTime startDate, DateTime endDate,
+            decimal technicianPayment, decimal materialsCost, decimal budget, int projectManagerId, string resources)
         {
             using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
             {
                 conn.Open();
-                string sql = "INSERT INTO Projects (ProjectName, Description, Location, StartDate, EndDate, TechnicianPayment, MaterialsCost, Budget, ProjectManagerId, Resources) " +
-                             "VALUES (@ProjectName, @Description, @Location, @StartDate, @EndDate, @TechnicianPayment, @MaterialsCost, @Budget, @ProjectManagerId, @Resources)";
+
+                string sql = @"INSERT INTO Projects 
+                              (Name, Description, Location, StartDate, EndDate, TechnicianPayment, MaterialsCost, Budget, ProjectManagerId, Resources, CreatedDate) 
+                              VALUES 
+                              (@Name, @Description, @Location, @StartDate, @EndDate, @TechnicianPayment, @MaterialsCost, @Budget, @ProjectManagerId, @Resources, @CreatedDate);
+                              SELECT last_insert_rowid();";
+
                 using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@ProjectName", ProjectName);
-                    cmd.Parameters.AddWithValue("@Description", Description);
-                    cmd.Parameters.AddWithValue("@Location", Location);
-                    cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@TechnicianPayment", TechnicianPayment);
-                    cmd.Parameters.AddWithValue("@MaterialsCost", MaterialsCost);
-                    cmd.Parameters.AddWithValue("@Budget", Budget);
-                    cmd.Parameters.AddWithValue("@ProjectManagerId", ProjectManagerId);
-                    cmd.Parameters.AddWithValue("@Resources", Resources);
+                    cmd.Parameters.AddWithValue("@Name", name);
+                    cmd.Parameters.AddWithValue("@Description", description);
+                    cmd.Parameters.AddWithValue("@Location", location);
+                    cmd.Parameters.AddWithValue("@StartDate", startDate.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@EndDate", endDate.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@TechnicianPayment", technicianPayment);
+                    cmd.Parameters.AddWithValue("@MaterialsCost", materialsCost);
+                    cmd.Parameters.AddWithValue("@Budget", budget);
+                    cmd.Parameters.AddWithValue("@ProjectManagerId", projectManagerId);
+                    cmd.Parameters.AddWithValue("@Resources", resources);
+                    cmd.Parameters.AddWithValue("@CreatedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    // Execute and get the newly created project ID
+                    long newProjectId = Convert.ToInt64(cmd.ExecuteScalar());
+                    return (int)newProjectId;
+                }
+            }
+        }
+        public static void InsertProjectTask(int projectId, string name, string description, DateTime startDate, DateTime endDate, string status, decimal progress)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+
+                string sql = @"INSERT INTO ProjectTasks 
+                              (ProjectId, Name, Description, StartDate, EndDate, Status, Progress, CreatedDate) 
+                              VALUES 
+                              (@ProjectId, @Name, @Description, @StartDate, @EndDate, @Status, @Progress, @CreatedDate)";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                    cmd.Parameters.AddWithValue("@Name", name);
+                    cmd.Parameters.AddWithValue("@Description", description);
+                    cmd.Parameters.AddWithValue("@StartDate", startDate.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@EndDate", endDate.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@Status", status);
+                    cmd.Parameters.AddWithValue("@Progress", progress);
+                    cmd.Parameters.AddWithValue("@CreatedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static List<ProjectTask> GetProjectTasks(int projectId)
+        {
+            List<ProjectTask> tasks = new List<ProjectTask>();
+
+            using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT TaskId, ProjectId, Name, Description, StartDate, EndDate, Status, Progress 
+                              FROM ProjectTasks 
+                              WHERE ProjectId = @ProjectId 
+                              ORDER BY StartDate ASC";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
+
+                    using (SQLiteDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            tasks.Add(new ProjectTask
+                            {
+                                TaskId = Convert.ToInt32(reader["TaskId"]),
+                                ProjectId = Convert.ToInt32(reader["ProjectId"]),
+                                Name = reader["Name"].ToString(),
+                                Description = reader["Description"].ToString(),
+                                StartDate = Convert.ToDateTime(reader["StartDate"]).ToString("yyyy-MM-dd"),
+                                EndDate = Convert.ToDateTime(reader["EndDate"]).ToString("yyyy-MM-dd"),
+                                Status = reader["Status"].ToString(),
+                                Progress = Convert.ToDecimal(reader["Progress"])
+                            });
+                        }
+                    }
+                }
+            }
+
+            return tasks;
+        }
+
+        public static void UpdateTaskStatus(int taskId, string status, decimal progress)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+
+                string sql = @"UPDATE ProjectTasks 
+                              SET Status = @Status, Progress = @Progress, LastUpdated = @LastUpdated 
+                              WHERE TaskId = @TaskId";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Status", status);
+                    cmd.Parameters.AddWithValue("@Progress", progress);
+                    cmd.Parameters.AddWithValue("@LastUpdated", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@TaskId", taskId);
+
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -277,15 +377,18 @@ namespace ProjectManagementSystem.Helpers
         {
             List<ProjectResource> resources = new List<ProjectResource>();
 
-            using (var connection = new SQLiteConnection(ConnectionString))
+            using (SQLiteConnection connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
             {
                 connection.Open();
-                string query = "SELECT ResourceId, ResourceName, Quantity, ProjectId FROM ProjectResources WHERE ProjectId = @ProjectId";
+                string sql = "SELECT pr.ResourceId, r.ResourceName, pr.Quantity as QuantityUsed, r.CostPerUnit " +
+                             "FROM ProjectResources pr " +
+                             "JOIN Resources r ON pr.ResourceId = r.ResourceId " +
+                             "WHERE pr.ProjectId = @ProjectId";
 
-                using (var command = new SQLiteCommand(query, connection))
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@ProjectId", projectId);
-                    using (var reader = command.ExecuteReader())
+                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                    using (SQLiteDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -294,7 +397,7 @@ namespace ProjectManagementSystem.Helpers
                                 ResourceId = Convert.ToInt32(reader["ResourceId"]),
                                 ResourceName = reader["ResourceName"].ToString(),
                                 QuantityUsed = Convert.ToInt32(reader["QuantityUsed"]),
-                                ProjectId = projectId
+                                CostPerUnit = Convert.ToDecimal(reader["CostPerUnit"])
                             };
                             resources.Add(resource);
                         }

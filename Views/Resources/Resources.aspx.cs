@@ -166,7 +166,8 @@ namespace ProjectManagementSystem.Views.Resources
 
         protected void btnCancel_Click(object sender, EventArgs e)
         {
-            ResetForm();
+            // Redirect to the Dashboard Welcome page
+            Response.Redirect("/Views/Shared/Dashboard/Welcome");
         }
 
         private void ResetForm()
