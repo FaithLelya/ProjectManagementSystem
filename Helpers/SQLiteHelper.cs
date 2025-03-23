@@ -15,7 +15,7 @@ namespace ProjectManagementSystem.Helpers
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "SELECT UserID, Username, Password, Role, IsActive, CreatedDate FROM USER WHERE Email = @Email";
+                string query = "SELECT UserID, Username, Password, Role, IsActive, CreatedDate, Email FROM User WHERE Email = @Email";
 
                 using (var command = new SQLiteCommand(query, connection))
                 {
@@ -30,18 +30,38 @@ namespace ProjectManagementSystem.Helpers
                             System.Diagnostics.Debug.WriteLine($"Stored Hash: {storedHash}");
 
                             // Check if the stored password is a valid bcrypt hash
-                            if (!storedHash.StartsWith("$2a$"))
+                            if (!storedHash.StartsWith("$2a$") && !storedHash.StartsWith("$2b$") && !storedHash.StartsWith("$2y$"))
                             {
                                 System.Diagnostics.Debug.WriteLine("Error: Password in DB is not a valid bcrypt hash!");
+
+                                // If using plain text passwords for testing, uncomment this
+                                // if (password == storedHash)
+                                // {
+                                //     // Plain text match for testing only
+                                // }
+                                // else
+                                // {
+                                //     return null;
+                                // }
+
                                 return null;
                             }
-                            //verify the password hash
-                            if (!BCrypt.Net.BCrypt.Verify(password, storedHash))
+
+                            // Verify the password hash
+                            try
                             {
-                                System.Diagnostics.Debug.WriteLine("Password does not match");
-                                return null; //password does not match
-                            };
-                            
+                                if (!BCrypt.Net.BCrypt.Verify(password, storedHash))
+                                {
+                                    System.Diagnostics.Debug.WriteLine("Password does not match");
+                                    return null; // Password does not match
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"BCrypt error: {ex.Message}");
+                                return null;
+                            }
+
                             User user = null;
                             string role = reader["Role"].ToString();
 
@@ -57,25 +77,27 @@ namespace ProjectManagementSystem.Helpers
                                     user = new Technician();
                                     break;
                                 default:
-                                    throw new Exception("Unknown role detected.");
+                                    throw new Exception($"Unknown role detected: {role}");
                             }
+
                             // Populate common properties
                             user.UserId = Convert.ToInt32(reader["UserID"]);
                             user.Username = reader["Username"].ToString();
                             user.PasswordHash = storedHash; // Store the hashed password
                             user.IsActive = Convert.ToBoolean(reader["IsActive"]);
                             user.CreatedDate = Convert.ToDateTime(reader["CreatedDate"]);
-                            user.Email= email;
+                            user.Email = reader["Email"].ToString();
+                            user.Role = role; // Set the role property explicitly
 
                             // Debug: Print user details
-                            System.Diagnostics.Debug.WriteLine($"User found: {user.Email}, Role: {user.Role}");
+                            System.Diagnostics.Debug.WriteLine($"User found: {user.Email}, Role: {user.Role}, ID: {user.UserId}");
 
                             return user;
                         }
-                        else {
+                        else
+                        {
                             // Debug: Print no user found
                             System.Diagnostics.Debug.WriteLine("No user found with the provided email.");
-
                             return null; // No user found
                         }
                     }
@@ -112,7 +134,7 @@ namespace ProjectManagementSystem.Helpers
             using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "SELECT UserID, Username FROM User WHERE Role = @Role"; 
+                string query = "SELECT UserID, Username FROM User WHERE Role = @Role";
 
                 using (var command = new SQLiteCommand(query, connection))
                 {
@@ -136,7 +158,7 @@ namespace ProjectManagementSystem.Helpers
         }
         public static bool CreateUser(string email, string password, string role, string username, string technicianLevel = null)
         {
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password); 
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
 
             using (var connection = new SQLiteConnection(ConnectionString))
             {
@@ -285,4 +307,3 @@ namespace ProjectManagementSystem.Helpers
 
     }
 }
-
