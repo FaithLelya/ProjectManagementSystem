@@ -26,6 +26,14 @@
     <form id="form1" runat="server">
         <asp:ScriptManager ID="ScriptManager1" runat="server" />
         <div class="container">
+             <div class="row align-items-center mb-3">
+     <div class="col-auto">
+         <a href="/Views/Shared/Dashboard/Welcome.aspx" class="btn btn-outline-secondary">
+             <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+         </a>
+     </div>
+    
+ </div>
             <h1>Budget vs Actual Finances Report</h1>
             
             <div class="row mb-4">

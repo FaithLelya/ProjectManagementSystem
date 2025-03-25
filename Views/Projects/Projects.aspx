@@ -63,6 +63,13 @@
 <body>
     <form id="form1" runat="server">
         <div class="container py-4">
+             <div class="row align-items-center mb-3">
+     <div class="col-auto">
+         <a href="/Views/Shared/Dashboard/Welcome.aspx" class="btn btn-outline-secondary">
+             <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+         </a>
+     </div>
+      </div>
             <h1 class="mb-4 text-center text-primary">Projects Dashboard</h1>
             <div class="row row-cols-1 row-cols-md-2 g-4">
                 <asp:Repeater ID="ProjectRepeater" runat="server">

@@ -27,6 +27,9 @@ namespace ProjectManagementSystem.Models
             return Role;
         }
     }
+    public class ConcreteUser : User
+    {
+    }
 
     public class Technician : User
     {

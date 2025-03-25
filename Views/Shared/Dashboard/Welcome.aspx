@@ -450,13 +450,20 @@
                                 <div class="card-header bg-primary text-white">
                                     Quick Actions
                                 </div>
-                                <div class="card-body">
-                                    <!-- Add quick action buttons -->
+                                 <asp:Panel ID="pnlAdminQuickActions" runat="server" Visible='<%# IsAdmin() %>'>
                                     <div class="btn-group w-100" role="group">
-                                        <button type="button" class="btn btn-outline-primary">New Project</button>
-                                        <button type="button" class="btn btn-outline-primary">Assign Task</button>
+                                        <asp:Button ID="btnNewProject" runat="server" 
+                                            Text="New Project" 
+                                            CssClass="btn btn-outline-primary" 
+                                            OnClick="btnNewProject_Click" 
+                                            Visible='<%# IsAdmin() %>' />
+                                        <asp:Button ID="btnAssignTask" runat="server" 
+                                            Text="Assign Task" 
+                                            CssClass="btn btn-outline-primary" 
+                                            OnClick="btnNewProject_Click" 
+                                            Visible='<%# IsAdmin() %>' />
                                     </div>
-                                </div>
+                                </asp:Panel>
                             </div>
                         </div>
                         <div class="col-md-6">

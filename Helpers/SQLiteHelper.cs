@@ -140,6 +140,57 @@ namespace ProjectManagementSystem.Helpers
                 }
             }
         }
+        public static void InsertProjectTask(int projectId, string taskName, string taskDescription,
+                                             DateTime startDate, DateTime endDate, int assignedToUserId)
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"
+                        INSERT INTO ProjectTasks 
+                        (ProjectId, TaskName, TaskDescription, StartDate, EndDate, AssignedToUserId) 
+                        VALUES 
+                        (@ProjectId, @TaskName, @TaskDescription, @StartDate, @EndDate, @AssignedToUserId)";
+
+                    command.Parameters.AddWithValue("@ProjectId", projectId);
+                    command.Parameters.AddWithValue("@TaskName", taskName);
+                    command.Parameters.AddWithValue("@TaskDescription", taskDescription);
+                    command.Parameters.AddWithValue("@StartDate", startDate);
+                    command.Parameters.AddWithValue("@EndDate", endDate);
+                    command.Parameters.AddWithValue("@AssignedToUserId", assignedToUserId);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static List<User> GetAllUsers()
+        {
+            List<User> users = new List<User>();
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand("SELECT UserId, Username FROM User", connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            users.Add(new ConcreteUser
+                            {
+                                UserId = reader.GetInt32(0),
+                                Username = reader.GetString(1)
+                            });
+
+                        }
+                    }
+                }
+            }
+            return users;
+        }
+
         public static void InsertProjectTask(int projectId, string name, string description, DateTime startDate, DateTime endDate, string status, decimal progress)
         {
             using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))

@@ -12,6 +12,10 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
                 Response.Redirect("~/Views/Shared/Login.aspx");
                 return;
             }
+            if (User.IsInRole("Admin"))
+            {
+                pnlAdminQuickActions.Visible = true;
+            }
 
             if (!IsPostBack)
             {
@@ -128,10 +132,18 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         {
             Response.Redirect("~/Views/Account/Profile.aspx");
         }
-
         protected void btnCreateUser_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Controllers/UserController.aspx");
+        }
+        protected void btnNewProject_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Views/Projects/CreateProject.aspx");
+        }
+
+        protected void btnAssignTask_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Views/Projects/CreateProject.aspx");
         }
     }
 }
