@@ -114,6 +114,15 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvResources;
 
         /// <summary>
+        /// txtStartTime control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtStartTime;
+
+        /// <summary>
         /// calStartTime control.
         /// </summary>
         /// <remarks>
@@ -123,13 +132,22 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Calendar calStartTime;
 
         /// <summary>
-        /// txtStartTime control.
+        /// lblStartDateError control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtStartTime;
+        protected global::System.Web.UI.WebControls.Label lblStartDateError;
+
+        /// <summary>
+        /// txtEndTime control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtEndTime;
 
         /// <summary>
         /// calEndTime control.
@@ -141,13 +159,13 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Calendar calEndTime;
 
         /// <summary>
-        /// txtEndTime control.
+        /// lblEndDateError control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtEndTime;
+        protected global::System.Web.UI.WebControls.Label lblEndDateError;
 
         /// <summary>
         /// txtTechnicianCost control.

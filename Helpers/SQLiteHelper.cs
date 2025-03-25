@@ -115,14 +115,14 @@ namespace ProjectManagementSystem.Helpers
                 conn.Open();
 
                 string sql = @"INSERT INTO Projects 
-                              (Name, Description, Location, StartDate, EndDate, TechnicianPayment, MaterialsCost, Budget, ProjectManagerId, Resources, CreatedDate) 
+                              (ProjectName, Description, Location, StartDate, EndDate, TechnicianPayment, MaterialsCost, Budget, ProjectManagerId, Resources, CreatedDate) 
                               VALUES 
-                              (@Name, @Description, @Location, @StartDate, @EndDate, @TechnicianPayment, @MaterialsCost, @Budget, @ProjectManagerId, @Resources, @CreatedDate);
+                              (@ProjectName, @Description, @Location, @StartDate, @EndDate, @TechnicianPayment, @MaterialsCost, @Budget, @ProjectManagerId, @Resources, @CreatedDate);
                               SELECT last_insert_rowid();";
 
                 using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@Name", name);
+                    cmd.Parameters.AddWithValue("@ProjectName", name);
                     cmd.Parameters.AddWithValue("@Description", description);
                     cmd.Parameters.AddWithValue("@Location", location);
                     cmd.Parameters.AddWithValue("@StartDate", startDate.ToString("yyyy-MM-dd"));

@@ -25,6 +25,11 @@
 <body>
     <form id="form2" runat="server">
         <div class="container">
+               <div>
+       <a href="/Views/Shared/Dashboard/Welcome.aspx" class="btn btn-outline-secondary">
+           <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+       </a>
+   </div>
             <h1>Modify Resources for Project</h1>
             <asp:Label ID="lblProjectName" runat="server" CssClass="h4 mb-4"></asp:Label>
             

@@ -10,6 +10,10 @@ namespace ProjectManagementSystem.Models
         public string Description { get; set; }
         public string Location { get; set; }
         public decimal Budget { get; set; }
+        public int TaskCount { get; set; }
+        public int CompletedTasks { get; set; }
+        public DateTime DueDate { get; set; }
+
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string Resources { get; set; }
@@ -30,6 +34,16 @@ namespace ProjectManagementSystem.Models
         {
             TotalExpense = TotalResourceCost + TechnicianPayment;
         }
+
+
+        public int ProgressPercentage
+        {
+            get
+            {
+                return TaskCount > 0 ? (int)Math.Round((double)CompletedTasks / TaskCount * 100) : 0;
+            }
+        }
+
 
         public Project()
         {

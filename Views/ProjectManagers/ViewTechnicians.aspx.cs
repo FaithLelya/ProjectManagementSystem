@@ -36,7 +36,7 @@ namespace ProjectManagementSystem.Views.ProjectManagers
                             technicians.Add(new Technician
                             {
                                 UserId = reader.GetInt32(0),
-                                UserName = reader.GetString(2),
+                                UserName = reader.GetString(1),
                                 Email = reader.GetString(2)
                             });
                         }
@@ -44,15 +44,32 @@ namespace ProjectManagementSystem.Views.ProjectManagers
                 }
             }
 
-            TechniciansRepeater.DataSource = technicians;
-            TechniciansRepeater.DataBind();
-
+            if (technicians.Count > 0)
+            {
+                TechniciansRepeater.DataSource = technicians;
+                TechniciansRepeater.DataBind();
+                lblNoTechnicians.Visible = false;
+            }
+            else
+            {
+                lblNoTechnicians.Visible = true;
+            }
         }
-        protected void btnBack_Click(object sender, EventArgs e)
+
+        protected void TechniciansRepeater_ItemDataBound(object sender, RepeaterItemEventArgs e)
         {
-            Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
+            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
+            {
+                // You can add any additional item binding logic here if needed
+            }
+        }
+
+        protected void btnViewDetails_Click(object sender, EventArgs e)
+        {
+            LinkButton btn = (LinkButton)sender;
+            string userId = btn.CommandArgument;
+            // Redirect to technician details page or show modal with more info
+            Response.Redirect($"TechnicianDetails.aspx?userId={userId}");
         }
     }
-
-  
 }

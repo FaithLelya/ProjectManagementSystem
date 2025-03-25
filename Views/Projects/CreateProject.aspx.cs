@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Web.UI.WebControls;
 using ProjectManagementSystem.Helpers;
 using ProjectManagementSystem.Models;
@@ -26,6 +27,36 @@ namespace ProjectManagementSystem.Views.Projects
             {
                 LoadProjectManagers();
                 LoadTaskAssignedToUsers();
+
+                // Set default dates to today
+                calStartTime.SelectedDate = DateTime.Today;
+                calEndTime.SelectedDate = DateTime.Today.AddDays(1);
+                txtStartTime.Text = DateTime.Today.ToString("yyyy-MM-dd");
+                txtEndTime.Text = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+            }
+        }
+
+        protected void calStartTime_DayRender(object sender, DayRenderEventArgs e)
+        {
+            // Disable dates before today in the start date calendar
+            if (e.Day.Date < DateTime.Today)
+            {
+                e.Day.IsSelectable = false;
+                e.Cell.ForeColor = Color.Gray;
+                e.Cell.BackColor = Color.LightGray;
+                e.Cell.ToolTip = "Cannot select past dates";
+            }
+        }
+
+        protected void calEndTime_DayRender(object sender, DayRenderEventArgs e)
+        {
+            // Disable dates before today in the end date calendar
+            if (e.Day.Date < DateTime.Today)
+            {
+                e.Day.IsSelectable = false;
+                e.Cell.ForeColor = Color.Gray;
+                e.Cell.BackColor = Color.LightGray;
+                e.Cell.ToolTip = "Cannot select past dates";
             }
         }
 
@@ -76,8 +107,8 @@ namespace ProjectManagementSystem.Views.Projects
             string resources = txtResources.Text;
 
             // Insert project and get the new project ID
-            int newProjectId = SQLiteHelper.InsertProject(projectName, description, location, startDate, endDate, 
-                                                          technicianPayment, materialsCost, budget, 
+            int newProjectId = SQLiteHelper.InsertProject(projectName, description, location, startDate, endDate,
+                                                          technicianPayment, materialsCost, budget,
                                                           projectManagerId, resources);
 
             // Create tasks for the project
@@ -117,13 +148,19 @@ namespace ProjectManagementSystem.Views.Projects
                         int.TryParse(taskAssignedToValues[i], out assignedToUserId) &&
                         assignedToUserId > 0)
                     {
+                        // Validate task dates are not in the past
+                        if (taskStartDate < DateTime.Today || taskEndDate < DateTime.Today)
+                        {
+                            continue; // Skip invalid dates
+                        }
+
                         // Insert task into database
                         SQLiteHelper.InsertProjectTask(
-                            projectId, 
-                            taskNames[i], 
-                            taskDescriptions[i], 
-                            taskStartDate, 
-                            taskEndDate, 
+                            projectId,
+                            taskNames[i],
+                            taskDescriptions[i],
+                            taskStartDate,
+                            taskEndDate,
                             assignedToUserId
                         );
                     }
@@ -150,8 +187,28 @@ namespace ProjectManagementSystem.Views.Projects
             // Validate date range
             DateTime startDate, endDate;
             if (!DateTime.TryParse(txtStartTime.Text, out startDate) ||
-                !DateTime.TryParse(txtEndTime.Text, out endDate) ||
-                startDate >= endDate)
+                !DateTime.TryParse(txtEndTime.Text, out endDate))
+            {
+                lblOutput.Text = "Invalid date format.";
+                return false;
+            }
+
+            // Validate dates are not in the past
+            if (startDate < DateTime.Today)
+            {
+                lblStartDateError.Text = "Start date cannot be in the past.";
+                lblStartDateError.Visible = true;
+                return false;
+            }
+
+            if (endDate < DateTime.Today)
+            {
+                lblEndDateError.Text = "End date cannot be in the past.";
+                lblEndDateError.Visible = true;
+                return false;
+            }
+
+            if (startDate >= endDate)
             {
                 lblOutput.Text = "Start Date must be before End Date.";
                 return false;
@@ -171,12 +228,48 @@ namespace ProjectManagementSystem.Views.Projects
 
         protected void calStartTime_SelectionChanged(object sender, EventArgs e)
         {
+            if (calStartTime.SelectedDate < DateTime.Today)
+            {
+                lblStartDateError.Text = "Start date cannot be in the past.";
+                lblStartDateError.Visible = true;
+                calStartTime.SelectedDate = DateTime.Today;
+            }
+            else
+            {
+                lblStartDateError.Visible = false;
+            }
+
             txtStartTime.Text = calStartTime.SelectedDate.ToString("yyyy-MM-dd");
+
+            // Ensure end date is not before start date
+            if (calEndTime.SelectedDate < calStartTime.SelectedDate)
+            {
+                calEndTime.SelectedDate = calStartTime.SelectedDate.AddDays(1);
+                txtEndTime.Text = calEndTime.SelectedDate.ToString("yyyy-MM-dd");
+            }
         }
 
         protected void calEndTime_SelectionChanged(object sender, EventArgs e)
         {
+            if (calEndTime.SelectedDate < DateTime.Today)
+            {
+                lblEndDateError.Text = "End date cannot be in the past.";
+                lblEndDateError.Visible = true;
+                calEndTime.SelectedDate = DateTime.Today;
+            }
+            else
+            {
+                lblEndDateError.Visible = false;
+            }
+
             txtEndTime.Text = calEndTime.SelectedDate.ToString("yyyy-MM-dd");
+
+            // Ensure start date is not after end date
+            if (calStartTime.SelectedDate > calEndTime.SelectedDate)
+            {
+                calStartTime.SelectedDate = calEndTime.SelectedDate.AddDays(-1);
+                txtStartTime.Text = calStartTime.SelectedDate.ToString("yyyy-MM-dd");
+            }
         }
     }
 }

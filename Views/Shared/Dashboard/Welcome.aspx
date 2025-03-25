@@ -450,20 +450,105 @@
                                 <div class="card-header bg-primary text-white">
                                     Quick Actions
                                 </div>
-                                 <asp:Panel ID="pnlAdminQuickActions" runat="server" Visible='<%# IsAdmin() %>'>
-                                    <div class="btn-group w-100" role="group">
-                                        <asp:Button ID="btnNewProject" runat="server" 
-                                            Text="New Project" 
-                                            CssClass="btn btn-outline-primary" 
-                                            OnClick="btnNewProject_Click" 
-                                            Visible='<%# IsAdmin() %>' />
-                                        <asp:Button ID="btnAssignTask" runat="server" 
-                                            Text="Assign Task" 
-                                            CssClass="btn btn-outline-primary" 
-                                            OnClick="btnNewProject_Click" 
-                                            Visible='<%# IsAdmin() %>' />
+                                  <asp:Panel ID="pnlAdminQuickActions" runat="server" Visible="false">
+                                        <div class="btn-group-vertical w-100" role="group">
+                                            <asp:Button ID="btnNewProject" runat="server" 
+                                                Text="New Project" 
+                                                CssClass="btn btn-outline-primary mb-2" 
+                                                OnClick="btnNewProject_Click" />
+                                            <asp:Button ID="btnAssignTask" runat="server" 
+                                                Text="Assign Task" 
+                                                CssClass="btn btn-outline-primary mb-2" 
+                                                OnClick="btnAssignTask_Click" />
+                                            <asp:Button ID="btnGenerateReport" runat="server" 
+                                                Text="Generate Report" 
+                                                CssClass="btn btn-outline-primary" 
+                                                OnClick="btnGenerateReport_Click" />
+                                        </div>
+                                    </asp:Panel>
+                                    
+                                    <!-- Project Manager Quick Actions -->
+                                    <asp:Panel ID="pnlProjectManagerQuickActions" runat="server" Visible="false">
+                                        <div class="btn-group-vertical w-100" role="group">
+                                             
+                                        </div>
+                                    </asp:Panel>
+                                <asp:Repeater ID="Repeater1" runat="server">
+    <ItemTemplate>
+        <div class="assigned-project">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="project-title"><%# Eval("ProjectName") %></span>
+                <span class="project-status <%# GetStatusClass(Eval("Status").ToString()) %>">
+                    <%# Eval("Status") %>
+                </span>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <small class="text-muted">Due: <%# Eval("DueDate", "{0:MMM dd, yyyy}") %></small>
+                <small class="text-muted">
+                    Tasks: <%# Eval("CompletedTasks") %>/<%# Eval("TaskCount") %>
+                    (<%# Eval("ProgressPercentage") %>%)
+                </small>
+            </div>
+            <div class="progress mt-2" style="height: 5px;">
+                <div class="progress-bar" role="progressbar" 
+                     style="width: <%# Eval("ProgressPercentage") %>%" 
+                     aria-valuenow="<%# Eval("ProgressPercentage") %>" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100"></div>
+            </div>
+        </div>
+    </ItemTemplate>
+</asp:Repeater>
+                                    
+                                    <!-- Technician Quick Actions -->
+                                    <asp:Panel ID="pnlTechnicianQuickActions" runat="server" Visible="false">
+                                        <div class="btn-group-vertical w-100" role="group">
+                                            <asp:Button ID="btnRecordAttendance" runat="server" 
+                                                Text="Record Attendance" 
+                                                CssClass="btn btn-outline-primary mb-2" 
+                                                OnClick="btnRecordAttendance_Click" />
+                                            <asp:Button ID="btnViewTasks" runat="server" 
+                                                Text="View My Tasks" 
+                                                CssClass="btn btn-outline-primary" 
+                                                OnClick="btnViewTasks_Click" />
+                                        </div>
+                                    </asp:Panel>
+                                    
+                                    <!-- Assigned Projects List (for PM and Technician) -->
+                                    <asp:Panel ID="pnlAssignedProjects" runat="server" Visible="false">
+                                        <h5 class="mb-3">My Assigned Projects</h5>
+                                        <div class="list-group">
+                                            <asp:Repeater ID="rptAssignedProjects" runat="server">
+                                <ItemTemplate>
+                                    <div class="assigned-project">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="project-title"><%# Eval("ProjectName") %></span>
+                                            <span class="project-status <%# GetStatusClass(Eval("Status").ToString()) %>">
+                                                <%# Eval("Status") %>
+                                            </span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <small class="text-muted">Due: <%# Eval("DueDate", "{0:MMM dd, yyyy}") %></small>
+                                            <small class="text-muted">
+                                                Tasks: <%# Eval("CompletedTasks") %>/<%# Eval("TaskCount") %>
+                                                (<%# Eval("ProgressPercentage") %>%)
+                                            </small>
+                                        </div>
+                                        <div class="progress mt-2" style="height: 5px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: <%# Eval("ProgressPercentage") %>%" 
+                                                 aria-valuenow="<%# Eval("ProgressPercentage") %>" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100"></div>
+                                        </div>
                                     </div>
-                                </asp:Panel>
+                                </ItemTemplate>
+                            </asp:Repeater>
+
+                                            <asp:Label ID="lblNoProjects" runat="server" Text="No projects assigned" 
+                                                CssClass="text-muted text-center mt-3" Visible="false"></asp:Label>
+                                        </div>
+                                    </asp:Panel>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -471,11 +556,26 @@
                                 <div class="card-header bg-primary text-white">
                                     Recent Activities
                                 </div>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">Project X started</li>
-                                    <li class="list-group-item">Task assigned to John</li>
-                                    <li class="list-group-item">Report generated</li>
-                                </ul>
+                                 <div class="col-md-6">
+                            <div class="card mb-4 shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    Recent Activities
+                                </div>
+                                <div class="card-body">
+                                    <asp:Repeater ID="rptRecentActivities" runat="server">
+                                        <ItemTemplate>
+                                            <div class="d-flex mb-3">
+                                                <div class="flex-shrink-0">
+                                                    <i class="fas <%# GetActivityIcon(Eval("ActivityType").ToString()) %> text-primary"></i>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <p class="mb-0"><%# Eval("Description") %></p>
+                                                    <small class="text-muted"><%# Eval("Timestamp", "{0:MMM dd, yyyy hh:mm tt}") %></small>
+                                                </div>
+                                            </div>
+                                        </ItemTemplate>
+                                    </asp:Repeater>
+                                </div>
                             </div>
                         </div>
                     </div>

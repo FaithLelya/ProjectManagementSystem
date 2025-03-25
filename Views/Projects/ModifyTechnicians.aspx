@@ -10,6 +10,11 @@
 <body class="bg-light">
     <form id="form2" runat="server">
         <div class="container mt-5">
+               <div>
+       <a href="/Views/Shared/Dashboard/Welcome.aspx" class="btn btn-outline-secondary">
+           <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+       </a>
+   </div>
             <div class="card shadow-lg">
                 <div class="card-header bg-primary text-white">
                     <h2 class="text-center">Modify Project Technicians</h2>

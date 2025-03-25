@@ -283,6 +283,7 @@
     <Content Include="ViewSwitcher.ascx" />
     <Content Include="Views\Account\Profile.aspx" />
     <Content Include="Views\Admin\Reports.aspx" />
+    <Content Include="Views\ProjectManagers\TechnicianDetails.aspx" />
     <Content Include="Views\ProjectManagers\ViewTechnicians.aspx" />
     <Content Include="Views\Projects\ModifyBudget.aspx" />
     <Content Include="Views\Projects\ModifyResources.aspx" />
@@ -388,6 +389,13 @@
     </Compile>
     <Compile Include="Views\Admin\Reports.aspx.designer.cs">
       <DependentUpon>Reports.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProjectManagers\TechnicianDetails.aspx.cs">
+      <DependentUpon>TechnicianDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\ProjectManagers\TechnicianDetails.aspx.designer.cs">
+      <DependentUpon>TechnicianDetails.aspx</DependentUpon>
     </Compile>
     <Compile Include="Views\ProjectManagers\ViewTechnicians.aspx.cs">
       <DependentUpon>ViewTechnicians.aspx</DependentUpon>

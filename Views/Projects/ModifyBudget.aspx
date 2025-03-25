@@ -27,6 +27,11 @@
 <body>
     <form id="form1" runat="server">
         <div class="container">
+               <div>
+       <a href="/Views/Shared/Dashboard/Welcome.aspx" class="btn btn-outline-secondary">
+           <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+       </a>
+   </div>
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card">
