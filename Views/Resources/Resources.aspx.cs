@@ -56,40 +56,42 @@ namespace ProjectManagementSystem.Views.Resources
 
         protected void btnEdit_Click(object sender, EventArgs e)
         {
-            Button btn = (Button)sender;
-            int resourceId = Convert.ToInt32(btn.CommandArgument);
+            Button btnEdit = (Button)sender;
+            int resourceId = Convert.ToInt32(btnEdit.CommandArgument);
 
-            // Retrieve resource details for editing
-            string connectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
+            // Fetch resource from database (Replace with actual DB call)
+            var resource = GetResourceById(resourceId);
 
-            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            if (resource != null)
             {
-                conn.Open();
-                string sql = "SELECT * FROM Resources WHERE ResourceId = @ResourceId";
+                // Populate the form fields
+                txtResourceName.Text = resource.ResourceName;
+                txtDescription.Text = resource.Description;
+                txtQuantity.Text = resource.Quantity.ToString();
+                txtCostPerUnit.Text = resource.CostPerunit.ToString("F2");
 
-                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@ResourceId", resourceId);
+                // Store the resource ID in hidden field for tracking
+                hfResourceId.Value = resource.ResourceId.ToString();
 
-                    using (SQLiteDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            hfResourceId.Value = resourceId.ToString();
-                            txtResourceName.Text = reader["ResourceName"].ToString();
-                            txtDescription.Text = reader.IsDBNull(reader.GetOrdinal("Description")) ?
-                                                 string.Empty : reader["Description"].ToString();
-                            txtQuantity.Text = reader["Quantity"].ToString();
-                            txtCostPerUnit.Text = reader.IsDBNull(reader.GetOrdinal("CostPerUnit")) ?
-                                                 "0.00" : Convert.ToDecimal(reader["CostPerUnit"]).ToString("F2");
-
-                            formTitle.InnerText = "Edit Resource";
-                            btnSave.Text = "Update Resource";
-                        }
-                    }
-                }
+                // Change form title to Edit Mode
+                formTitle.InnerText = "Edit Resource";
             }
         }
+
+        // Dummy function to simulate fetching data from DB
+        private Resource GetResourceById(int resourceId)
+        {
+            // Replace this with actual DB logic
+            return new Resource
+            {
+                ResourceId = resourceId,
+                ResourceName = "Sample Resource",
+                Description = "Sample Description",
+                Quantity = 10,
+                CostPerunit = 50.75m
+            };
+        }
+
 
         protected void btnSave_Click(object sender, EventArgs e)
         {

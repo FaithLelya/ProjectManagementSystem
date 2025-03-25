@@ -4,12 +4,13 @@ using ProjectManagementSystem.Models;
 using System.Data.SQLite;
 using ProjectManagementSystem.Controllers;
 using ProjectManagementSystem.Views.Projects;
+using ProjectManagementSystem.Views.Admin;
 
 namespace ProjectManagementSystem.Helpers
 {
     public static class SQLiteHelper
     {
-        private static string ConnectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
+        internal static string ConnectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
 
         public static User GetUserByEmailAndPassword(string email, string password)
         {
@@ -408,6 +409,103 @@ namespace ProjectManagementSystem.Helpers
 
             return resources;
         }
+        public static List<ProjectFinanceReport> GetProjectFinanceReports(int? projectId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            List<ProjectFinanceReport> reports = new List<ProjectFinanceReport>();
 
+            using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT p.ProjectId, p.ProjectName, p.Budget, 
+                               p.TechnicianPayment, p.MaterialsCost, p.TotalExpense,
+                               (p.Budget - p.TotalExpense) as Variance
+                               FROM Projects p
+                               WHERE 1=1";
+
+                if (projectId.HasValue)
+                {
+                    sql += " AND p.ProjectId = @ProjectId";
+                }
+
+                if (startDate.HasValue && endDate.HasValue)
+                {
+                    sql += " AND ((p.StartDate BETWEEN @StartDate AND @EndDate) OR (p.EndDate BETWEEN @StartDate AND @EndDate))";
+                }
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                {
+                    if (projectId.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@ProjectId", projectId.Value);
+                    }
+
+                    if (startDate.HasValue && endDate.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@StartDate", startDate.Value.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@EndDate", endDate.Value.ToString("yyyy-MM-dd"));
+                    }
+
+                    using (SQLiteDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ProjectFinanceReport report = new ProjectFinanceReport
+                            {
+                                ProjectId = reader.GetInt32(reader.GetOrdinal("ProjectId")),
+                                ProjectName = reader.GetString(reader.GetOrdinal("ProjectName")),
+                                Budget = reader.GetDecimal(reader.GetOrdinal("Budget")),
+                                TechnicianPayment = reader.GetDecimal(reader.GetOrdinal("TechnicianPayment")),
+                                MaterialsCost = reader.GetDecimal(reader.GetOrdinal("MaterialsCost")),
+                                TotalExpense = reader.GetDecimal(reader.GetOrdinal("TotalExpense")),
+                                Variance = reader.GetDecimal(reader.GetOrdinal("Variance"))
+                            };
+
+                            reports.Add(report);
+                        }
+                    }
+                }
+            }
+
+            return reports;
+        }
+
+        // Method to update project expenses
+        public static void UpdateProjectExpenses(int projectId, decimal newExpense)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+
+                string sql = "UPDATE Projects SET TotalExpense = @NewExpense WHERE ProjectId = @ProjectId";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                    cmd.Parameters.AddWithValue("@NewExpense", newExpense);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static bool IsTechnicianAssignedToProject(int technicianId, int projectId)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                string sql = @"SELECT COUNT(*) FROM ProjectTechnicians 
+                      WHERE TechnicianId = @TechnicianId AND ProjectId = @ProjectId";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@TechnicianId", technicianId);
+                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
+
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
     }
 }

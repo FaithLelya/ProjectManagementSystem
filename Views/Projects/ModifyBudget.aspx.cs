@@ -1,155 +1,186 @@
 ﻿using System;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Collections.Generic;
+using System.Data.SQLite;
 using ProjectManagementSystem.Models;
-using ProjectManagementSystem.Controllers;
 
 namespace ProjectManagementSystem.Views.Projects
 {
-    public partial class Modifybudget : System.Web.UI.Page
+    public partial class ModifyBudget : System.Web.UI.Page
     {
-        private ProjectController _projectController;
-        private int _projectId = 0;
+        private int _projectId;
+        private Project _project;
+        private string connectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Initialize controller
-            _projectController = new ProjectController();
+            // Check for Admin permissions
+            if (Session["UserRole"]?.ToString() != "Admin")
+            {
+                AuthErrorPanel.Visible = true;
+                EditPanel.Visible = false;
+                return;
+            }
+
+            // Get project ID from query parameter
+            if (!int.TryParse(Request.QueryString["projectId"], out _projectId))
+            {
+                Response.Redirect("~/Views/Projects/Projects.aspx");
+                return;
+            }
 
             if (!IsPostBack)
             {
-                // First try to get project ID from query string
-                if (Request.QueryString["id"] != null && int.TryParse(Request.QueryString["id"], out _projectId))
-                {
-                    LoadProjectDetails(_projectId);
-                }
-                // If not in query string, try to get from session (user clicked from projects list)
-                else if (Session["SelectedProjectId"] != null && int.TryParse(Session["SelectedProjectId"].ToString(), out _projectId))
-                {
-                    LoadProjectDetails(_projectId);
-                }
-                // If still not found, try to get the latest project (fallback)
-                else
-                {
-                    try
-                    {
-                        // Get the most recent project as a fallback
-                        Project latestProject = _projectController.GetLatestProject();
-                        if (latestProject != null)
-                        {
-                            _projectId = latestProject.ProjectId;
-                            LoadProjectDetails(_projectId);
-                        }
-                        else
-                        {
-                            lblMessage.Text = "No projects found in the system.";
-                            DisableForm();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        lblMessage.Text = "Error retrieving project: " + ex.Message;
-                        DisableForm();
-                    }
-                }
+                LoadProjectDetails();
             }
         }
 
-        private void LoadProjectDetails(int projectId)
+        private void LoadProjectDetails()
         {
             try
             {
-                Project project = _projectController.GetProjectById(projectId);
-                if (project != null)
+                using (SQLiteConnection conn = new SQLiteConnection(connectionString))
                 {
-                    litProjectName.Text = project.ProjectName;
-                    litCurrentBudget.Text = project.Budget.ToString("F2"); // Format to 2 decimal places
+                    conn.Open();
+                    string sql = "SELECT ProjectName, Budget FROM Projects WHERE ProjectId = @ProjectId";
 
-                    // Store the project ID in ViewState for retrieval during postback
-                    ViewState["ProjectId"] = projectId;
-
-                    // Check permissions
-                    string userRole = Session["UserRole"]?.ToString();
-                    if (userRole != "Admin" && userRole != "ProjectManager")
+                    using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
                     {
-                        lblMessage.Text = "You do not have permission to modify the budget.";
-                        DisableForm();
+                        cmd.Parameters.AddWithValue("@ProjectId", _projectId);
+
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                lblProjectName.Text = reader.GetString(0);
+                                decimal budget = reader.GetDecimal(1);
+
+                                decimal totalExpense = CalculateTotalExpense(_projectId);
+
+                                lblCurrentBudget.Text = string.Format("KES {0:N2}", budget);
+                                lblTotalExpense.Text = string.Format("KES {0:N2}", totalExpense);
+                                txtNewBudget.Text = budget.ToString("F2");
+                            }
+                            else
+                            {
+                                Response.Redirect("~/Views/Projects/Projects.aspx");
+                            }
+                        }
                     }
-                }
-                else
-                {
-                    lblMessage.Text = "Project not found. Please check the project ID.";
-                    DisableForm();
                 }
             }
             catch (Exception ex)
             {
-                lblMessage.Text = "Error loading project: " + ex.Message;
-                DisableForm();
+                Response.Write("Error: " + ex.Message);
             }
         }
 
-        private void DisableForm()
+        private decimal CalculateTotalExpense(int projectId)
         {
-            txtNewBudget.Enabled = false;
-            btnUpdateBudget.Enabled = false;
+            decimal totalExpense = 0;
+
+            try
+            {
+                using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+                {
+                    conn.Open();
+                    string sql = "SELECT SUM(Amount) FROM Expenses WHERE ProjectId = @ProjectId";
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                        object result = cmd.ExecuteScalar();
+
+                        if (result != null && result != DBNull.Value)
+                        {
+                            totalExpense = Convert.ToDecimal(result);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Handle exceptions or return 0
+            }
+
+            return totalExpense;
         }
 
-        protected void btnUpdateBudget_Click(object sender, EventArgs e)
+        protected void btnSave_Click(object sender, EventArgs e)
         {
-            // Get project ID from ViewState (more reliable than query string during postback)
-            int projectId = 0;
-            if (ViewState["ProjectId"] != null && int.TryParse(ViewState["ProjectId"].ToString(), out projectId))
+            if (!Page.IsValid)
+                return;
+
+            try
             {
-                // Verify user has permission
-                string userRole = Session["UserRole"]?.ToString();
-                if (userRole != "Admin" && userRole != "ProjectManager")
-                {
-                    lblMessage.Text = "You do not have permission to modify the budget.";
-                    return;
-                }
+                decimal newBudget = decimal.Parse(txtNewBudget.Text);
+                string justification = txtJustification.Text;
 
-                // Verify budget value
-                if (!decimal.TryParse(txtNewBudget.Text.Trim(), out decimal newBudget))
+                using (SQLiteConnection conn = new SQLiteConnection(connectionString))
                 {
-                    lblMessage.Text = "Invalid budget value. Please enter a valid number.";
-                    return;
-                }
+                    conn.Open();
 
-                // Additional validation for negative values
-                if (newBudget < 0)
-                {
-                    lblMessage.Text = "Budget cannot be negative.";
-                    return;
-                }
+                    // Update the project budget
+                    string updateSql = "UPDATE Projects SET Budget = @Budget WHERE ProjectId = @ProjectId";
 
-                try
-                {
-                    // Get project and update budget
-                    Project project = _projectController.GetProjectById(projectId);
-                    if (project != null)
+                    using (SQLiteCommand cmd = new SQLiteCommand(updateSql, conn))
                     {
-                        _projectController.UpdateProjectBudget(projectId, newBudget);
-                        lblMessage.Text = "Budget updated successfully.";
-                        lblMessage.CssClass = "message-success mt-3";
-                        // Update displayed current budget
-                        litCurrentBudget.Text = newBudget.ToString("F2");
-                    }
-                    else
-                    {
-                        lblMessage.Text = "Project not found.";
+                        cmd.Parameters.AddWithValue("@Budget", newBudget);
+                        cmd.Parameters.AddWithValue("@ProjectId", _projectId);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            LogBudgetChange(conn, newBudget, justification);
+
+                            EditPanel.Visible = false;
+                            SuccessPanel.Visible = true;
+                        }
                     }
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                Response.Write("Error: " + ex.Message);
+            }
+        }
+
+        private void LogBudgetChange(SQLiteConnection conn, decimal newBudget, string justification)
+        {
+            string logSql = @"
+                INSERT INTO BudgetChangeLog (ProjectId, OldBudget, NewBudget, ChangedBy, ChangeDate, Justification)
+                VALUES (@ProjectId, @OldBudget, @NewBudget, @ChangedBy, @ChangeDate, @Justification)";
+
+            try
+            {
+                decimal oldBudget = decimal.Parse(lblCurrentBudget.Text.Replace("KES ", "").Replace(",", ""));
+
+                using (SQLiteCommand cmd = new SQLiteCommand(logSql, conn))
                 {
-                    lblMessage.Text = "Error updating budget: " + ex.Message;
+                    cmd.Parameters.AddWithValue("@ProjectId", _projectId);
+                    cmd.Parameters.AddWithValue("@OldBudget", oldBudget);
+                    cmd.Parameters.AddWithValue("@NewBudget", newBudget);
+                    cmd.Parameters.AddWithValue("@ChangedBy", Session["UserId"]?.ToString() ?? "Unknown");
+                    cmd.Parameters.AddWithValue("@ChangeDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@Justification", justification);
+
+                    cmd.ExecuteNonQuery();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                lblMessage.Text = "Invalid project ID.";
+                //Log the exception, or handle it better.
+                Console.WriteLine($"Error logging budget change: {ex.Message}");
             }
+        }
+
+        protected void btnCancel_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Views/Projects/Projects.aspx");
+        }
+
+        protected void btnReturn_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("~/Views/Projects/Projects.aspx");
         }
     }
 }

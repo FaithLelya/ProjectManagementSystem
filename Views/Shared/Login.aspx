@@ -7,7 +7,7 @@
     
     <%-- Bootstrap CSS for styling (optional but recommended) --%>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
-    
+    <link href="~/Content/sidebar.css" rel="stylesheet" />
     <%-- Custom styles for our login form --%>
     <style type="text/css">
         .login-container {

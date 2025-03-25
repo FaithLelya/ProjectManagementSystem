@@ -36,6 +36,7 @@ namespace ProjectManagementSystem.Models
             Role = "Technician";
         }
         public int TechnicianId { get; set; }
+        public string UserName {get; set; }
         public double HourlyRate { get; set; }
         public decimal OvertimeRate { get; set; }
         public decimal TotalPayment { get; set; }

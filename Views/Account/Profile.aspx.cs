@@ -2,6 +2,8 @@
 using System.Data.SQLite;
 using System.Web;
 using System.Web.UI;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ProjectManagementSystem.Views.Account
 {
@@ -55,11 +57,14 @@ namespace ProjectManagementSystem.Views.Account
 
             string newName = txtName.Text.Trim();
             string newEmail = txtEmail.Text.Trim();
+            string oldPassword = txtOldPassword.Text.Trim();
+            string newPassword = txtNewPassword.Text.Trim();
+            string confirmPassword = txtConfirmPassword.Text.Trim();
+            bool changePassword = chkChangePassword.Checked;
 
             if (string.IsNullOrEmpty(newName) || string.IsNullOrEmpty(newEmail))
             {
-                lblMessage.Text = "All fields are required.";
-                lblMessage.CssClass = "alert alert-danger mt-3";
+                ShowMessage("All fields are required.", "alert-danger");
                 return;
             }
 
@@ -67,31 +72,92 @@ namespace ProjectManagementSystem.Views.Account
             using (var conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
-                string query = "UPDATE User SET UserName = @UserName, Email = @Email WHERE UserId = @UserId";
-                using (var cmd = new SQLiteCommand(query, conn))
+
+                // Check if password change is requested
+                if (changePassword)
+                {
+                    if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
+                    {
+                        ShowMessage("All password fields are required.", "alert-danger");
+                        return;
+                    }
+
+                    if (newPassword != confirmPassword)
+                    {
+                        ShowMessage("New passwords do not match.", "alert-danger");
+                        return;
+                    }
+
+                    // Verify old password
+                    string storedPasswordHash = GetStoredPasswordHash(userId, conn);
+                    if (string.IsNullOrEmpty(storedPasswordHash) || storedPasswordHash != HashPassword(oldPassword))
+                    {
+                        ShowMessage("Incorrect old password.", "alert-danger");
+                        return;
+                    }
+
+                    // Update password
+                    string newPasswordHash = HashPassword(newPassword);
+                    string updatePasswordQuery = "UPDATE User SET PasswordHash = @PasswordHash WHERE UserId = @UserId";
+                    using (var updateCmd = new SQLiteCommand(updatePasswordQuery, conn))
+                    {
+                        updateCmd.Parameters.AddWithValue("@PasswordHash", newPasswordHash);
+                        updateCmd.Parameters.AddWithValue("@UserId", userId);
+                        updateCmd.ExecuteNonQuery();
+                    }
+                }
+
+                // Update user details
+                string updateQuery = "UPDATE User SET UserName = @UserName, Email = @Email WHERE UserId = @UserId";
+                using (var cmd = new SQLiteCommand(updateQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@UserName", newName);
                     cmd.Parameters.AddWithValue("@Email", newEmail);
                     cmd.Parameters.AddWithValue("@UserId", userId);
-                    int rowsAffected = cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
+                }
+            }
 
-                    if (rowsAffected > 0)
-                    {
-                        lblMessage.Text = "Profile updated successfully!";
-                        lblMessage.CssClass = "alert alert-success mt-3";
-                    }
-                    else
-                    {
-                        lblMessage.Text = "Update failed. Try again.";
-                        lblMessage.CssClass = "alert alert-danger mt-3";
-                    }
+            ShowMessage("Profile updated successfully!", "alert-success");
+        }
+
+        private string GetStoredPasswordHash(string userId, SQLiteConnection conn)
+        {
+            string query = "SELECT Password FROM User WHERE UserId = @UserId";
+            using (var cmd = new SQLiteCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    return reader.Read() ? reader["Password"].ToString() : null;
                 }
             }
         }
 
+        private string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
+        private void ShowMessage(string message, string alertClass)
+        {
+            lblMessage.Text = message;
+            lblMessage.CssClass = "alert " + alertClass + " mt-3";
+            lblMessage.Visible = true;
+        }
+
         protected void btnBack_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Shared/Dashboard/Welcome");
+            Response.Redirect("~/views/shared/Dashboard/welcome.aspx");
         }
     }
 }

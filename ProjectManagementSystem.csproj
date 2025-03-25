@@ -52,11 +52,17 @@
     <Reference Include="BCrypt.Net-Next, Version=4.0.3.0, Culture=neutral, PublicKeyToken=1e11be04b6288443, processorArchitecture=MSIL">
       <HintPath>packages\BCrypt.Net-Next.4.0.3\lib\net48\BCrypt.Net-Next.dll</HintPath>
     </Reference>
+    <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
+      <HintPath>packages\BouncyCastle.Cryptography.2.4.0\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.4, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>packages\iTextSharp.5.5.13.4\lib\net461\itextsharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\lib\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
@@ -207,6 +213,7 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\css\projects.css" />
+    <Content Include="Content\css\sidebar.css" />
     <Content Include="Content\Images\itdolls_logo.png" />
     <Content Include="Content\Site.css" />
     <Content Include="Controllers\UserController.aspx" />
@@ -250,6 +257,7 @@
     <Content Include="Scripts\jquery-3.7.1.slim.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\sidebar.js" />
     <Content Include="Scripts\WebForms\DetailsView.js" />
     <Content Include="Scripts\WebForms\Focus.js" />
     <Content Include="Scripts\WebForms\GridView.js" />
@@ -274,6 +282,8 @@
     <Content Include="Site.Master" />
     <Content Include="ViewSwitcher.ascx" />
     <Content Include="Views\Account\Profile.aspx" />
+    <Content Include="Views\Admin\Reports.aspx" />
+    <Content Include="Views\ProjectManagers\ViewTechnicians.aspx" />
     <Content Include="Views\Projects\ModifyBudget.aspx" />
     <Content Include="Views\Projects\ModifyResources.aspx" />
     <Content Include="Views\Projects\Projects.aspx" />
@@ -284,6 +294,7 @@
     <Content Include="Views\Shared\Dashboard\Index.aspx" />
     <Content Include="Views\Shared\Dashboard\Welcome.aspx" />
     <Content Include="Views\Shared\Login.aspx" />
+    <Content Include="Views\Shared\SidebarPartial.ascx" />
     <Content Include="Views\Technicians\CompensationDetails.aspx" />
     <Content Include="Views\Technicians\PaymentInfo.aspx" />
     <Content Include="Views\Technicians\RecordAttendance.aspx" />
@@ -371,6 +382,20 @@
     <Compile Include="Views\Account\Profile.aspx.designer.cs">
       <DependentUpon>Profile.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Views\Admin\Reports.aspx.cs">
+      <DependentUpon>Reports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Admin\Reports.aspx.designer.cs">
+      <DependentUpon>Reports.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProjectManagers\ViewTechnicians.aspx.cs">
+      <DependentUpon>ViewTechnicians.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\ProjectManagers\ViewTechnicians.aspx.designer.cs">
+      <DependentUpon>ViewTechnicians.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Views\Projects\ModifyBudget.aspx.cs">
       <DependentUpon>ModifyBudget.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -441,6 +466,10 @@
     <Compile Include="Views\Shared\Login.aspx.designer.cs">
       <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Views\Shared\SidebarPartial.ascx.cs">
+      <DependentUpon>SidebarPartial.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Views\Technicians\CompensationDetails.aspx.cs">
       <DependentUpon>CompensationDetails.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -486,9 +515,7 @@
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Mpesa\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

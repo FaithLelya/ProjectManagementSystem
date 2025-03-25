@@ -4,6 +4,7 @@
 <head runat="server">
     <title>Modify Resources</title>
     <link href="~/Content/css/projects.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/sidebar.css" rel="stylesheet" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <script type="text/javascript">
         function updateCostPerUnit() {

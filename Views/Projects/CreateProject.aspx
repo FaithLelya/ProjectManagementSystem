@@ -1,9 +1,11 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CreateProject.aspx.cs" Inherits="ProjectManagementSystem.Views.Projects.CreateProject" %>
+<%@ Register Src="~/Views/Shared/SidebarPartial.ascx" TagPrefix="uc" TagName="Sidebar" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Create Project</title>
+    <link href="/Content/sidebar.css" rel="stylesheet" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -104,7 +106,7 @@
             
             <!-- Project Details Section -->
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-white text-center" style="background-color: #0056b3;">
                     <h4>Project Details</h4>
                 </div>
                 <div class="card-body">
@@ -198,7 +200,7 @@
             
             <!-- Project Tasks Section -->
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #0056b3;">
                     <h4 class="mb-0">Project Tasks</h4>
                     <button type="button" class="btn btn-light" id="addTaskBtn">
                         <i class="fas fa-plus"></i> Add Task
@@ -218,7 +220,7 @@
             </div>
             
             <div class="form-group">
-                <asp:Button ID="btnCreateProject" runat="server" Text="Create Project" CssClass="btn btn-primary btn-lg" OnClick="btnCreateProject_Click" OnClientClick="return prepareTasksData();" />
+                <asp:Button ID="btnCreateProject" runat="server" Text="Create Project" CssClass="btn btn-lg" style="background-color: #0056b3;" OnClick="btnCreateProject_Click" OnClientClick="return prepareTasksData();" />
                 <asp:Label ID="lblOutput" runat="server" CssClass="mt-3 text-success"></asp:Label>
             </div>
         </div>
@@ -228,7 +230,7 @@
     <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header text-white" style="background-color: #0056b3;" >
                     <h5 class="modal-title" id="taskModalLabel">Add New Task</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -248,7 +250,7 @@
                             <div class="form-group task-date-container">
                                 <label for="taskStartDate">Start Date</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="taskStartDate" readonly />
+                                    <input type="text" class="form-control" id="taskStartDate" />
                                     <div class="input-group-append">
                                         <span class="input-group-text pointer" id="taskStartDateToggle">
                                             <i class="fas fa-calendar-alt"></i>
@@ -262,7 +264,7 @@
                             <div class="form-group task-date-container">
                                 <label for="taskEndDate">End Date</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="taskEndDate" readonly />
+                                    <input type="text" class="form-control" id="taskEndDate" />
                                     <div class="input-group-append">
                                         <span class="input-group-text pointer" id="taskEndDateToggle">
                                             <i class="fas fa-calendar-alt"></i>
@@ -284,7 +286,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+                    <button type="button" class="btn text-white" style="background-color: #0056b3;" id="saveTaskBtn">Save Task</button>
                 </div>
             </div>
         </div>
