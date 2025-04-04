@@ -29,39 +29,48 @@
             padding: 0.75rem;
             border-radius: 6px;
         }
-        .btn-mpesa {
-            background-color: #4cd964;
-            border-color: #4cd964;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-        .btn-mpesa:hover {
-            background-color: #3cba54;
-            border-color: #3cba54;
-            color: white;
-        }
-        .transaction-alert {
+        .payment-method-card {
+            border: 1px solid #dee2e6;
             border-radius: 8px;
-            border-left: 5px solid #17a2b8;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
-        .history-table th {
-            background-color: #f1f6ff;
+        .payment-method-card.active {
+            border-color: #0d6efd;
+            background-color: #f8f9ff;
+        }
+        .payment-icon {
+            font-size: 2rem;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        .method-title {
+            font-weight: 600;
             color: #345;
+            margin-bottom: 0.5rem;
+        }
+        .success-alert {
+            border-radius: 8px;
+            border-left: 5px solid #28a745;
         }
         .page-title {
             color: #345;
             margin-bottom: 1.5rem;
             font-weight: 600;
         }
-        .amount-display {
-            font-size: 1.2rem;
+        .btn-save {
+            background-color: #0d6efd;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
             font-weight: 600;
-            color: #345;
         }
-        .mpesa-logo {
-            height: 30px;
+        .btn-save:hover {
+            background-color: #0b5ed7;
+            color: white;
+        }
+        .payment-method-logo {
+            height: 40px;
             margin-right: 10px;
         }
     </style>
@@ -71,128 +80,282 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-10">
+                 <div class="row">
+                 <div class="col">
+                     <a href="../Shared/Dashboard/Welcome.aspx" class="btn btn-outline-secondary back-button">
+                         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                     </a>
+                 </div>
+             </div>
                     <h2 class="text-center page-title">
-                        <i class="fas fa-credit-card me-2"></i>Technician Payment Information
+                        <i class="fas fa-credit-card me-2"></i>My Payment Information
                     </h2>
+
                     
-                    <!-- Payment Details Card -->
+                    <!-- Personal Info Card -->
                     <div class="card payment-card">
                         <div class="card-header bg-primary text-white">
                             <h3 class="card-title mb-0">
-                                <i class="fas fa-file-invoice-dollar me-2"></i>Payment Details
+                                <i class="fas fa-user me-2"></i>Personal Information
                             </h3>
                         </div>
                         <div class="card-body">
                             <div class="row g-4">
-                                <!-- Left Column -->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label fw-bold">Select Project:</label>
-                                        <asp:DropDownList ID="ddlProjects" runat="server" CssClass="form-select" AutoPostBack="true" 
-                                            OnSelectedIndexChanged="ddlProjects_SelectedIndexChanged">
-                                        </asp:DropDownList>
+                                        <label class="form-label fw-bold">Technician ID:</label>
+                                        <asp:Label ID="lblTechnicianId" runat="server" CssClass="form-control" Text=""></asp:Label>
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <label class="form-label fw-bold">Technician Name:</label>
+                                        <label class="form-label fw-bold">Full Name:</label>
                                         <asp:Label ID="lblTechnicianName" runat="server" CssClass="form-control" Text=""></asp:Label>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Payment Amount (KES):</label>
-                                        <asp:Label ID="lblPaymentAmount" runat="server" CssClass="form-control amount-display" Text=""></asp:Label>
                                     </div>
                                 </div>
                                 
-                                <!-- Right Column - M-Pesa Payment -->
                                 <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-header bg-success text-white">
-                                            <h4 class="card-title mb-0">
-                                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/320px-M-PESA_LOGO-01.svg.png" alt="M-Pesa" class="mpesa-logo" />
-                                                M-Pesa Payment
-                                            </h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="mb-3">
-                                                <label for="txtMpesaNumber" class="form-label fw-bold">
-                                                    <i class="fas fa-phone me-1"></i>M-Pesa Phone Number:
-                                                </label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">+</span>
-                                                    <asp:TextBox ID="txtMpesaNumber" runat="server" CssClass="form-control" 
-                                                        placeholder="Enter M-Pesa number (2547XXXXXXXX)" MaxLength="12">
-                                                    </asp:TextBox>
-                                                </div>
-                                                <asp:RegularExpressionValidator ID="regexMpesa" runat="server" 
-                                                    ControlToValidate="txtMpesaNumber" 
-                                                    ValidationExpression="^2547\d{8}$" 
-                                                    ErrorMessage="Please enter a valid M-Pesa number starting with 2547 followed by 8 digits." 
-                                                    CssClass="text-danger small" Display="Dynamic">
-                                                </asp:RegularExpressionValidator>
-                                            </div>
-                                            
-                                            <div class="mb-4">
-                                                <label for="txtDescription" class="form-label fw-bold">
-                                                    <i class="fas fa-file-alt me-1"></i>Payment Description:
-                                                </label>
-                                                <asp:TextBox ID="txtDescription" runat="server" CssClass="form-control" 
-                                                    TextMode="MultiLine" Rows="2" placeholder="Enter payment description">
-                                                </asp:TextBox>
-                                            </div>
-                                            
-                                            <asp:Button ID="btnInitiatePayment" runat="server" Text="Initiate M-Pesa Payment" 
-                                                CssClass="btn btn-mpesa w-100" OnClick="btnInitiatePayment_Click">
-                                            </asp:Button>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Email:</label>
+                                        <asp:Label ID="lblTechnicianEmail" runat="server" CssClass="form-control" Text=""></asp:Label>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Phone Number:</label>
+                                        <asp:Label ID="lblTechnicianPhone" runat="server" CssClass="form-control" Text=""></asp:Label>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Methods Card -->
+                    <div class="card payment-card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-wallet me-2"></i>Payment Methods
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Success Message Panel -->
+                            <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="alert alert-success success-alert mb-4">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <asp:Label ID="lblSuccessMessage" runat="server" Text=""></asp:Label>
+                            </asp:Panel>
                             
-                            <!-- Transaction Status Panel -->
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <asp:Panel ID="pnlTransactionStatus" runat="server" Visible="false">
-                                        <div class="alert alert-info transaction-alert p-4">
-                                            <h4 class="alert-heading">
-                                                <i class="fas fa-info-circle me-2"></i>
-                                                <asp:Label ID="lblTransactionTitle" runat="server" Text="Transaction Status"></asp:Label>
-                                            </h4>
-                                            <p class="mb-2"><asp:Label ID="lblTransactionMessage" runat="server" Text=""></asp:Label></p>
-                                            <hr />
-                                            <p class="mb-0 small">
-                                                <i class="fas fa-receipt me-1"></i>
-                                                Transaction Reference: <asp:Label ID="lblTransactionRef" runat="server" Text="" CssClass="fw-bold"></asp:Label>
-                                            </p>
-                                        </div>
-                                    </asp:Panel>
-                                </div>
+                            <!-- Payment Method Selection -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Preferred Payment Method:</label>
+                                <asp:DropDownList ID="ddlPaymentMethod" runat="server" CssClass="form-select" AutoPostBack="true" 
+                                    OnSelectedIndexChanged="ddlPaymentMethod_SelectedIndexChanged">
+                                    <asp:ListItem Text="-- Select Payment Method --" Value=""></asp:ListItem>
+                                    <asp:ListItem Text="M-Pesa" Value="MPESA"></asp:ListItem>
+                                    <asp:ListItem Text="Bank Transfer" Value="BANK"></asp:ListItem>
+                                    <asp:ListItem Text="Credit/Debit Card" Value="CARD"></asp:ListItem>
+                                </asp:DropDownList>
                             </div>
-                            
-                            <!-- Payment History -->
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <h4 class="mb-3">
-                                        <i class="fas fa-history me-2"></i>Payment History
-                                    </h4>
-                                    <div class="table-responsive">
-                                        <asp:GridView ID="gvPaymentHistory" runat="server" CssClass="table table-striped table-hover history-table"
-                                            AutoGenerateColumns="false" EmptyDataText="No payment records found." BorderWidth="0">
+
+                            <!-- M-Pesa Payment Details Panel -->
+                            <asp:Panel ID="pnlMpesa" runat="server" CssClass="payment-method-card" Visible="false">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/320px-M-PESA_LOGO-01.svg.png" alt="M-Pesa" class="payment-method-logo" />
+                                    <h4 class="method-title mb-0">M-Pesa Details</h4>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="txtMpesaNumber" class="form-label">
+                                                <i class="fas fa-phone me-1"></i>M-Pesa Phone Number:
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">+</span>
+                                                <asp:TextBox ID="txtMpesaNumber" runat="server" CssClass="form-control" 
+                                                    placeholder="Enter M-Pesa number (2547XXXXXXXX)" MaxLength="12">
+                                                </asp:TextBox>
+                                            </div>
+                                            <asp:RegularExpressionValidator ID="regexMpesa" runat="server" 
+                                                ControlToValidate="txtMpesaNumber" 
+                                                ValidationExpression="^2547\d{8}$" 
+                                                ErrorMessage="Please enter a valid M-Pesa number starting with 2547 followed by 8 digits." 
+                                                CssClass="text-danger small" Display="Dynamic">
+                                            </asp:RegularExpressionValidator>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="txtMpesaName" class="form-label">
+                                                <i class="fas fa-user me-1"></i>Registered Name:
+                                            </label>
+                                            <asp:TextBox ID="txtMpesaName" runat="server" CssClass="form-control" 
+                                                placeholder="Name registered with M-Pesa">
+                                            </asp:TextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </asp:Panel>
+
+                            <!-- Bank Transfer Details Panel -->
+                            <asp:Panel ID="pnlBank" runat="server" CssClass="payment-method-card" Visible="false">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-university payment-icon text-primary"></i>
+                                    <h4 class="method-title mb-0">Bank Account Details</h4>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="ddlBank" class="form-label">
+                                                <i class="fas fa-landmark me-1"></i>Bank Name:
+                                            </label>
+                                            <asp:DropDownList ID="ddlBank" runat="server" CssClass="form-select">
+                                                <asp:ListItem Text="-- Select Bank --" Value=""></asp:ListItem>
+                                                <asp:ListItem Text="KCB Bank" Value="KCB"></asp:ListItem>
+                                                <asp:ListItem Text="Equity Bank" Value="EQUITY"></asp:ListItem>
+                                                <asp:ListItem Text="Co-operative Bank" Value="COOP"></asp:ListItem>
+                                                <asp:ListItem Text="NCBA Bank" Value="NCBA"></asp:ListItem>
+                                                <asp:ListItem Text="Standard Chartered" Value="SC"></asp:ListItem>
+                                                <asp:ListItem Text="Absa Bank Kenya" Value="ABSA"></asp:ListItem>
+                                                <asp:ListItem Text="Other" Value="OTHER"></asp:ListItem>
+                                            </asp:DropDownList>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="txtAccountName" class="form-label">
+                                                <i class="fas fa-user me-1"></i>Account Holder Name:
+                                            </label>
+                                            <asp:TextBox ID="txtAccountName" runat="server" CssClass="form-control" 
+                                                placeholder="Name on bank account">
+                                            </asp:TextBox>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="txtAccountNumber" class="form-label">
+                                                <i class="fas fa-hashtag me-1"></i>Account Number:
+                                            </label>
+                                            <asp:TextBox ID="txtAccountNumber" runat="server" CssClass="form-control" 
+                                                placeholder="Enter account number">
+                                            </asp:TextBox>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="txtBranchCode" class="form-label">
+                                                <i class="fas fa-code-branch me-1"></i>Branch Code:
+                                            </label>
+                                            <asp:TextBox ID="txtBranchCode" runat="server" CssClass="form-control" 
+                                                placeholder="Enter branch code">
+                                            </asp:TextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </asp:Panel>
+
+                            <!-- Credit/Debit Card Details Panel -->
+                            <asp:Panel ID="pnlCard" runat="server" CssClass="payment-method-card" Visible="false">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-credit-card payment-icon text-primary"></i>
+                                    <h4 class="method-title mb-0">Card Details</h4>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="txtCardholderName" class="form-label">
+                                                <i class="fas fa-user me-1"></i>Cardholder Name:
+                                            </label>
+                                            <asp:TextBox ID="txtCardholderName" runat="server" CssClass="form-control" 
+                                                placeholder="Name on card">
+                                            </asp:TextBox>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="ddlCardType" class="form-label">
+                                                <i class="fas fa-credit-card me-1"></i>Card Type:
+                                            </label>
+                                            <asp:DropDownList ID="ddlCardType" runat="server" CssClass="form-select">
+                                                <asp:ListItem Text="-- Select Card Type --" Value=""></asp:ListItem>
+                                                <asp:ListItem Text="Visa" Value="VISA"></asp:ListItem>
+                                                <asp:ListItem Text="MasterCard" Value="MASTERCARD"></asp:ListItem>
+                                                <asp:ListItem Text="American Express" Value="AMEX"></asp:ListItem>
+                                                <asp:ListItem Text="Other" Value="OTHER"></asp:ListItem>
+                                            </asp:DropDownList>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="txtCardNumber" class="form-label">
+                                                <i class="fas fa-hashtag me-1"></i>Card Number (Last 4 digits only):
+                                            </label>
+                                            <asp:TextBox ID="txtCardNumber" runat="server" CssClass="form-control" 
+                                                placeholder="Enter last 4 digits" MaxLength="4">
+                                            </asp:TextBox>
+                                            <asp:RegularExpressionValidator ID="regexCard" runat="server" 
+                                                ControlToValidate="txtCardNumber" 
+                                                ValidationExpression="^\d{4}$" 
+                                                ErrorMessage="Please enter only the last 4 digits of your card." 
+                                                CssClass="text-danger small" Display="Dynamic">
+                                            </asp:RegularExpressionValidator>
+                                            <span class="text-muted small">For security, only enter the last 4 digits</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="txtCardExpiry" class="form-label">
+                                                <i class="fas fa-calendar me-1"></i>Expiry Date (MM/YY):
+                                            </label>
+                                            <asp:TextBox ID="txtCardExpiry" runat="server" CssClass="form-control" 
+                                                placeholder="MM/YY" MaxLength="5">
+                                            </asp:TextBox>
+                                            <asp:RegularExpressionValidator ID="regexExpiry" runat="server" 
+                                                ControlToValidate="txtCardExpiry" 
+                                                ValidationExpression="^(0[1-9]|1[0-2])\/([0-9]{2})$" 
+                                                ErrorMessage="Please enter a valid expiry date (MM/YY)." 
+                                                CssClass="text-danger small" Display="Dynamic">
+                                            </asp:RegularExpressionValidator>
+                                        </div>
+                                    </div>
+                                </div>
+                            </asp:Panel>
+
+                            <!-- Save Button -->
+                            <div class="mt-4">
+                                <asp:Button ID="btnSavePaymentInfo" runat="server" Text="Save Payment Information" 
+                                    CssClass="btn btn-save" OnClick="btnSavePaymentInfo_Click">
+                                </asp:Button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Summary Card -->
+                    <div class="card payment-card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-file-invoice-dollar me-2"></i>Payment Summary
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-4">
+                                        <h5>Recent Projects</h5>
+                                        <asp:GridView ID="gvRecentProjects" runat="server" CssClass="table table-striped table-hover"
+                                            AutoGenerateColumns="false" EmptyDataText="No recent projects found." BorderWidth="0">
                                             <Columns>
-                                                <asp:BoundField DataField="PaymentDate" HeaderText="Date" DataFormatString="{0:yyyy-MM-dd HH:mm}" />
-                                                <asp:BoundField DataField="ProjectName" HeaderText="Project" />
-                                                <asp:BoundField DataField="Amount" HeaderText="Amount (KES)" DataFormatString="{0:N2}" />
-                                                <asp:BoundField DataField="PhoneNumber" HeaderText="M-Pesa Number" />
-                                                <asp:TemplateField HeaderText="Status">
-                                                    <ItemTemplate>
-                                                        <span class='badge <%# GetStatusBadgeClass(Eval("Status").ToString()) %>'>
-                                                            <%# Eval("Status") %>
-                                                        </span>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-                                                <asp:BoundField DataField="TransactionId" HeaderText="Transaction ID" />
+                                                <asp:BoundField DataField="ProjectName" HeaderText="Project Name" />
+                                                <asp:BoundField DataField="ProjectAmount" HeaderText="Amount (KES)" DataFormatString="{0:N2}" />
                                             </Columns>
                                         </asp:GridView>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-4">
+                                        <h5>Payment Statistics</h5>
+                                        <div class="card-body bg-light rounded p-3">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Total Projects:</span>
+                                                <span class="fw-bold"><asp:Label ID="lblTotalProjects" runat="server"></asp:Label></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Total Earnings:</span>
+                                                <span class="fw-bold">KES <asp:Label ID="lblTotalEarnings" runat="server"></asp:Label></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Current Payment Method:</span>
+                                                <span class="fw-bold"><asp:Label ID="lblCurrentMethod" runat="server"></asp:Label></span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

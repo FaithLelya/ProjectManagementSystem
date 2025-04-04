@@ -24,6 +24,24 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// lblOutput control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblOutput;
+
+        /// <summary>
+        /// lblSuccess control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblSuccess;
+
+        /// <summary>
         /// txtProjectName control.
         /// </summary>
         /// <remarks>
@@ -40,24 +58,6 @@ namespace ProjectManagementSystem.Views.Projects
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProjectName;
-
-        /// <summary>
-        /// ddlProjectManager control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlProjectManager;
-
-        /// <summary>
-        /// rfvProjectManager control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProjectManager;
 
         /// <summary>
         /// txtDescription control.
@@ -96,22 +96,22 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvLocation;
 
         /// <summary>
-        /// txtResources control.
+        /// ddlProjectManager control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtResources;
+        protected global::System.Web.UI.WebControls.DropDownList ddlProjectManager;
 
         /// <summary>
-        /// rfvResources control.
+        /// rfvProjectManager control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvResources;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProjectManager;
 
         /// <summary>
         /// txtStartTime control.
@@ -132,13 +132,13 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Calendar calStartTime;
 
         /// <summary>
-        /// lblStartDateError control.
+        /// rfvStartTime control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblStartDateError;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvStartTime;
 
         /// <summary>
         /// txtEndTime control.
@@ -159,13 +159,13 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Calendar calEndTime;
 
         /// <summary>
-        /// lblEndDateError control.
+        /// rfvEndTime control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblEndDateError;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvEndTime;
 
         /// <summary>
         /// txtTechnicianCost control.
@@ -186,13 +186,13 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvTechnicianCost;
 
         /// <summary>
-        /// revTechnicianCost control.
+        /// rvTechnicianCost control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revTechnicianCost;
+        protected global::System.Web.UI.WebControls.RangeValidator rvTechnicianCost;
 
         /// <summary>
         /// txtMaterialsCost control.
@@ -213,22 +213,31 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMaterialsCost;
 
         /// <summary>
-        /// revMaterialsCost control.
+        /// rvMaterialsCost control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revMaterialsCost;
+        protected global::System.Web.UI.WebControls.RangeValidator rvMaterialsCost;
 
         /// <summary>
-        /// txtBudget control.
+        /// txtResources control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtBudget;
+        protected global::System.Web.UI.WebControls.TextBox txtResources;
+
+        /// <summary>
+        /// rptTasks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptTasks;
 
         /// <summary>
         /// txtTaskName control.
@@ -240,6 +249,15 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.TextBox txtTaskName;
 
         /// <summary>
+        /// txtTaskDueDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTaskDueDate;
+
+        /// <summary>
         /// txtTaskDescription control.
         /// </summary>
         /// <remarks>
@@ -249,31 +267,22 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.TextBox txtTaskDescription;
 
         /// <summary>
-        /// txtTaskStartDate control.
+        /// btnAddTask control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTaskStartDate;
+        protected global::System.Web.UI.WebControls.Button btnAddTask;
 
         /// <summary>
-        /// txtTaskEndDate control.
+        /// cvTasksRequired control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTaskEndDate;
-
-        /// <summary>
-        /// ddlTaskAssignedTo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlTaskAssignedTo;
+        protected global::System.Web.UI.WebControls.CustomValidator cvTasksRequired;
 
         /// <summary>
         /// btnCreateProject control.
@@ -283,14 +292,5 @@ namespace ProjectManagementSystem.Views.Projects
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnCreateProject;
-
-        /// <summary>
-        /// lblOutput control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblOutput;
     }
 }

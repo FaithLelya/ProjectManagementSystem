@@ -25,14 +25,14 @@
             <h2 class="text-center mb-4">Resources Management</h2>
             
             <div class="card mb-4">
-                <div class="card-header text-white" style="background-color: #0056b3;">
+                <div class="card-header text-white bg-primary">
                     <h5 class="mb-0">All Resources</h5>
                 </div>
                 <div class="card-body">
                     <asp:Repeater ID="ResourcesRepeater" runat="server">
                         <HeaderTemplate>
                             <table class="table table-hover table-bordered">
-                                <thead style="background-color: #0056b3;">
+                                <thead class="bg-primary text-white">
                                     <tr>
                                         <th>ID</th>
                                         <th>Resource Name</th>
@@ -69,7 +69,7 @@
             </div>
             
             <div class="card">
-                <div class="card-header text-white" style="background-color: #0056b3;">
+                <div class="card-header text-white bg-primary">
                     <h5 id="formTitle" runat="server">Add New Resource</h5>
                 </div>
                 <div class="card-body">
@@ -103,7 +103,7 @@
                     
                     <div class="mb-3">
                         <label for="txtCostPerUnit" class="form-label">Cost Per Unit:</label>
-                        <asp:TextBox ID="txtCostPerUnit" runat="server" CssClass="form-control"></asp:TextBox>
+                        <asp:TextBox ID="txtCostPerUnit" runat="server" CssClass="form-control" TextMode="Number" min="7000" step="0.01"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="rfvCostPerUnit" runat="server" 
                             ControlToValidate="txtCostPerUnit" 
                             ErrorMessage="Cost per unit is required." 
@@ -113,10 +113,15 @@
                             ValidationExpression="^\d+(\.\d{1,2})?$" 
                             ErrorMessage="Please enter a valid price (e.g., 10.99)." 
                             CssClass="text-danger" Display="Dynamic"></asp:RegularExpressionValidator>
+                        <asp:RangeValidator ID="rvCostPerUnit" runat="server" 
+                            ControlToValidate="txtCostPerUnit" 
+                            Type="Double" MinimumValue="7000" MaximumValue="9999999" 
+                            ErrorMessage="Cost per unit must be at least 7,000." 
+                            CssClass="text-danger" Display="Dynamic"></asp:RangeValidator>
                     </div>
                     
                     <div class="d-flex justify-content-between">
-                        <asp:Button ID="btnSave" runat="server" Text="Save Resource" CssClass="btn " style="background-color: #0056b3;" OnClick="btnSave_Click" />
+                        <asp:Button ID="btnSave" runat="server" Text="Save Resource" CssClass="btn btn-primary" OnClick="btnSave_Click" />
                         <asp:Button ID="btnCancel" runat="server" Text="Cancel" CssClass="btn btn-secondary" OnClick="btnCancel_Click" CausesValidation="false" />
                     </div>
                     

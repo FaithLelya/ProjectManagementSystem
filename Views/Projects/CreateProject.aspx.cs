@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Web.UI.WebControls;
+using System.Linq;
 using ProjectManagementSystem.Helpers;
 using ProjectManagementSystem.Models;
 
@@ -9,6 +9,9 @@ namespace ProjectManagementSystem.Views.Projects
 {
     public partial class CreateProject : System.Web.UI.Page
     {
+        // Session key for storing tasks
+        private const string TASKS_SESSION_KEY = "ProjectTasks";
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // Check if the user is logged in and is an Admin
@@ -22,42 +25,35 @@ namespace ProjectManagementSystem.Views.Projects
                 }
             }
 
-            // Load project managers and users only on the first page load
             if (!IsPostBack)
             {
+                // Initialize tasks list in session
+                Session[TASKS_SESSION_KEY] = new List<ProjectTask>();
+
+                // Load project managers
                 LoadProjectManagers();
-                LoadTaskAssignedToUsers();
 
-                // Set default dates to today
-                calStartTime.SelectedDate = DateTime.Today;
-                calEndTime.SelectedDate = DateTime.Today.AddDays(1);
-                txtStartTime.Text = DateTime.Today.ToString("yyyy-MM-dd");
-                txtEndTime.Text = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+                // Set minimum dates for start date (7 days from today) and end date
+                SetMinimumDates();
+
+                // Bind tasks repeater
+                BindTasksRepeater();
             }
         }
 
-        protected void calStartTime_DayRender(object sender, DayRenderEventArgs e)
+        private void SetMinimumDates()
         {
-            // Disable dates before today in the start date calendar
-            if (e.Day.Date < DateTime.Today)
-            {
-                e.Day.IsSelectable = false;
-                e.Cell.ForeColor = Color.Gray;
-                e.Cell.BackColor = Color.LightGray;
-                e.Cell.ToolTip = "Cannot select past dates";
-            }
-        }
+            // Set min date to 7 days from today
+            DateTime minStartDate = DateTime.Today.AddDays(7);
 
-        protected void calEndTime_DayRender(object sender, DayRenderEventArgs e)
-        {
-            // Disable dates before today in the end date calendar
-            if (e.Day.Date < DateTime.Today)
-            {
-                e.Day.IsSelectable = false;
-                e.Cell.ForeColor = Color.Gray;
-                e.Cell.BackColor = Color.LightGray;
-                e.Cell.ToolTip = "Cannot select past dates";
-            }
+            // Apply min date to calendar
+            calStartTime.SelectedDate = minStartDate;
+            txtStartTime.Text = minStartDate.ToString("yyyy-MM-dd");
+
+            // Min end date should be at least one day after start date
+            DateTime minEndDate = minStartDate.AddDays(1);
+            calEndTime.SelectedDate = minEndDate;
+            txtEndTime.Text = minEndDate.ToString("yyyy-MM-dd");
         }
 
         private void LoadProjectManagers()
@@ -73,176 +69,127 @@ namespace ProjectManagementSystem.Views.Projects
             ddlProjectManager.Items.Insert(0, new ListItem("Select a Project Manager", ""));
         }
 
-        private void LoadTaskAssignedToUsers()
-        {
-            // Load all users who can be assigned tasks
-            List<User> users = SQLiteHelper.GetAllUsers();
-            ddlTaskAssignedTo.DataSource = users;
-            ddlTaskAssignedTo.DataTextField = "Username";
-            ddlTaskAssignedTo.DataValueField = "UserId";
-            ddlTaskAssignedTo.DataBind();
-
-            // default item
-            ddlTaskAssignedTo.Items.Insert(0, new ListItem("Select Assignee", ""));
-        }
-
         protected void btnCreateProject_Click(object sender, EventArgs e)
         {
-            // Validate main project fields
-            if (!ValidateProjectFields())
+            // Basic validation
+            if (!Page.IsValid)
             {
+                lblOutput.Text = "Please fix the validation errors before submitting.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
                 return;
             }
 
-            // Create project details
-            string projectName = txtProjectName.Text;
-            string description = txtDescription.Text;
-            string location = txtLocation.Text;
-            DateTime startDate = DateTime.Parse(txtStartTime.Text);
-            DateTime endDate = DateTime.Parse(txtEndTime.Text);
-            decimal technicianPayment = decimal.Parse(txtTechnicianCost.Text);
-            decimal materialsCost = decimal.Parse(txtMaterialsCost.Text);
-            decimal budget = technicianPayment + materialsCost;
-            int projectManagerId = int.Parse(ddlProjectManager.SelectedValue);
-            string resources = txtResources.Text;
-
-            // Insert project and get the new project ID
-            int newProjectId = SQLiteHelper.InsertProject(projectName, description, location, startDate, endDate,
-                                                          technicianPayment, materialsCost, budget,
-                                                          projectManagerId, resources);
-
-            // Create tasks for the project
-            CreateProjectTasks(newProjectId);
-
-            // Display success message
-            lblOutput.Text = "Project Created Successfully with Initial Tasks!";
-
-            // Redirect to projects page
-            Response.Redirect("~/Views/Projects/Projects.aspx");
-        }
-
-        private void CreateProjectTasks(int projectId)
-        {
-            // Get all task inputs from the form
-            string[] taskNames = Request.Form.GetValues("ctl00$form1$txtTaskName");
-            string[] taskDescriptions = Request.Form.GetValues("ctl00$form1$txtTaskDescription");
-            string[] taskStartDates = Request.Form.GetValues("ctl00$form1$txtTaskStartDate");
-            string[] taskEndDates = Request.Form.GetValues("ctl00$form1$txtTaskEndDate");
-            string[] taskAssignedToValues = Request.Form.GetValues("ctl00$form1$ddlTaskAssignedTo");
-
-            // Validate and insert tasks
-            if (taskNames != null)
+            try
             {
-                for (int i = 0; i < taskNames.Length; i++)
+                // Get form values
+                string ProjectName = txtProjectName.Text.Trim();
+                string Description = txtDescription.Text.Trim();
+                string Location = txtLocation.Text.Trim();
+                DateTime StartDate = DateTime.Parse(txtStartTime.Text);
+                DateTime EndDate = DateTime.Parse(txtEndTime.Text);
+
+                // Validate costs - ensure they are at least 10,000
+                decimal TechnicianPayment;
+                decimal MaterialsCost;
+                if (!decimal.TryParse(txtTechnicianCost.Text, out TechnicianPayment) || TechnicianPayment < 10000 ||
+                    !decimal.TryParse(txtMaterialsCost.Text, out MaterialsCost) || MaterialsCost < 10000)
                 {
-                    // Skip empty tasks
-                    if (string.IsNullOrWhiteSpace(taskNames[i]))
-                        continue;
-
-                    DateTime taskStartDate, taskEndDate;
-                    int assignedToUserId = 0;
-
-                    // Parse dates if provided
-                    if (DateTime.TryParse(taskStartDates[i], out taskStartDate) &&
-                        DateTime.TryParse(taskEndDates[i], out taskEndDate) &&
-                        int.TryParse(taskAssignedToValues[i], out assignedToUserId) &&
-                        assignedToUserId > 0)
-                    {
-                        // Validate task dates are not in the past
-                        if (taskStartDate < DateTime.Today || taskEndDate < DateTime.Today)
-                        {
-                            continue; // Skip invalid dates
-                        }
-
-                        // Insert task into database
-                        SQLiteHelper.InsertProjectTask(
-                            projectId,
-                            taskNames[i],
-                            taskDescriptions[i],
-                            taskStartDate,
-                            taskEndDate,
-                            assignedToUserId
-                        );
-                    }
+                    lblOutput.Text = "Both Technician Payment and Materials Cost must be at least ₦10,000.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
                 }
-            }
-        }
 
-        private bool ValidateProjectFields()
-        {
-            // Validate required fields
-            if (string.IsNullOrWhiteSpace(txtProjectName.Text) ||
-                string.IsNullOrWhiteSpace(txtDescription.Text) ||
-                string.IsNullOrWhiteSpace(txtLocation.Text) ||
-                string.IsNullOrWhiteSpace(txtStartTime.Text) ||
-                string.IsNullOrWhiteSpace(txtEndTime.Text) ||
-                string.IsNullOrWhiteSpace(txtTechnicianCost.Text) ||
-                string.IsNullOrWhiteSpace(txtMaterialsCost.Text) ||
-                ddlProjectManager.SelectedValue == "")
+                // Calculate total budget
+                decimal Budget = TechnicianPayment + MaterialsCost;
+
+                // Validate manager selection
+                if (string.IsNullOrEmpty(ddlProjectManager.SelectedValue))
+                {
+                    lblOutput.Text = "Please select a Project Manager.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+                int ProjectManagerId = int.Parse(ddlProjectManager.SelectedValue);
+
+                // Validate start date (must be at least 7 days from today)
+                DateTime minStartDate = DateTime.Today.AddDays(7);
+                if (StartDate < minStartDate)
+                {
+                    lblOutput.Text = $"Project start date must be at least 7 days from today ({minStartDate.ToString("yyyy-MM-dd")}).";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+
+                // Validate end date (must be after start date)
+                if (EndDate <= StartDate)
+                {
+                    lblOutput.Text = "End Date must be after Start Date.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+
+                // Get resources
+                string Resources = txtResources.Text.Trim();
+
+                // Validate tasks (at least one task required)
+                var tasks = Session[TASKS_SESSION_KEY] as List<ProjectTask>;
+                if (tasks == null || tasks.Count == 0)
+                {
+                    lblOutput.Text = "Please add at least one task to the project.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+
+                // Debug info
+                System.Diagnostics.Debug.WriteLine($"Inserting Project: {ProjectName}, {Description}, {Location}, {StartDate}, {EndDate}, {TechnicianPayment}, {MaterialsCost}, {Budget}, {ProjectManagerId}, {Resources}");
+
+                // Save project to database
+                int projectId = SQLiteHelper.InsertProject(ProjectName, Description, Location, StartDate, EndDate, TechnicianPayment, MaterialsCost, Budget, ProjectManagerId, Resources);
+
+                DateTime defaultStartDate = DateTime.Now; 
+                DateTime defaultEndDate = DateTime.Now.AddDays(7); 
+
+                // Save tasks for this project
+                foreach (var task in tasks)
+                {
+                    SQLiteHelper.InsertProjectTask(projectId, task.Name, task.Description, defaultStartDate, defaultEndDate, task.AssignedToUserId);
+                }
+
+                // Clear tasks from session
+                Session[TASKS_SESSION_KEY] = null;
+
+                // Display success message
+                lblSuccess.Text = "Project Created Successfully!";
+                lblSuccess.CssClass = lblSuccess.CssClass.Replace("d-none", "").Trim();
+
+                // Redirect to projects list with delay
+                Response.AddHeader("REFRESH", "2;URL=Projects.aspx");
+            }
+            catch (Exception ex)
             {
-                lblOutput.Text = "Please fill in all required project fields.";
-                return false;
+                // Log the error
+                System.Diagnostics.Debug.WriteLine($"Error creating project: {ex.Message}");
+                lblOutput.Text = "An error occurred while creating the project. Please try again.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
             }
-
-            // Validate date range
-            DateTime startDate, endDate;
-            if (!DateTime.TryParse(txtStartTime.Text, out startDate) ||
-                !DateTime.TryParse(txtEndTime.Text, out endDate))
-            {
-                lblOutput.Text = "Invalid date format.";
-                return false;
-            }
-
-            // Validate dates are not in the past
-            if (startDate < DateTime.Today)
-            {
-                lblStartDateError.Text = "Start date cannot be in the past.";
-                lblStartDateError.Visible = true;
-                return false;
-            }
-
-            if (endDate < DateTime.Today)
-            {
-                lblEndDateError.Text = "End date cannot be in the past.";
-                lblEndDateError.Visible = true;
-                return false;
-            }
-
-            if (startDate >= endDate)
-            {
-                lblOutput.Text = "Start Date must be before End Date.";
-                return false;
-            }
-
-            // Validate numeric fields
-            decimal technicianPayment, materialsCost;
-            if (!decimal.TryParse(txtTechnicianCost.Text, out technicianPayment) || technicianPayment < 0 ||
-                !decimal.TryParse(txtMaterialsCost.Text, out materialsCost) || materialsCost < 0)
-            {
-                lblOutput.Text = "Technician Payment and Materials Cost must be valid non-negative numbers.";
-                return false;
-            }
-
-            return true;
         }
 
         protected void calStartTime_SelectionChanged(object sender, EventArgs e)
         {
-            if (calStartTime.SelectedDate < DateTime.Today)
+            DateTime minStartDate = DateTime.Today.AddDays(7);
+            if (calStartTime.SelectedDate < minStartDate)
             {
-                lblStartDateError.Text = "Start date cannot be in the past.";
-                lblStartDateError.Visible = true;
-                calStartTime.SelectedDate = DateTime.Today;
-            }
-            else
-            {
-                lblStartDateError.Visible = false;
+                // If selected date is before min date, force min date
+                calStartTime.SelectedDate = minStartDate;
+                lblOutput.Text = $"Start date must be at least 7 days from today ({minStartDate.ToString("yyyy-MM-dd")}).";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
             }
 
             txtStartTime.Text = calStartTime.SelectedDate.ToString("yyyy-MM-dd");
 
-            // Ensure end date is not before start date
-            if (calEndTime.SelectedDate < calStartTime.SelectedDate)
+            // Update end date if it's now before or equal to start date
+            DateTime endDate;
+            if (DateTime.TryParse(txtEndTime.Text, out endDate) && endDate <= calStartTime.SelectedDate)
             {
                 calEndTime.SelectedDate = calStartTime.SelectedDate.AddDays(1);
                 txtEndTime.Text = calEndTime.SelectedDate.ToString("yyyy-MM-dd");
@@ -251,25 +198,96 @@ namespace ProjectManagementSystem.Views.Projects
 
         protected void calEndTime_SelectionChanged(object sender, EventArgs e)
         {
-            if (calEndTime.SelectedDate < DateTime.Today)
+            DateTime startDate;
+            if (DateTime.TryParse(txtStartTime.Text, out startDate))
             {
-                lblEndDateError.Text = "End date cannot be in the past.";
-                lblEndDateError.Visible = true;
-                calEndTime.SelectedDate = DateTime.Today;
-            }
-            else
-            {
-                lblEndDateError.Visible = false;
+                if (calEndTime.SelectedDate <= startDate)
+                {
+                    // If selected end date is on or before start date, set it to start date + 1
+                    calEndTime.SelectedDate = startDate.AddDays(1);
+                    lblOutput.Text = "End date must be after the start date.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                }
             }
 
             txtEndTime.Text = calEndTime.SelectedDate.ToString("yyyy-MM-dd");
+        }
 
-            // Ensure start date is not after end date
-            if (calStartTime.SelectedDate > calEndTime.SelectedDate)
+        // Task management methods
+        protected void btnAddTask_Click(object sender, EventArgs e)
+        {
+            string taskName = txtTaskName.Text.Trim();
+            string taskDescription = txtTaskDescription.Text.Trim();
+            DateTime taskDueDate;
+
+            // Basic validation
+            if (string.IsNullOrEmpty(taskName))
             {
-                calStartTime.SelectedDate = calEndTime.SelectedDate.AddDays(-1);
-                txtStartTime.Text = calStartTime.SelectedDate.ToString("yyyy-MM-dd");
+                lblOutput.Text = "Task name is required.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                return;
             }
+
+            // Validate due date
+            if (string.IsNullOrEmpty(txtTaskDueDate.Text) || !DateTime.TryParse(txtTaskDueDate.Text, out taskDueDate))
+            {
+                lblOutput.Text = "Please enter a valid due date for the task.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                return;
+            }
+
+            // Ensure due date is not in the past
+            if (taskDueDate < DateTime.Today)
+            {
+                lblOutput.Text = "Task due date cannot be in the past.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                return;
+            }
+
+            // Create task object
+            var task = new ProjectTask
+            {
+                Name = taskName,
+                Description = taskDescription,
+                EndDate = taskDueDate
+            };
+
+            // Add to session
+            var tasks = Session[TASKS_SESSION_KEY] as List<ProjectTask>;
+            if (tasks == null)
+            {
+                tasks = new List<ProjectTask>();
+                Session[TASKS_SESSION_KEY] = tasks;
+            }
+
+            tasks.Add(task);
+
+            // Clear form fields
+            txtTaskName.Text = string.Empty;
+            txtTaskDescription.Text = string.Empty;
+            txtTaskDueDate.Text = string.Empty;
+
+            // Rebind tasks
+            BindTasksRepeater();
+
+            // Show success message
+            lblSuccess.Text = "Task added successfully.";
+            lblSuccess.CssClass = lblSuccess.CssClass.Replace("d-none", "").Trim();
+        }
+
+        private void BindTasksRepeater()
+        {
+            var tasks = Session[TASKS_SESSION_KEY] as List<ProjectTask>;
+            rptTasks.DataSource = tasks;
+            rptTasks.DataBind();
+        }
+
+        protected void cvTasksRequired_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            var tasks = Session[TASKS_SESSION_KEY] as List<ProjectTask>;
+            args.IsValid = (tasks != null && tasks.Count > 0);
         }
     }
+
+    
 }

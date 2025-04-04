@@ -299,6 +299,7 @@
     <Content Include="Views\Technicians\CompensationDetails.aspx" />
     <Content Include="Views\Technicians\PaymentInfo.aspx" />
     <Content Include="Views\Technicians\RecordAttendance.aspx" />
+    <Content Include="Views\Technicians\RecordedAttendance.aspx" />
     <Content Include="Web.config" />
     <Content Include="Bundle.config" />
     <Content Include="Site.Mobile.Master" />
@@ -498,6 +499,13 @@
     </Compile>
     <Compile Include="Views\Technicians\RecordAttendance.aspx.designer.cs">
       <DependentUpon>RecordAttendance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Technicians\RecordedAttendance.aspx.cs">
+      <DependentUpon>RecordedAttendance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Technicians\RecordedAttendance.aspx.designer.cs">
+      <DependentUpon>RecordedAttendance.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

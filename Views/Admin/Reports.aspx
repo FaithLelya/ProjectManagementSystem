@@ -10,6 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <!-- Add jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
         .export-buttons {
             margin-top: 20px;
@@ -119,8 +122,8 @@
                     <div class="export-buttons">
                         <asp:UpdatePanel ID="UpdatePanel1" runat="server">
                             <ContentTemplate>
-                                <asp:Button ID="btnExportExcel" runat="server" Text="Export to Excel" CssClass="btn btn-success" OnClick="btnExportExcel_Click" />
-                                <asp:Button ID="btnExportPDF" runat="server" Text="Export to PDF" CssClass="btn btn-danger" OnClick="btnExportPDF_Click" />
+                                <button type="button" id="btnExportPDFClient" class="btn btn-danger">Export to PDF</button>
+                                <asp:Button ID="btnExportPDF" runat="server" Text="Export to PDF" CssClass="btn btn-danger d-none" OnClick="btnExportPDF_Click" OnClientClick="return false;" />
                             </ContentTemplate>
                         </asp:UpdatePanel>
                     </div>
@@ -191,6 +194,99 @@
                     }
                 }
             });
+        }
+
+        // Wait for the document to be fully loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get reference to the export PDF button
+            const exportPdfButton = document.getElementById('btnExportPDFClient');
+
+            if (exportPdfButton) {
+                exportPdfButton.addEventListener('click', exportToPDF);
+            }
+        });
+
+        function exportToPDF() {
+            // Using jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add title
+            doc.setFontSize(18);
+            doc.text('Budget vs Actual Finances Report', 14, 20);
+
+            // Add date
+            doc.setFontSize(12);
+            doc.text('Generated: ' + new Date().toLocaleDateString(), 14, 30);
+
+            // Add summary information
+            doc.setFontSize(14);
+            doc.text('Summary', 14, 45);
+
+            const totalBudget = document.querySelector('.text-primary').textContent;
+            const totalExpenses = document.querySelector('.text-danger').textContent;
+
+            doc.setFontSize(12);
+            doc.text('Total Budget: ' + totalBudget, 14, 55);
+            doc.text('Total Expenses: ' + totalExpenses, 14, 65);
+
+            // Create table for detailed project data
+            const table = document.getElementById('gvProjectData');
+            if (table) {
+                // Extract table headers
+                const headers = [];
+                for (let i = 0; i < table.rows[0].cells.length; i++) {
+                    headers.push(table.rows[0].cells[i].textContent.trim());
+                }
+
+                // Extract table data
+                const data = [];
+                for (let i = 1; i < table.rows.length; i++) {
+                    const rowData = [];
+                    for (let j = 0; j < table.rows[i].cells.length; j++) {
+                        rowData.push(table.rows[i].cells[j].textContent.trim());
+                    }
+                    data.push(rowData);
+                }
+
+                // Add table to PDF
+                doc.text('Detailed Project Data', 14, 80);
+
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 85,
+                    theme: 'grid',
+                    styles: { fontSize: 10 },
+                    headStyles: { fillColor: [54, 162, 235] },
+                    alternateRowStyles: { fillColor: [240, 240, 240] },
+                    margin: { top: 90 }
+                });
+            }
+
+            // Add current chart if possible
+            try {
+                const chartCanvas = document.getElementById('budgetChart');
+                if (chartCanvas) {
+                    const chartImage = chartCanvas.toDataURL('image/png');
+
+                    // Add new page if needed
+                    if (doc.lastAutoTable.finalY > 180) {
+                        doc.addPage();
+                        doc.text('Budget vs Actual by Project Chart', 14, 20);
+                        doc.addImage(chartImage, 'PNG', 14, 30, 180, 100);
+                    } else {
+                        const yPosition = doc.lastAutoTable.finalY + 20;
+                        doc.text('Budget vs Actual by Project Chart', 14, yPosition);
+                        doc.addImage(chartImage, 'PNG', 14, yPosition + 10, 180, 100);
+                    }
+                }
+            } catch (error) {
+                console.log('Could not add chart to PDF: ' + error.message);
+            }
+
+            // Save the PDF
+            doc.save('BudgetVsActualReport.pdf');
         }
     </script>
 </body>

@@ -68,27 +68,128 @@
         .back-btn {
             margin-bottom: 20px;
         }
-    </style>
-    <script type="text/javascript">
-        function toggleHoursInput() {
-            var isAbsent = document.getElementById('<%= rbtnAbsent.ClientID %>').checked;
-            document.getElementById('<%= txtHoursWorked.ClientID %>').disabled = isAbsent;
-            document.getElementById('<%= txtOvertimeHours.ClientID %>').disabled = isAbsent;
+        
+        .overtime-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 4px;
         }
         
-        // Set default date to today on page load
+        .validation-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 4px;
+            display: none;
+        }
+    </style>
+    <script type="text/javascript">
+        // Regular working hours constant
+        const REGULAR_HOURS = 8;
+        const MAX_HOURS = 24;
+
+        function toggleTimeInputs() {
+            var isAbsent = document.getElementById('<%= rbtnAbsent.ClientID %>').checked;
+            document.getElementById('<%= txtStartTime.ClientID %>').disabled = isAbsent;
+            document.getElementById('<%= txtEndTime.ClientID %>').disabled = isAbsent;
+            document.getElementById('<%= txtHoursWorked.ClientID %>').disabled = isAbsent;
+            document.getElementById('<%= txtOvertimeHours.ClientID %>').disabled = isAbsent;
+
+            if (isAbsent) {
+                // When marked as absent, set hours to 0
+                document.getElementById('<%= txtHoursWorked.ClientID %>').value = "0";
+                document.getElementById('<%= txtOvertimeHours.ClientID %>').value = "0";
+                document.getElementById('<%= hiddenTotalHours.ClientID %>').value = "0";
+            }
+        }
+
+        function updateTotalHours() {
+            // Hide any previous validation messages
+            document.getElementById('hoursValidationError').style.display = 'none';
+            // Enable submit button by default
+            document.getElementById('<%= btnSubmit.ClientID %>').disabled = false;
+
+            if (document.getElementById('<%= rbtnAbsent.ClientID %>').checked) {
+                document.getElementById('<%= txtHoursWorked.ClientID %>').value = "0";
+                document.getElementById('<%= txtOvertimeHours.ClientID %>').value = "0";
+                document.getElementById('<%= hiddenTotalHours.ClientID %>').value = "0";
+                return;
+            }
+
+            // Get manually entered hours
+            var regularHours = parseFloat(document.getElementById('<%= txtHoursWorked.ClientID %>').value) || 0;
+            var overtimeHours = parseFloat(document.getElementById('<%= txtOvertimeHours.ClientID %>').value) || 0;
+
+            // Calculate total hours
+            var totalHours = regularHours + overtimeHours;
+
+            // Validation: Check if total hours is valid
+            if (totalHours <= 0 || totalHours > MAX_HOURS) {
+                document.getElementById('hoursValidationError').style.display = 'block';
+                document.getElementById('<%= btnSubmit.ClientID %>').disabled = true;
+                return;
+            }
+            
+            // Store total hours in hidden field
+            document.getElementById('<%= hiddenTotalHours.ClientID %>').value = totalHours.toString();
+            
+            // Debug output to console
+            console.log("Regular Hours: " + regularHours);
+            console.log("Overtime Hours: " + overtimeHours);
+            console.log("Total Hours: " + totalHours);
+        }
+    
+        function validateForm() {
+            // Perform final validation before form submission
+            if (document.getElementById('<%= rbtnPositive.ClientID %>').checked) {
+                var regularHours = parseFloat(document.getElementById('<%= txtHoursWorked.ClientID %>').value) || 0;
+                var overtimeHours = parseFloat(document.getElementById('<%= txtOvertimeHours.ClientID %>').value) || 0;
+                var totalHours = regularHours + overtimeHours;
+                
+                // Ensure the hours fields have values before submission
+                if (document.getElementById('<%= txtHoursWorked.ClientID %>').value === "") {
+                    document.getElementById('<%= txtHoursWorked.ClientID %>').value = "0";
+                }
+                
+                if (document.getElementById('<%= txtOvertimeHours.ClientID %>').value === "") {
+                    document.getElementById('<%= txtOvertimeHours.ClientID %>').value = "0";
+                }
+                
+                // Update hidden field with total hours
+                document.getElementById('<%= hiddenTotalHours.ClientID %>').value = totalHours.toString();
+                
+                if (isNaN(totalHours) || totalHours <= 0 || totalHours > MAX_HOURS) {
+                    document.getElementById('hoursValidationError').style.display = 'block';
+                    return false;
+                }
+            }
+            return true;
+        }
+    
+        // Set default date and times on page load
         window.onload = function() {
+            // Set today's date
             var today = new Date();
             var dd = String(today.getDate()).padStart(2, '0');
             var mm = String(today.getMonth() + 1).padStart(2, '0');
             var yyyy = today.getFullYear();
             today = yyyy + '-' + mm + '-' + dd;
             document.getElementById('<%= txtDate.ClientID %>').value = today;
+            
+            // Set default start time (9:00 AM)
+            document.getElementById('<%= txtStartTime.ClientID %>').value = "09:00";
+            
+            // Set default end time (5:00 PM)
+            document.getElementById('<%= txtEndTime.ClientID %>').value = "17:00";
+
+            // Set default hours
+            document.getElementById('<%= txtHoursWorked.ClientID %>').value = "8";
+            document.getElementById('<%= txtOvertimeHours.ClientID %>').value = "0";
+            document.getElementById('<%= hiddenTotalHours.ClientID %>').value = "8";
         };
     </script>
 </head>
 <body>
-    <form id="form1" runat="server">
+    <form id="form1" runat="server" onsubmit="return validateForm();">
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -123,7 +224,7 @@
                                 </div>
                                 
                                 <!-- Date Picker -->
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="txtDate" class="form-label">Date</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
@@ -131,39 +232,68 @@
                                     </div>
                                 </div>
                                 
+                                <!-- Start Time -->
+                                <div class="col-md-4">
+                                    <label for="txtStartTime" class="form-label">Start Time</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="far fa-clock"></i></span>
+                                        <asp:TextBox ID="txtStartTime" runat="server" CssClass="form-control" 
+                                            TextMode="Time" required></asp:TextBox>
+                                    </div>
+                                </div>
+                                
+                                <!-- End Time -->
+                                <div class="col-md-4">
+                                    <label for="txtEndTime" class="form-label">End Time</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                        <asp:TextBox ID="txtEndTime" runat="server" CssClass="form-control" 
+                                            TextMode="Time" required></asp:TextBox>
+                                    </div>
+                                </div>
+                                
+                                <!-- Hidden field to store total hours -->
+                                <asp:HiddenField ID="hiddenTotalHours" runat="server" />
+                                
                                 <!-- Attendance Type -->
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label class="form-label">Attendance Type</label>
                                     <div class="radio-group">
                                         <div class="radio-option">
                                             <asp:RadioButton ID="rbtnPositive" runat="server" GroupName="AttendanceType" 
-                                                Text="Present" Checked="true" AutoPostBack="false" OnClick="toggleHoursInput()" />
+                                                Text="Present" Checked="true" AutoPostBack="false" OnClick="toggleTimeInputs()" />
                                         </div>
                                         <div class="radio-option">
                                             <asp:RadioButton ID="rbtnAbsent" runat="server" GroupName="AttendanceType" 
-                                                Text="Absent" AutoPostBack="false" OnClick="toggleHoursInput()" />
+                                                Text="Absent" AutoPostBack="false" OnClick="toggleTimeInputs()" />
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Hours Worked -->
-                                <div class="col-md-6">
+                                <!-- Hours Worked (Manual Input) -->
+                                <div class="col-md-4">
                                     <label for="txtHoursWorked" class="form-label">Regular Hours Worked</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="far fa-clock"></i></span>
                                         <asp:TextBox ID="txtHoursWorked" runat="server" CssClass="form-control" 
-                                            placeholder="8" required></asp:TextBox>
+                                            TextMode="Number" min="0" max="24" step="0.5" onchange="updateTotalHours()"></asp:TextBox>
                                     </div>
+                                    <div class="overtime-info">Standard workday: 8 hours</div>
                                 </div>
                                 
-                                <!-- Overtime Hours -->
-                                <div class="col-md-6">
-                                    <label for="txtOvertimeHours" class="form-label">Overtime Hours Worked</label>
+                                <!-- Overtime Hours (Manual Input) -->
+                                <div class="col-md-4">
+                                    <label for="txtOvertimeHours" class="form-label">Overtime Hours</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-clock"></i></span>
                                         <asp:TextBox ID="txtOvertimeHours" runat="server" CssClass="form-control" 
-                                            placeholder="0"></asp:TextBox>
+                                            TextMode="Number" min="0" max="16" step="0.5" onchange="updateTotalHours()"></asp:TextBox>
                                     </div>
+                                    <div class="overtime-info">Hours worked beyond 8 hours</div>
+                                </div>
+                                
+                                <div id="hoursValidationError" class="validation-error col-12">
+                                    Total hours worked must be positive and cannot exceed 24 hours.
                                 </div>
                                 
                                 <!-- Notes -->

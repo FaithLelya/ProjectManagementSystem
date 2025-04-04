@@ -106,7 +106,20 @@ namespace ProjectManagementSystem.Helpers
                 }
             }
         }
-
+        public static bool ProjectNameExists(string projectName)
+        {
+            bool exists = false;
+            using (var connection = new SQLiteConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var command = new SQLiteCommand("SELECT COUNT(*) FROM Projects WHERE ProjectName = @ProjectName", connection))
+                {
+                    command.Parameters.AddWithValue("@ProjectName", projectName);
+                    exists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                }
+            }
+            return exists;
+        }
         public static int InsertProject(string name, string description, string location, DateTime startDate, DateTime endDate,
             decimal technicianPayment, decimal materialsCost, decimal budget, int projectManagerId, string resources)
         {
@@ -245,8 +258,8 @@ namespace ProjectManagementSystem.Helpers
                                 ProjectId = Convert.ToInt32(reader["ProjectId"]),
                                 Name = reader["Name"].ToString(),
                                 Description = reader["Description"].ToString(),
-                                StartDate = Convert.ToDateTime(reader["StartDate"]).ToString("yyyy-MM-dd"),
-                                EndDate = Convert.ToDateTime(reader["EndDate"]).ToString("yyyy-MM-dd"),
+                                StartDate = Convert.ToDateTime(reader["StartDate"]), // Keep as DateTime
+                                EndDate = Convert.ToDateTime(reader["EndDate"]),     // Keep as DateTime
                                 Status = reader["Status"].ToString(),
                                 Progress = Convert.ToDecimal(reader["Progress"])
                             });

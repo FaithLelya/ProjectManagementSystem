@@ -11,10 +11,10 @@ namespace ProjectManagementSystem.Models
         public int ProjectId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string StartDate { get; set; }
-        public string EndDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public string Status { get; set; }
         public decimal Progress { get; set; }
-        public string Id { get; set; } // This is for the client-side task ID (e.g., task_abc123)
+        public int AssignedToUserId { get; set; }
+        }
     }
-}

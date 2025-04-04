@@ -213,13 +213,22 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         protected global::System.Web.UI.WebControls.Panel pnlProjectManagerQuickActions;
 
         /// <summary>
-        /// Repeater1 control.
+        /// btnViewProjects control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater Repeater1;
+        protected global::System.Web.UI.WebControls.Button btnViewProjects;
+
+        /// <summary>
+        /// btnViewTechnicians control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnViewTechnicians;
 
         /// <summary>
         /// pnlTechnicianQuickActions control.
@@ -283,5 +292,14 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater rptRecentActivities;
+
+        /// <summary>
+        /// rptUpcomingDeadlines control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptUpcomingDeadlines;
     }
 }

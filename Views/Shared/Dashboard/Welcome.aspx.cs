@@ -468,10 +468,20 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         {
             Response.Redirect("~/Views/Technicians/RecordAttendance.aspx");
         }
+        protected void btnViewProjects_Click(object sender, EventArgs e)
+        {
+            // Implement the logic to handle the button click.
+            Response.Redirect("~/Views/Projects/Projects.aspx");
+        }
+        protected void btnViewTechnicians_Click(object sender, EventArgs e)
+        {
+            // Implement the logic to handle the button click.
+            Response.Redirect("~/Views/ProjectManagers/ViewTechnicians");
+        }
 
         protected void btnViewTasks_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Views/Technicians/MyTasks.aspx");
+            Response.Redirect("~/Views/Technicians/RecordedAttendance.aspx");
         }
     }
 

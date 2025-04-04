@@ -15,23 +15,17 @@ namespace ProjectManagementSystem.Views.Technicians
 {
     public partial class PaymentInfo : System.Web.UI.Page
     {
-        private ProjectController _projectController;
-        private MpesaPaymentController _paymentController;
         private int _currentTechnicianId;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Initialize controllers
-            _projectController = new ProjectController();
-            _paymentController = new MpesaPaymentController();
-
             // Get current user ID
             _currentTechnicianId = GetCurrentUserId();
 
             // Try to create the table, but don't let it block the page load if it fails
             try
             {
-                CreateMpesaPaymentsTableIfNotExists();
+                CreatePaymentInfoTableIfNotExists();
             }
             catch (Exception ex)
             {
@@ -43,37 +37,23 @@ namespace ProjectManagementSystem.Views.Technicians
             {
                 try
                 {
-                    // Load projects dropdown
-                    LoadProjects();
+                    // Load technician's personal info
+                    LoadTechnicianInfo();
 
-                    // Load payment history with modified method
-                    LoadPaymentHistory();
+                    // Load technician's payment info
+                    LoadPaymentInfo();
+
+                    // Load recent projects
+                    LoadRecentProjects();
+
+                    // Load payment statistics
+                    LoadPaymentStatistics();
                 }
                 catch (Exception ex)
                 {
-                    // Log the error and show a friendly message
+                    // Log the error
                     System.Diagnostics.Debug.WriteLine("Error loading data: " + ex.Message);
-                    // You could add a label to display a user-friendly error message
-                    // lblError.Text = "Unable to load data. Please try again later.";
                 }
-            }
-        }
-
-        // Helper method for status badge styling
-        protected string GetStatusBadgeClass(string status)
-        {
-            switch (status.ToLower())
-            {
-                case "completed":
-                    return "bg-success";
-                case "pending":
-                    return "bg-warning text-dark";
-                case "processing":
-                    return "bg-info text-dark";
-                case "failed":
-                    return "bg-danger";
-                default:
-                    return "bg-secondary";
             }
         }
 
@@ -89,304 +69,549 @@ namespace ProjectManagementSystem.Views.Technicians
             return 1;
         }
 
-        private void LoadProjects()
+        private void LoadTechnicianInfo()
         {
             using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
             {
                 conn.Open();
-                string sql = @"SELECT p.ProjectId, p.ProjectName as ProjectName FROM Projects p
-                      JOIN ProjectTechnicians pt ON p.ProjectId = pt.ProjectId
-                      WHERE pt.TechnicianId = @TechnicianId
-                      ORDER BY p.ProjectName";
+                string sql = @"SELECT UserID, Username, Email
+                  FROM User
+                  WHERE UserID = @TechnicianId";
 
                 using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
 
-                    // Create a DataTable to hold the results
-                    DataTable projects = new DataTable();
-                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd))
+                    using (SQLiteDataReader reader = cmd.ExecuteReader())
                     {
-                        adapter.Fill(projects);
-                    }
+                        if (reader.Read())
+                        {
+                            // Populate the personal info fields with data from the database
+                            lblTechnicianId.Text = reader["UserID"].ToString();
+                            lblTechnicianName.Text = reader["Username"].ToString();
+                            lblTechnicianEmail.Text = reader["Email"].ToString();
+                            //lblTechnicianPhone.Text = reader["PhoneNumber"].ToString();
+                        }
+                        else
+                        {
+                            // Display message if no user data found
+                            lblTechnicianId.Text = _currentTechnicianId.ToString();
+                            lblTechnicianName.Text = "Unknown User";
+                            lblTechnicianEmail.Text = "User data not found";
+                            lblTechnicianPhone.Text = "Please update your profile";
 
-                    ddlProjects.DataSource = projects;
-                    ddlProjects.DataTextField = "ProjectName";
-                    ddlProjects.DataValueField = "ProjectId";
-                    ddlProjects.DataBind();
+                            // Log the issue
+                            System.Diagnostics.Debug.WriteLine($"No user data found for UserID: {_currentTechnicianId}");
 
-                    // Add a prompt item
-                    ddlProjects.Items.Insert(0, new ListItem("-- Select Project --", "0"));
-
-                    // If there are projects, select the first one and load its details
-                    if (ddlProjects.Items.Count > 1)
-                    {
-                        ddlProjects.SelectedIndex = 1;
-                        LoadProjectPaymentDetails();
+                            // Optionally display a message to the user
+                            ShowSuccessMessage("Your profile information could not be loaded. Please contact support.", false);
+                        }
                     }
                 }
             }
         }
-
-        protected void ddlProjects_SelectedIndexChanged(object sender, EventArgs e)
+        private void LoadPaymentInfo()
         {
-            LoadProjectPaymentDetails();
-        }
-
-        private void LoadProjectPaymentDetails()
-        {
-            if (ddlProjects.SelectedIndex > 0)
+            using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
             {
-                int projectId = Convert.ToInt32(ddlProjects.SelectedValue);
+                conn.Open();
+                string sql = @"SELECT PreferredPaymentMethod, MpesaNumber, MpesaName,
+                          BankName, AccountNumber, AccountName, BranchCode,
+                          CardType, CardLastFour, CardholderName, CardExpiry
+                          FROM TechnicianPaymentInfo
+                          WHERE TechnicianId = @TechnicianId";
 
-                using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
                 {
-                    conn.Open();
-                    string sql = @"SELECT p.*, u.Username 
-                          FROM Projects p
-                          JOIN ProjectTechnicians pt ON p.ProjectId = pt.ProjectId
-                          JOIN User u ON pt.TechnicianId = u.UserID
-                          WHERE p.ProjectId = @ProjectId 
-                          AND pt.TechnicianId = @TechnicianId";
+                    cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
 
-                    using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                    try
                     {
-                        cmd.Parameters.AddWithValue("@ProjectId", projectId);
-                        cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
-
                         using (SQLiteDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                // Get technician name from the database
-                                string technicianName = reader["Username"].ToString();
-                                lblTechnicianName.Text = technicianName;
+                                // Set the preferred payment method
+                                string preferredMethod = reader["PreferredPaymentMethod"].ToString();
+                                if (!string.IsNullOrEmpty(preferredMethod))
+                                {
+                                    ddlPaymentMethod.SelectedValue = preferredMethod;
 
-                                // Get the payment amount from the database
-                                decimal paymentAmount = Convert.ToDecimal(reader["TechnicianPayment"]);
-                                lblPaymentAmount.Text = paymentAmount.ToString("N2");
+                                    // Show the appropriate panel
+                                    ShowSelectedPaymentMethodPanel();
 
-                                // Set default description
-                                string projectName = reader["ProjectName"].ToString();
-                                txtDescription.Text = $"Payment for {projectName}";
+                                    // Populate fields based on preferred method
+                                    switch (preferredMethod)
+                                    {
+                                        case "MPESA":
+                                            txtMpesaNumber.Text = reader["MpesaNumber"].ToString();
+                                            txtMpesaName.Text = reader["MpesaName"].ToString();
+                                            break;
+                                        case "BANK":
+                                            ddlBank.SelectedValue = reader["BankName"].ToString();
+                                            txtAccountNumber.Text = reader["AccountNumber"].ToString();
+                                            txtAccountName.Text = reader["AccountName"].ToString();
+                                            txtBranchCode.Text = reader["BranchCode"].ToString();
+                                            break;
+                                        case "CARD":
+                                            ddlCardType.SelectedValue = reader["CardType"].ToString();
+                                            txtCardNumber.Text = reader["CardLastFour"].ToString();
+                                            txtCardholderName.Text = reader["CardholderName"].ToString();
+                                            txtCardExpiry.Text = reader["CardExpiry"].ToString();
+                                            break;
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-            else
-            {
-                // Clear the fields if no project is selected
-                lblTechnicianName.Text = "";
-                lblPaymentAmount.Text = "";
-                txtDescription.Text = "";
-            }
-        }
-
-       
-        private void LoadPaymentHistory()
-        {
-            DataTable dtPayments = new DataTable();
-
-            try
-            {
-                using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
-                {
-                    conn.Open();
-                    string sql = @"SELECT mp.PaymentDate, p.ProjectName as ProjectName, mp.Amount, mp.PhoneNumber, 
-                  mp.Status, mp.TransactionId 
-                  FROM MpesaPayments mp
-                  JOIN Projects p ON mp.ProjectId = p.ProjectId
-                  WHERE mp.TechnicianId = @TechnicianId
-                  ORDER BY mp.PaymentDate DESC";
-
-                    using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                    catch (SQLiteException ex)
                     {
-                        cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
-
-                        using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd))
-                        {
-                            adapter.Fill(dtPayments);
-                        }
+                        // Table probably doesn't exist yet
+                        System.Diagnostics.Debug.WriteLine("SQLite error: " + ex.Message);
                     }
                 }
             }
-            catch (SQLiteException ex)
-            {
-                // Table doesn't exist or other SQLite error
-                System.Diagnostics.Debug.WriteLine("SQLite error: " + ex.Message);
-
-                // Continue with empty data table that we'll populate with sample data
-                dtPayments = new DataTable();
-                dtPayments.Columns.Add("PaymentDate", typeof(DateTime));
-                dtPayments.Columns.Add("ProjectName", typeof(string));
-                dtPayments.Columns.Add("Amount", typeof(decimal));
-                dtPayments.Columns.Add("PhoneNumber", typeof(string));
-                dtPayments.Columns.Add("Status", typeof(string));
-                dtPayments.Columns.Add("TransactionId", typeof(string));
-            }
-
-            // If no records found, add placeholder data for demo purposes
-            if (dtPayments.Rows.Count == 0)
-            {
-                // Make sure the columns are defined if they weren't created from the query
-                if (dtPayments.Columns.Count == 0)
-                {
-                    dtPayments.Columns.Add("PaymentDate", typeof(DateTime));
-                    dtPayments.Columns.Add("ProjectName", typeof(string));
-                    dtPayments.Columns.Add("Amount", typeof(decimal));
-                    dtPayments.Columns.Add("PhoneNumber", typeof(string));
-                    dtPayments.Columns.Add("Status", typeof(string));
-                    dtPayments.Columns.Add("TransactionId", typeof(string));
-                }
-
-                // Add sample data
-                dtPayments.Rows.Add(DateTime.Now.AddDays(-5), "Project Alpha: Karen SmartHome", 20000, "254712345678", "Completed", "MPJ78HK1L1");
-                dtPayments.Rows.Add(DateTime.Now.AddDays(-12), "Project Beta: CCTV Installation", 30000, "254712345678", "Completed", "MPJ62VB4T9");
-                dtPayments.Rows.Add(DateTime.Now.AddDays(-2), "Project Gamma: Office Security", 15000, "254712345678", "Pending", "MPJ89VP3R5");
-            }
-
-            gvPaymentHistory.DataSource = dtPayments;
-            gvPaymentHistory.DataBind();
         }
-        private void CreateMpesaPaymentsTableIfNotExists()
+
+        protected void ddlPaymentMethod_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Use a connection string with pooling enabled and higher timeouts
-            string connString = SQLiteHelper.ConnectionString + ";Pooling=True;Default Timeout=30";
+            ShowSelectedPaymentMethodPanel();
+        }
 
-            using (SQLiteConnection conn = new SQLiteConnection(connString))
+        private void ShowSelectedPaymentMethodPanel()
+        {
+            // Hide all payment panels first
+            pnlMpesa.Visible = false;
+            pnlBank.Visible = false;
+            pnlCard.Visible = false;
+
+            // Show the selected panel
+            switch (ddlPaymentMethod.SelectedValue)
             {
-                try
-                {
-                    conn.Open();
-                    string sql = @"
-                CREATE TABLE IF NOT EXISTS MpesaPayments (
-                    PaymentId INTEGER PRIMARY KEY AUTOINCREMENT,
-                    ProjectId INTEGER NOT NULL,
-                    TechnicianId INTEGER NOT NULL,
-                    PhoneNumber TEXT NOT NULL,
-                    Amount DECIMAL(10,2) NOT NULL,
-                    Description TEXT,
-                    TransactionId TEXT,
-                    Status TEXT NOT NULL,
-                    PaymentDate DATETIME NOT NULL,
-                    FOREIGN KEY (ProjectId) REFERENCES Projects(ProjectId),
-                    FOREIGN KEY (TechnicianId) REFERENCES User(UserID)
-                );";
-
-                    using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
-                    {
-                        // Set command timeout to avoid locking issues
-                        cmd.CommandTimeout = 30;
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-                catch (SQLiteException ex)
-                {
-                    // Log the exception but don't throw - just continue with the application
-                    System.Diagnostics.Debug.WriteLine("Error creating MpesaPayments table: " + ex.Message);
-                }
-                finally
-                {
-                    // Ensure connection is closed even if an exception occurs
-                    if (conn.State == ConnectionState.Open)
-                        conn.Close();
-                }
+                case "MPESA":
+                    pnlMpesa.Visible = true;
+                    break;
+                case "BANK":
+                    pnlBank.Visible = true;
+                    break;
+                case "CARD":
+                    pnlCard.Visible = true;
+                    break;
             }
         }
-        protected void btnInitiatePayment_Click(object sender, EventArgs e)
+
+        protected void btnSavePaymentInfo_Click(object sender, EventArgs e)
         {
             // Validate form
             if (!IsValid)
                 return;
 
-            // Check if a project is selected
-            if (ddlProjects.SelectedIndex <= 0)
+            // Check if payment method is selected
+            if (string.IsNullOrEmpty(ddlPaymentMethod.SelectedValue))
             {
-                ShowTransactionStatus("Error", "Please select a project first.", "");
+                ShowSuccessMessage("Please select a payment method");
                 return;
             }
 
-            // Get the selected project ID and other details
-            int projectId = Convert.ToInt32(ddlProjects.SelectedValue);
-            string mpesaNumber = txtMpesaNumber.Text.Trim();
-            string description = txtDescription.Text.Trim();
-
-            // Get the payment amount from the database
-            decimal amount = 0;
-            using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
+            try
             {
-                conn.Open();
-                string sql = "SELECT TechnicianPayment FROM Projects WHERE ProjectId = @ProjectId";
-
-                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
                 {
-                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
-                    object result = cmd.ExecuteScalar();
-                    if (result != null && result != DBNull.Value)
+                    conn.Open();
+
+                    // Check if the record already exists
+                    bool recordExists = false;
+                    string checkSql = "SELECT COUNT(*) FROM TechnicianPaymentInfo WHERE TechnicianId = @TechnicianId";
+                    using (SQLiteCommand checkCmd = new SQLiteCommand(checkSql, conn))
                     {
-                        amount = Convert.ToDecimal(result);
+                        checkCmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
+                        recordExists = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
+                    }
+
+                    // Create SQL for insert or update
+                    string sql;
+                    if (recordExists)
+                    {
+                        sql = @"UPDATE TechnicianPaymentInfo SET 
+                              PreferredPaymentMethod = @PreferredPaymentMethod,
+                              MpesaNumber = @MpesaNumber,
+                              MpesaName = @MpesaName,
+                              BankName = @BankName,
+                              AccountNumber = @AccountNumber,
+                              AccountName = @AccountName,
+                              BranchCode = @BranchCode,
+                              CardType = @CardType,
+                              CardLastFour = @CardLastFour,
+                              CardholderName = @CardholderName,
+                              CardExpiry = @CardExpiry,
+                              LastUpdated = @LastUpdated
+                              WHERE TechnicianId = @TechnicianId";
                     }
                     else
                     {
-                        ShowTransactionStatus("Error", "Could not retrieve payment amount for this project.", "");
-                        return;
+                        sql = @"INSERT INTO TechnicianPaymentInfo (
+                              TechnicianId, PreferredPaymentMethod,
+                              MpesaNumber, MpesaName,
+                              BankName, AccountNumber, AccountName, BranchCode,
+                              CardType, CardLastFour, CardholderName, CardExpiry,
+                              LastUpdated)
+                              VALUES (
+                              @TechnicianId, @PreferredPaymentMethod,
+                              @MpesaNumber, @MpesaName,
+                              @BankName, @AccountNumber, @AccountName, @BranchCode,
+                              @CardType, @CardLastFour, @CardholderName, @CardExpiry,
+                              @LastUpdated)";
+                    }
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
+                        cmd.Parameters.AddWithValue("@PreferredPaymentMethod", ddlPaymentMethod.SelectedValue);
+                        cmd.Parameters.AddWithValue("@MpesaNumber", txtMpesaNumber.Text.Trim());
+                        cmd.Parameters.AddWithValue("@MpesaName", txtMpesaName.Text.Trim());
+                        cmd.Parameters.AddWithValue("@BankName", ddlBank.SelectedValue);
+                        cmd.Parameters.AddWithValue("@AccountNumber", txtAccountNumber.Text.Trim());
+                        cmd.Parameters.AddWithValue("@AccountName", txtAccountName.Text.Trim());
+                        cmd.Parameters.AddWithValue("@BranchCode", txtBranchCode.Text.Trim());
+                        cmd.Parameters.AddWithValue("@CardType", ddlCardType.SelectedValue);
+                        cmd.Parameters.AddWithValue("@CardLastFour", txtCardNumber.Text.Trim());
+                        cmd.Parameters.AddWithValue("@CardholderName", txtCardholderName.Text.Trim());
+                        cmd.Parameters.AddWithValue("@CardExpiry", txtCardExpiry.Text.Trim());
+                        cmd.Parameters.AddWithValue("@LastUpdated", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                        cmd.ExecuteNonQuery();
                     }
                 }
+
+                // Show success message
+                ShowSuccessMessage("Your payment information has been successfully saved.");
+
+                // Refresh payment statistics
+                LoadPaymentStatistics();
+
             }
+            catch (Exception ex)
+            {
+                // Log the exception
+                System.Diagnostics.Debug.WriteLine("Error saving payment info: " + ex.Message);
 
-            // Call the M-Pesa payment controller to initiate payment
-            string transactionRef = _paymentController.InitiatePayment(mpesaNumber, amount, description);
-
-            // Save the transaction to the database
-            SaveTransaction(projectId, mpesaNumber, amount, description, transactionRef);
-
-            // Show transaction status
-            ShowTransactionStatus("Payment Initiated",
-                "An M-Pesa payment request has been sent to " + mpesaNumber +
-                ". Please check your phone to complete the transaction.",
-                transactionRef);
+                // Show error message to the user
+                ShowSuccessMessage("Error saving payment information. Please try again later.", false);
+            }
         }
 
-        private void SaveTransaction(int projectId, string phoneNumber, decimal amount, string description, string transactionRef)
+        private void CreatePaymentInfoTableIfNotExists()
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
+            {
+                conn.Open();
+
+                string sql = @"
+                CREATE TABLE IF NOT EXISTS TechnicianPaymentInfo (
+                    TechnicianId INTEGER PRIMARY KEY,
+                    PreferredPaymentMethod TEXT,
+                    MpesaNumber TEXT,
+                    MpesaName TEXT,
+                    BankName TEXT,
+                    AccountNumber TEXT,
+                    AccountName TEXT,
+                    BranchCode TEXT,
+                    CardType TEXT,
+                    CardLastFour TEXT,
+                    CardholderName TEXT,
+                    CardExpiry TEXT,
+                    LastUpdated TEXT
+                );";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void LoadRecentProjects()
         {
             try
             {
                 using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
                 {
                     conn.Open();
-                    string sql = @"INSERT INTO MpesaPayments 
-                          (ProjectId, TechnicianId, PhoneNumber, Amount, Description, TransactionId, Status, PaymentDate) 
-                          VALUES 
-                          (@ProjectId, @TechnicianId, @PhoneNumber, @Amount, @Description, @TransactionId, @Status, @PaymentDate)";
+
+                    // Create a temporary projects table if needed for testing
+                    CreateProjectsTableIfNotExists(conn);
+
+                    string sql = @"
+                        SELECT p.ProjectName, p.ProjectAmount 
+                        FROM Projects p
+                        JOIN ProjectAssignments pa ON p.ProjectId = pa.ProjectId
+                        WHERE pa.TechnicianId = @TechnicianId
+                        ORDER BY p.CreatedDate DESC
+                        LIMIT 5";
 
                     using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
                     {
-                        cmd.Parameters.AddWithValue("@ProjectId", projectId);
                         cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
-                        cmd.Parameters.AddWithValue("@PhoneNumber", phoneNumber);
-                        cmd.Parameters.AddWithValue("@Amount", amount);
-                        cmd.Parameters.AddWithValue("@Description", description);
-                        cmd.Parameters.AddWithValue("@TransactionId", transactionRef);
-                        cmd.Parameters.AddWithValue("@Status", "Pending");
-                        cmd.Parameters.AddWithValue("@PaymentDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
-                        cmd.ExecuteNonQuery();
+                        DataTable dt = new DataTable();
+                        using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
+
+                        // If no records found, add sample data for demonstration
+                        if (dt.Rows.Count == 0)
+                        {
+                            AddSampleProjectData(dt);
+                        }
+
+                        gvRecentProjects.DataSource = dt;
+                        gvRecentProjects.DataBind();
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Log the exception
-                System.Diagnostics.Debug.WriteLine("Error saving transaction: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Error loading recent projects: " + ex.Message);
+
+                // Use sample data as fallback
+                DataTable dt = new DataTable();
+                AddSampleProjectData(dt);
+
+                gvRecentProjects.DataSource = dt;
+                gvRecentProjects.DataBind();
             }
         }
-        private void ShowTransactionStatus(string title, string message, string reference)
+
+        private void CreateProjectsTableIfNotExists(SQLiteConnection conn)
         {
-            lblTransactionTitle.Text = title;
-            lblTransactionMessage.Text = message;
-            lblTransactionRef.Text = reference;
-            pnlTransactionStatus.Visible = true;
+            // Create the Projects table if it doesn't exist
+            string createProjectsTable = @"
+                CREATE TABLE IF NOT EXISTS Projects (
+                    ProjectId INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ProjectName TEXT NOT NULL,
+                    ProjectDescription TEXT,
+                    ProjectAmount DECIMAL(10,2) NOT NULL,
+                    CreatedDate TEXT NOT NULL
+                );";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(createProjectsTable, conn))
+            {
+                cmd.ExecuteNonQuery();
+            }
+
+            // Create the ProjectAssignments table if it doesn't exist
+            string createAssignmentsTable = @"
+                CREATE TABLE IF NOT EXISTS ProjectAssignments (
+                    AssignmentId INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ProjectId INTEGER NOT NULL,
+                    TechnicianId INTEGER NOT NULL,
+                    AssignedDate TEXT NOT NULL,
+                    FOREIGN KEY (ProjectId) REFERENCES Projects(ProjectId),
+                    FOREIGN KEY (TechnicianId) REFERENCES User(UserID)
+                );";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(createAssignmentsTable, conn))
+            {
+                cmd.ExecuteNonQuery();
+            }
+
+            // Check if we have any sample data and add if we don't
+            string countQuery = "SELECT COUNT(*) FROM Projects";
+            using (SQLiteCommand cmd = new SQLiteCommand(countQuery, conn))
+            {
+                if (Convert.ToInt32(cmd.ExecuteScalar()) == 0)
+                {
+                    // Add some sample projects
+                    AddSampleProjects(conn);
+                }
+            }
+        }
+
+        private void AddSampleProjects(SQLiteConnection conn)
+        {
+            // Sample project data
+            string[] projectNames = {
+                "Website Redesign",
+                "Mobile App Development",
+                "Network Configuration",
+                "Database Optimization",
+                "Security Audit"
+            };
+
+            string[] projectDescriptions = {
+                "Redesign the company website with modern UI/UX",
+                "Develop a mobile app for customer engagement",
+                "Configure network infrastructure for new office",
+                "Optimize database performance for high traffic",
+                "Perform security audit and implement recommendations"
+            };
+
+            decimal[] projectAmounts = {
+                45000.00M,
+                75000.00M,
+                30000.00M,
+                25000.00M,
+                35000.00M
+            };
+
+            // Insert sample projects
+            for (int i = 0; i < projectNames.Length; i++)
+            {
+                string insertSql = @"
+                    INSERT INTO Projects (ProjectName, ProjectDescription, ProjectAmount, CreatedDate)
+                    VALUES (@ProjectName, @ProjectDescription, @ProjectAmount, @CreatedDate);
+                    SELECT last_insert_rowid();";
+
+                int projectId;
+                using (SQLiteCommand cmd = new SQLiteCommand(insertSql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ProjectName", projectNames[i]);
+                    cmd.Parameters.AddWithValue("@ProjectDescription", projectDescriptions[i]);
+                    cmd.Parameters.AddWithValue("@ProjectAmount", projectAmounts[i]);
+                    cmd.Parameters.AddWithValue("@CreatedDate", DateTime.Now.AddDays(-i * 7).ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    projectId = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+
+                // Assign the project to current technician
+                string assignSql = @"
+                    INSERT INTO ProjectAssignments (ProjectId, TechnicianId, AssignedDate)
+                    VALUES (@ProjectId, @TechnicianId, @AssignedDate);";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(assignSql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                    cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
+                    cmd.Parameters.AddWithValue("@AssignedDate", DateTime.Now.AddDays(-i * 7).ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void AddSampleProjectData(DataTable dt)
+        {
+            // Create columns if needed
+            if (dt.Columns.Count == 0)
+            {
+                dt.Columns.Add("ProjectName", typeof(string));
+                dt.Columns.Add("ProjectAmount", typeof(decimal));
+            }
+
+            // Add sample rows
+            dt.Rows.Add("Website Redesign", 45000.00M);
+            dt.Rows.Add("Mobile App Development", 75000.00M);
+            dt.Rows.Add("Network Configuration", 30000.00M);
+            dt.Rows.Add("Database Optimization", 25000.00M);
+            dt.Rows.Add("Security Audit", 35000.00M);
+        }
+
+        private void LoadPaymentStatistics()
+        {
+            try
+            {
+                using (SQLiteConnection conn = new SQLiteConnection(SQLiteHelper.ConnectionString))
+                {
+                    conn.Open();
+
+                    // Get total project count
+                    string countSql = @"
+                        SELECT COUNT(*) 
+                        FROM ProjectAssignments 
+                        WHERE TechnicianId = @TechnicianId";
+
+                    int projectCount = 0;
+                    using (SQLiteCommand cmd = new SQLiteCommand(countSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
+                        object result = cmd.ExecuteScalar();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            projectCount = Convert.ToInt32(result);
+                        }
+                    }
+
+                    // Get total earnings
+                    string earningSql = @"
+                        SELECT SUM(p.ProjectAmount) 
+                        FROM Projects p
+                        JOIN ProjectAssignments pa ON p.ProjectId = pa.ProjectId 
+                        WHERE pa.TechnicianId = @TechnicianId";
+
+                    decimal totalEarnings = 0;
+                    using (SQLiteCommand cmd = new SQLiteCommand(earningSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
+                        object result = cmd.ExecuteScalar();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            totalEarnings = Convert.ToDecimal(result);
+                        }
+                    }
+
+                    // Get current payment method
+                    string methodSql = @"
+                        SELECT PreferredPaymentMethod 
+                        FROM TechnicianPaymentInfo 
+                        WHERE TechnicianId = @TechnicianId";
+
+                    string currentMethod = "Not Set";
+                    using (SQLiteCommand cmd = new SQLiteCommand(methodSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@TechnicianId", _currentTechnicianId);
+                        object result = cmd.ExecuteScalar();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            string methodCode = result.ToString();
+                            switch (methodCode)
+                            {
+                                case "MPESA":
+                                    currentMethod = "M-Pesa";
+                                    break;
+                                case "BANK":
+                                    currentMethod = "Bank Transfer";
+                                    break;
+                                case "CARD":
+                                    currentMethod = "Credit/Debit Card";
+                                    break;
+                                default:
+                                    currentMethod = "Not Set";
+                                    break;
+                            }
+                        }
+                    }
+
+                    // Update UI
+                    lblTotalProjects.Text = projectCount.ToString();
+                    lblTotalEarnings.Text = totalEarnings.ToString("N2");
+                    lblCurrentMethod.Text = currentMethod;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error loading payment statistics: " + ex.Message);
+
+                // Use sample statistics as fallback
+                lblTotalProjects.Text = "5";
+                lblTotalEarnings.Text = "210,000.00";
+                lblCurrentMethod.Text = ddlPaymentMethod.SelectedItem?.Text ?? "Not Set";
+            }
+        }
+
+        private void ShowSuccessMessage(string message, bool isSuccess = true)
+        {
+            lblSuccessMessage.Text = message;
+            pnlSuccess.Visible = true;
+
+            if (isSuccess)
+            {
+                pnlSuccess.CssClass = "alert alert-success success-alert mb-4";
+            }
+            else
+            {
+                pnlSuccess.CssClass = "alert alert-danger mb-4";
+            }
         }
     }
 }

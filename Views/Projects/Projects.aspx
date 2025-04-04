@@ -144,8 +144,7 @@
                                             <asp:Repeater ID="TechnicianRepeater" runat="server" DataSource='<%# Eval("AssignedTechnicians") %>'>
                                                 <ItemTemplate>
                                                     <div class="list-group-item">
-                                                        <%# Eval("Username") %> 
-                                                        <%# (bool)Eval("IsSenior") ? "<span class=\"badge bg-secondary\">Senior</span>" : "" %>
+                                                        <%# Eval("Username") %>
                                                     </div>
                                                 </ItemTemplate>
                                             </asp:Repeater>

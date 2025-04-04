@@ -1,507 +1,283 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CreateProject.aspx.cs" Inherits="ProjectManagementSystem.Views.Projects.CreateProject" %>
 
 <!DOCTYPE html>
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Create Project</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4895ef;
-            --light-bg: #f8f9fa;
-            --dark-text: #212529;
-        }
-        
-        body {
-            background-color: #f5f7fb;
-            color: var(--dark-text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .form-container {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-top: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-header {
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 10px 10px 0 0 !important;
-            padding: 1rem 1.5rem;
-            font-weight: 600;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 0.5rem 1.5rem;
-            font-weight: 500;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-        
-        .btn-outline-secondary {
-            border-color: var(--secondary-color);
-            color: var(--secondary-color);
-        }
-        
-        .btn-outline-secondary:hover {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-        
-        .btn-success {
-            background-color: #4cc9f0;
-            border-color: #4cc9f0;
-        }
-        
-        .btn-success:hover {
-            background-color: #3a86ff;
-            border-color: #3a86ff;
-        }
-        
-        .form-control, .form-select {
-            border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #ced4da;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
-        }
-        
-        .calendar-container {
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            padding: 1rem;
-            margin-top: 0.5rem;
-            display: none;
-            position: absolute;
-            z-index: 1000;
-            width: auto;
-        }
-        
-        .date-input-group {
-            position: relative;
-        }
-        
-        .input-group-text {
-            cursor: pointer;
-            background-color: var(--light-bg);
-            transition: all 0.2s;
-        }
-        
-        .input-group-text:hover {
-            background-color: #e9ecef;
-        }
-        
-        .aspNetCalendar {
-            width: 100%;
-            border: none;
-        }
-        
-        .aspNetCalendar td, .aspNetCalendar th {
-            padding: 0.5rem;
-            text-align: center;
-        }
-        
-        .aspNetCalendar .today {
-            background-color: var(--accent-color);
-            color: white;
-            border-radius: 50%;
-        }
-        
-        .aspNetCalendar a {
-            text-decoration: none;
-            color: var(--dark-text);
-            display: block;
-            border-radius: 50%;
-            width: 2rem;
-            height: 2rem;
-            line-height: 2rem;
-            margin: 0 auto;
-        }
-        
-        .aspNetCalendar a:hover {
-            background-color: var(--light-bg);
-        }
-        
-        .aspNetCalendar .selected a {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .disabled-day a {
-            color: #adb5bd !important;
-            cursor: not-allowed;
-        }
-        
-        .task-item {
-            background-color: var(--light-bg);
-            border-radius: 0.5rem;
-            padding: 1rem;
+        .form-group {
             margin-bottom: 1rem;
         }
-        
-        h2 {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 1.5rem;
+        .tasks-container {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            padding: 10px;
+            margin-bottom: 15px;
         }
-        
-        label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+        .task-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
         }
-        
-        .text-danger {
-            font-size: 0.875rem;
-        }
-        
-        .text-success {
-            font-weight: 500;
-        }
-        
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #dee2e6;
+        .task-item:last-child {
+            border-bottom: none;
         }
     </style>
 </head>
 <body>
     <form id="form1" runat="server">
-        <div class="container">
-            <div class="page-header">
-                <div>
-                    <a href="/Views/Shared/Dashboard/Welcome.aspx" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-                    </a>
-                </div>
-                <h2 class="mb-0">
-                    <i class="fas fa-project-diagram me-2"></i>Create New Project
-                </h2>
-                <div></div> <!-- Empty div for alignment -->
-            </div>
-            
-            <div class="row justify-content-center">
-                <div class="col-lg-10 col-xl-8 form-container">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <asp:TextBox ID="txtProjectName" runat="server" CssClass="form-control" placeholder="Project Name" required></asp:TextBox>
-                                <label for="txtProjectName">Project Name</label>
-                                <asp:RequiredFieldValidator ID="rfvProjectName" runat="server" ControlToValidate="txtProjectName" 
-                                    ErrorMessage="Project Name is required." CssClass="text-danger" Display="Dynamic" />
-                            </div>
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h3><i class="fas fa-project-diagram me-2"></i>Create New Project</h3>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <asp:DropDownList ID="ddlProjectManager" runat="server" CssClass="form-select" required>
-                                    <asp:ListItem Text="Select a Project Manager" Value=""></asp:ListItem>
-                                </asp:DropDownList>
-                                <label for="ddlProjectManager">Assign Project Manager</label>
-                                <asp:RequiredFieldValidator ID="rfvProjectManager" runat="server" 
-                                    ControlToValidate="ddlProjectManager" ErrorMessage="Please select a Project Manager." 
-                                    CssClass="text-danger" Display="Dynamic" />
-                            </div>
-                        </div>
-                        
-                        <div class="col-12">
-                            <div class="form-floating">
-                                <asp:TextBox ID="txtDescription" runat="server" CssClass="form-control" TextMode="MultiLine" 
-                                    Rows="3" placeholder="Description" Style="height: 120px" required></asp:TextBox>
-                                <label for="txtDescription">Description</label>
-                                <asp:RequiredFieldValidator ID="rfvDescription" runat="server" ControlToValidate="txtDescription" 
-                                    ErrorMessage="Description is required." CssClass="text-danger" Display="Dynamic" />
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <asp:TextBox ID="txtLocation" runat="server" CssClass="form-control" placeholder="Location" required></asp:TextBox>
-                                <label for="txtLocation">Location</label>
-                                <asp:RequiredFieldValidator ID="rfvLocation" runat="server" ControlToValidate="txtLocation" 
-                                    ErrorMessage="Location is required." CssClass="text-danger" Display="Dynamic" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <asp:TextBox ID="txtResources" runat="server" CssClass="form-control" placeholder="Tools and Materials" required></asp:TextBox>
-                                <label for="txtResources">Tools and Materials</label>
-                                <asp:RequiredFieldValidator ID="rfvResources" runat="server" ControlToValidate="txtResources" 
-                                    ErrorMessage="Resources are required." CssClass="text-danger" Display="Dynamic" />
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <div class="input-group">
-                                    <asp:TextBox ID="txtStartTime" runat="server" CssClass="form-control" TextMode="Date" ReadOnly="false"></asp:TextBox>
-                                    <span class="input-group-text" onclick="toggleCalendar('start')">
-                                        <i class="far fa-calendar-alt"></i>
-                                    </span>
-                                </div>
-                                <label for="txtStartTime">Start Time</label>
-                                <div class="calendar-container" id="startCalendarContainer">
-                                    <asp:Calendar ID="calStartTime" runat="server" CssClass="aspNetCalendar" 
-                                        OnDayRender="calStartTime_DayRender" OnSelectionChanged="calStartTime_SelectionChanged"></asp:Calendar>
-                                </div>
-                                <asp:Label ID="lblStartDateError" runat="server" CssClass="text-danger" Visible="false"></asp:Label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <div class="input-group">
-                                    <asp:TextBox ID="txtEndTime" runat="server" CssClass="form-control" TextMode="Date" ReadOnly="false"></asp:TextBox>
-                                    <span class="input-group-text" onclick="toggleCalendar('end')">
-                                        <i class="far fa-calendar-alt"></i>
-                                    </span>
-                                </div>
-                                <label for="txtEndTime">End Time</label>
-                                <div class="calendar-container" id="endCalendarContainer">
-                                    <asp:Calendar ID="calEndTime" runat="server" CssClass="aspNetCalendar" 
-                                        OnDayRender="calEndTime_DayRender" OnSelectionChanged="calEndTime_SelectionChanged"></asp:Calendar>
-                                </div>
-                                <asp:Label ID="lblEndDateError" runat="server" CssClass="text-danger" Visible="false"></asp:Label>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <asp:TextBox ID="txtTechnicianCost" runat="server" CssClass="form-control" placeholder="Technician Payment Cost" required></asp:TextBox>
-                                <label for="txtTechnicianCost">Technician Payment Cost</label>
-                                <asp:RequiredFieldValidator ID="rfvTechnicianCost" runat="server" ControlToValidate="txtTechnicianCost" 
-                                    ErrorMessage="Technician Payment Cost is required." CssClass="text-danger" Display="Dynamic" />
-                                <asp:RegularExpressionValidator ID="revTechnicianCost" runat="server" ControlToValidate="txtTechnicianCost" 
-                                    ErrorMessage="Invalid cost format." CssClass="text-danger" ValidationExpression="^\d+(\.\d{1,2})?$" Display="Dynamic" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <asp:TextBox ID="txtMaterialsCost" runat="server" CssClass="form-control" placeholder="Tools and Materials Cost" required></asp:TextBox>
-                                <label for="txtMaterialsCost">Tools and Materials Cost</label>
-                                <asp:RequiredFieldValidator ID="rfvMaterialsCost" runat="server" ControlToValidate="txtMaterialsCost" 
-                                    ErrorMessage="Tools and Materials Cost is required." CssClass="text-danger" Display="Dynamic" />
-                                <asp:RegularExpressionValidator ID="revMaterialsCost" runat="server" ControlToValidate="txtMaterialsCost" 
-                                    ErrorMessage="Invalid cost format." CssClass="text-danger" ValidationExpression="^\d+(\.\d{1,2})?$" Display="Dynamic" />
-                            </div>
-                        </div>
-                        
-                        <div class="col-12">
-                            <div class="form-floating">
-                                <asp:TextBox ID="txtBudget" runat="server" CssClass="form-control" placeholder="Total Budget" ReadOnly="true"></asp:TextBox>
-                                <label for="txtBudget">Total Budget</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Task Creation Section -->
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <i class="fas fa-tasks me-2"></i>Add Initial Project Tasks
-                        </div>
-                        <div class="card-body" id="taskContainer">
-                            <div class="task-item">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            <asp:TextBox ID="txtTaskName" runat="server" CssClass="form-control" placeholder="Task Name"></asp:TextBox>
-                                            <label>Task Name</label>
-                                        </div>
+                        <div class="card-body">
+                            <asp:Label ID="lblOutput" runat="server" CssClass="alert alert-danger d-none"></asp:Label>
+                            <asp:Label ID="lblSuccess" runat="server" CssClass="alert alert-success d-none"></asp:Label>
+                            
+                            <div class="row">
+                                <!-- Project Basic Details -->
+                                <div class="col-md-6">
+                                    <h4 class="mb-3">Project Information</h4>
+                                    
+                                    <div class="form-group">
+                                        <label for="txtProjectName" class="form-label">Project Name <span class="text-danger">*</span></label>
+                                        <asp:TextBox ID="txtProjectName" runat="server" CssClass="form-control" placeholder="Enter project name"></asp:TextBox>
+                                        <asp:RequiredFieldValidator ID="rfvProjectName" runat="server" ControlToValidate="txtProjectName" 
+                                            ErrorMessage="Project name is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            <asp:TextBox ID="txtTaskDescription" runat="server" CssClass="form-control" placeholder="Task Description"></asp:TextBox>
-                                            <label>Task Description</label>
-                                        </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="txtDescription" class="form-label">Description <span class="text-danger">*</span></label>
+                                        <asp:TextBox ID="txtDescription" runat="server" CssClass="form-control" TextMode="MultiLine" 
+                                            Rows="3" placeholder="Project description"></asp:TextBox>
+                                        <asp:RequiredFieldValidator ID="rfvDescription" runat="server" ControlToValidate="txtDescription" 
+                                            ErrorMessage="Description is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <asp:TextBox ID="txtTaskStartDate" runat="server" CssClass="form-control" placeholder="Start Date" TextMode="Date"></asp:TextBox>
-                                            <label>Start Date</label>
-                                        </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="txtLocation" class="form-label">Location <span class="text-danger">*</span></label>
+                                        <asp:TextBox ID="txtLocation" runat="server" CssClass="form-control" placeholder="Project location"></asp:TextBox>
+                                        <asp:RequiredFieldValidator ID="rfvLocation" runat="server" ControlToValidate="txtLocation" 
+                                            ErrorMessage="Location is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <asp:TextBox ID="txtTaskEndDate" runat="server" CssClass="form-control" placeholder="End Date" TextMode="Date"></asp:TextBox>
-                                            <label>End Date</label>
-                                        </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="ddlProjectManager" class="form-label">Project Manager <span class="text-danger">*</span></label>
+                                        <asp:DropDownList ID="ddlProjectManager" runat="server" CssClass="form-select"></asp:DropDownList>
+                                        <asp:RequiredFieldValidator ID="rfvProjectManager" runat="server" ControlToValidate="ddlProjectManager" 
+                                            ErrorMessage="Project manager selection is required" CssClass="text-danger" Display="Dynamic" 
+                                            InitialValue=""></asp:RequiredFieldValidator>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <asp:DropDownList ID="ddlTaskAssignedTo" runat="server" CssClass="form-select">
-                                                <asp:ListItem Text="Select Assignee" Value=""></asp:ListItem>
-                                            </asp:DropDownList>
-                                            <label>Assigned To</label>
+                                </div>
+                                
+                                <!-- Project Timeline and Budget -->
+                                <div class="col-md-6">
+                                    <h4 class="mb-3">Timeline & Budget</h4>
+                                    
+                                    <div class="form-group">
+                                        <label for="txtStartTime" class="form-label">Start Date <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <asp:TextBox ID="txtStartTime" runat="server" CssClass="form-control" placeholder="YYYY-MM-DD" ReadOnly="true"></asp:TextBox>
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#calStartContainer">
+                                                <i class="far fa-calendar-alt"></i>
+                                            </button>
                                         </div>
+                                        <div class="collapse mt-2" id="calStartContainer">
+                                            <asp:Calendar ID="calStartTime" runat="server" BackColor="White" BorderColor="#999999" CellPadding="4" 
+                                                DayNameFormat="Shortest" Font-Names="Verdana" Font-Size="8pt" ForeColor="Black" Height="180px" 
+                                                Width="100%" OnSelectionChanged="calStartTime_SelectionChanged" ShowGridLines="True">
+                                                <DayHeaderStyle BackColor="#CCCCCC" Font-Bold="True" Font-Size="7pt" />
+                                                <NextPrevStyle VerticalAlign="Bottom" />
+                                                <OtherMonthDayStyle ForeColor="#808080" />
+                                                <SelectedDayStyle BackColor="#666666" Font-Bold="True" ForeColor="White" />
+                                                <SelectorStyle BackColor="#CCCCCC" />
+                                                <TitleStyle BackColor="#999999" BorderColor="Black" Font-Bold="True" />
+                                                <TodayDayStyle BackColor="#CCCCCC" ForeColor="Black" />
+                                                <WeekendDayStyle BackColor="#FFFFCC" />
+                                            </asp:Calendar>
+                                        </div>
+                                        <asp:RequiredFieldValidator ID="rfvStartTime" runat="server" ControlToValidate="txtStartTime" 
+                                            ErrorMessage="Start date is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="txtEndTime" class="form-label">End Date <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <asp:TextBox ID="txtEndTime" runat="server" CssClass="form-control" placeholder="YYYY-MM-DD" ReadOnly="true"></asp:TextBox>
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#calEndContainer">
+                                                <i class="far fa-calendar-alt"></i>
+                                            </button>
+                                        </div>
+                                        <div class="collapse mt-2" id="calEndContainer">
+                                            <asp:Calendar ID="calEndTime" runat="server" BackColor="White" BorderColor="#999999" CellPadding="4" 
+                                                DayNameFormat="Shortest" Font-Names="Verdana" Font-Size="8pt" ForeColor="Black" Height="180px" 
+                                                Width="100%" OnSelectionChanged="calEndTime_SelectionChanged" ShowGridLines="True">
+                                                <DayHeaderStyle BackColor="#CCCCCC" Font-Bold="True" Font-Size="7pt" />
+                                                <NextPrevStyle VerticalAlign="Bottom" />
+                                                <OtherMonthDayStyle ForeColor="#808080" />
+                                                <SelectedDayStyle BackColor="#666666" Font-Bold="True" ForeColor="White" />
+                                                <SelectorStyle BackColor="#CCCCCC" />
+                                                <TitleStyle BackColor="#999999" BorderColor="Black" Font-Bold="True" />
+                                                <TodayDayStyle BackColor="#CCCCCC" ForeColor="Black" />
+                                                <WeekendDayStyle BackColor="#FFFFCC" />
+                                            </asp:Calendar>
+                                        </div>
+                                        <asp:RequiredFieldValidator ID="rfvEndTime" runat="server" ControlToValidate="txtEndTime" 
+                                            ErrorMessage="End date is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="txtTechnicianCost" class="form-label">Technician Payment (₦) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₦</span>
+                                            <asp:TextBox ID="txtTechnicianCost" runat="server" CssClass="form-control" placeholder="Minimum ₦10,000" TextMode="Number" min="10000"></asp:TextBox>
+                                        </div>
+                                        <asp:RequiredFieldValidator ID="rfvTechnicianCost" runat="server" ControlToValidate="txtTechnicianCost" 
+                                            ErrorMessage="Technician cost is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
+                                        <asp:RangeValidator ID="rvTechnicianCost" runat="server" ControlToValidate="txtTechnicianCost" 
+                                            MinimumValue="10000" MaximumValue="9999999999" Type="Double" 
+                                            ErrorMessage="Technician payment must be at least ₦10,000" CssClass="text-danger" Display="Dynamic"></asp:RangeValidator>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="txtMaterialsCost" class="form-label">Materials Cost (₦) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₦</span>
+                                            <asp:TextBox ID="txtMaterialsCost" runat="server" CssClass="form-control" placeholder="Minimum ₦10,000" TextMode="Number" min="10000"></asp:TextBox>
+                                        </div>
+                                        <asp:RequiredFieldValidator ID="rfvMaterialsCost" runat="server" ControlToValidate="txtMaterialsCost" 
+                                            ErrorMessage="Materials cost is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
+                                        <asp:RangeValidator ID="rvMaterialsCost" runat="server" ControlToValidate="txtMaterialsCost" 
+                                            MinimumValue="10000" MaximumValue="9999999999" Type="Double" 
+                                            ErrorMessage="Materials cost must be at least ₦10,000" CssClass="text-danger" Display="Dynamic"></asp:RangeValidator>
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Project Resources -->
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <h4 class="mb-3">Resources & Requirements</h4>
+                                    <div class="form-group">
+                                        <label for="txtResources" class="form-label">Project Resources</label>
+                                        <asp:TextBox ID="txtResources" runat="server" CssClass="form-control" TextMode="MultiLine" 
+                                            Rows="3" placeholder="List any equipment, personnel, or resources needed"></asp:TextBox>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Tasks -->
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <h4 class="mb-3">Project Tasks <span class="text-danger">*</span></h4>
+                                    
+                                    <div class="tasks-container mb-3" id="tasksList">
+                                        <asp:Repeater ID="rptTasks" runat="server">
+                                            <ItemTemplate>
+                                                <div class="task-item">
+                                                    <strong><%# Eval("TaskName") %></strong> - 
+                                                    <span class="text-muted"><%# Eval("DueDate", "{0:yyyy-MM-dd}") %></span>
+                                                    <p><%# Eval("Description") %></p>
+                                                </div>
+                                            </ItemTemplate>
+                                            <EmptyDataTemplate>
+                                                <div class="alert alert-info">No tasks added yet. Please add at least one task.</div>
+                                            </EmptyDataTemplate>
+                                        </asp:Repeater>
+                                    </div>
+                                    
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-light">
+                                            <h5 class="mb-0">Add New Task</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="txtTaskName" class="form-label">Task Name</label>
+                                                        <asp:TextBox ID="txtTaskName" runat="server" CssClass="form-control" placeholder="Task name"></asp:TextBox>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="txtTaskDueDate" class="form-label">Due Date</label>
+                                                        <asp:TextBox ID="txtTaskDueDate" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="txtTaskDescription" class="form-label">Description</label>
+                                                        <asp:TextBox ID="txtTaskDescription" runat="server" CssClass="form-control" placeholder="Task details"></asp:TextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-end mt-2">
+                                                <asp:Button ID="btnAddTask" runat="server" Text="Add Task" CssClass="btn btn-secondary" 
+                                                    OnClick="btnAddTask_Click" CausesValidation="false" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <asp:CustomValidator ID="cvTasksRequired" runat="server" 
+                                        ErrorMessage="At least one task is required" CssClass="text-danger" 
+                                        OnServerValidate="cvTasksRequired_ServerValidate" Display="Dynamic"></asp:CustomValidator>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Buttons -->
+                            <div class="row mt-4">
+                                <div class="col-md-12 text-end">
+                                    <a href="Projects.aspx" class="btn btn-outline-secondary me-2">
+                                        <i class="fas fa-times me-1"></i> Cancel
+                                    </a>
+                                    <asp:Button ID="btnCreateProject" runat="server" Text="Create Project" 
+                                        CssClass="btn btn-primary" OnClick="btnCreateProject_Click">
+                                        <i class="fas fa-save me-1"></i>
+                                    </asp:Button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-footer text-end">
-                            <button type="button" class="btn btn-success" onclick="addTask()">
-                                <i class="fas fa-plus me-2"></i>Add Another Task
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="text-center mt-4">
-                        <asp:Button ID="btnCreateProject" runat="server" Text="Create Project" 
-                            CssClass="btn btn-primary btn-lg px-4" OnClick="btnCreateProject_Click" />
-                    </div>
-
-                    <div class="text-center mt-3">
-                        <asp:Label ID="lblOutput" runat="server" CssClass="text-success"></asp:Label>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Show error messages with proper styling
+            function showAlert(elementId) {
+                var element = document.getElementById(elementId);
+                if (element) {
+                    element.classList.remove('d-none');
+                    setTimeout(function () {
+                        element.classList.add('d-none');
+                    }, 5000);
+                }
+            }
+
+            // Check if error message exists and show it
+            window.onload = function () {
+                var outputLabel = document.getElementById('<%= lblOutput.ClientID %>');
+                var successLabel = document.getElementById('<%= lblSuccess.ClientID %>');
+
+                if (outputLabel && outputLabel.innerHTML.trim() !== '') {
+                    outputLabel.classList.remove('d-none');
+                }
+
+                if (successLabel && successLabel.innerHTML.trim() !== '') {
+                    successLabel.classList.remove('d-none');
+                }
+            };
+        </script>
     </form>
-
-    <script>
-        function calculateBudget() {
-            var technicianCost = parseFloat($("#<%= txtTechnicianCost.ClientID %>").val()) || 0;
-            var materialsCost = parseFloat($("#<%= txtMaterialsCost.ClientID %>").val()) || 0;
-            var totalBudget = technicianCost + materialsCost;
-            $("#<%= txtBudget.ClientID %>").val(totalBudget.toFixed(2));
-        }
-
-        function addTask() {
-            // Clone the first task container
-            var taskContainer = $('#taskContainer');
-            var newTask = taskContainer.find('.task-item').first().clone();
-
-            // Clear input values
-            newTask.find('input, textarea, select').val('');
-
-            // Append to container
-            taskContainer.append(newTask);
-
-            // Set minimum date for new date inputs
-            var today = new Date().toISOString().split('T')[0];
-            newTask.find('input[type="date"]').attr('min', today);
-        }
-
-        function toggleCalendar(type, event) {
-            event.stopPropagation(); // Prevent event bubbling
-
-            // Get the calendar container and button
-            var calendar = type === 'start' ? $('#startCalendarContainer') : $('#endCalendarContainer');
-            var button = type === 'start' ? $('#btnStartCalendar') : $('#btnEndCalendar');
-
-            // Hide all calendars first
-            $('.calendar-container').hide();
-
-            // Toggle the selected calendar
-            calendar.toggle();
-
-            // Position it below the input
-            var input = type === 'start' ? $('#<%= txtStartTime.ClientID %>') : $('#<%= txtEndTime.ClientID %>');
-            var offset = input.offset();
-            calendar.css({
-                'top': offset.top + input.outerHeight() + 5,
-                'left': offset.left,
-                'width': input.outerWidth()
-            });
-        }
-
-        // Initialize calendar functionality
-        $(function () {
-            // Set up calendar toggle buttons
-            $('#btnStartCalendar').click(function (e) { toggleCalendar('start', e); });
-            $('#btnEndCalendar').click(function (e) { toggleCalendar('end', e); });
-
-            // Close calendar when clicking outside
-            $(document).click(function () {
-                $('.calendar-container').hide();
-            });
-
-            // Prevent calendar from closing when clicking inside it
-            $('.calendar-container').click(function (e) {
-                e.stopPropagation();
-            });
-
-            // Initialize dates
-            var today = new Date();
-            var tomorrow = new Date();
-            tomorrow.setDate(today.getDate() + 1);
-
-            // Set default dates in textboxes
-            $('#<%= txtStartTime.ClientID %>').val(formatDate(today));
-            $('#<%= txtEndTime.ClientID %>').val(formatDate(tomorrow));
-            
-            // Set minimum date for task date inputs
-            $('input[type="date"]').attr('min', formatDate(today));
-            
-            // Initialize budget calculation
-            $("#<%= txtTechnicianCost.ClientID %>, #<%= txtMaterialsCost.ClientID %>").on("input", calculateBudget);
-        });
-
-        function formatDate(date) {
-            return date.getFullYear() + '-' +
-                String(date.getMonth() + 1).padStart(2, '0') + '-' +
-                String(date.getDate()).padStart(2, '0');
-        }
-
-
-        $(function () {
-            // Initialize budget calculation
-            $("#<%= txtTechnicianCost.ClientID %>, #<%= txtMaterialsCost.ClientID %>").on("input", calculateBudget);
-
-            // Set minimum date for task date inputs
-            var today = new Date().toISOString().split('T')[0];
-            $('input[type="date"]').attr('min', today);
-
-            // Initialize default dates
-            var todayDate = new Date();
-            var tomorrowDate = new Date();
-            tomorrowDate.setDate(todayDate.getDate() + 1);
-            
-            // Format dates as yyyy-MM-dd
-            var todayStr = todayDate.getFullYear() + '-' + 
-                          String(todayDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                          String(todayDate.getDate()).padStart(2, '0');
-            var tomorrowStr = tomorrowDate.getFullYear() + '-' + 
-                             String(tomorrowDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                             String(tomorrowDate.getDate()).padStart(2, '0');
-            
-            // Set default dates
-            $('#<%= txtStartTime.ClientID %>').val(todayStr);
-            $('#<%= txtEndTime.ClientID %>').val(tomorrowStr);
-
-            // Initialize calendar selections
-            if (typeof calStartTime !== 'undefined') {
-                calStartTime.selectedDate = todayDate;
-            }
-            if (typeof calEndTime !== 'undefined') {
-                calEndTime.selectedDate = tomorrowDate;
-            }
-        });
-    </script>
 </body>
 </html>
