@@ -136,29 +136,29 @@
                                     </div>
                                     
                                     <div class="form-group">
-                                        <label for="txtTechnicianCost" class="form-label">Technician Payment (₦) <span class="text-danger">*</span></label>
+                                        <label for="txtTechnicianCost" class="form-label">Technician Payment (KES) <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <span class="input-group-text">₦</span>
-                                            <asp:TextBox ID="txtTechnicianCost" runat="server" CssClass="form-control" placeholder="Minimum ₦10,000" TextMode="Number" min="10000"></asp:TextBox>
+                                            <span class="input-group-text">KES</span>
+                                            <asp:TextBox ID="txtTechnicianCost" runat="server" CssClass="form-control" placeholder="Minimum KES10,000" TextMode="Number" min="10000"></asp:TextBox>
                                         </div>
                                         <asp:RequiredFieldValidator ID="rfvTechnicianCost" runat="server" ControlToValidate="txtTechnicianCost" 
                                             ErrorMessage="Technician cost is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
                                         <asp:RangeValidator ID="rvTechnicianCost" runat="server" ControlToValidate="txtTechnicianCost" 
                                             MinimumValue="10000" MaximumValue="9999999999" Type="Double" 
-                                            ErrorMessage="Technician payment must be at least ₦10,000" CssClass="text-danger" Display="Dynamic"></asp:RangeValidator>
+                                            ErrorMessage="Technician payment must be at least KES10,000" CssClass="text-danger" Display="Dynamic"></asp:RangeValidator>
                                     </div>
                                     
                                     <div class="form-group">
-                                        <label for="txtMaterialsCost" class="form-label">Materials Cost (₦) <span class="text-danger">*</span></label>
+                                        <label for="txtMaterialsCost" class="form-label">Materials Cost (KES) <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <span class="input-group-text">₦</span>
-                                            <asp:TextBox ID="txtMaterialsCost" runat="server" CssClass="form-control" placeholder="Minimum ₦10,000" TextMode="Number" min="10000"></asp:TextBox>
+                                            <span class="input-group-text">KES</span>
+                                            <asp:TextBox ID="txtMaterialsCost" runat="server" CssClass="form-control" placeholder="Minimum KES10,000" TextMode="Number" min="10000"></asp:TextBox>
                                         </div>
                                         <asp:RequiredFieldValidator ID="rfvMaterialsCost" runat="server" ControlToValidate="txtMaterialsCost" 
                                             ErrorMessage="Materials cost is required" CssClass="text-danger" Display="Dynamic"></asp:RequiredFieldValidator>
                                         <asp:RangeValidator ID="rvMaterialsCost" runat="server" ControlToValidate="txtMaterialsCost" 
                                             MinimumValue="10000" MaximumValue="9999999999" Type="Double" 
-                                            ErrorMessage="Materials cost must be at least ₦10,000" CssClass="text-danger" Display="Dynamic"></asp:RangeValidator>
+                                            ErrorMessage="Materials cost must be at least KES10,000" CssClass="text-danger" Display="Dynamic"></asp:RangeValidator>
                                     </div>
                                 </div>
                             </div>
@@ -175,24 +175,26 @@
                                 </div>
                             </div>
                             
-                            <!-- Project Tasks -->
+                            <!-- Project Tasks (Now Optional) -->
                             <div class="row mt-3">
                                 <div class="col-md-12">
-                                    <h4 class="mb-3">Project Tasks <span class="text-danger">*</span></h4>
+                                    <h4 class="mb-3">Project Tasks <small class="text-muted">(Optional)</small></h4>
                                     
                                     <div class="tasks-container mb-3" id="tasksList">
                                         <asp:Repeater ID="rptTasks" runat="server">
                                             <ItemTemplate>
                                                 <div class="task-item">
-                                                    <strong><%# Eval("TaskName") %></strong> - 
-                                                    <span class="text-muted"><%# Eval("DueDate", "{0:yyyy-MM-dd}") %></span>
+                                                    <strong><%# Eval("Name") %></strong> - 
+                                                    <span class="text-muted"><%# Eval("EndDate", "{0:yyyy-MM-dd}") %></span>
                                                     <p><%# Eval("Description") %></p>
                                                 </div>
                                             </ItemTemplate>
-                                            <EmptyDataTemplate>
-                                                <div class="alert alert-info">No tasks added yet. Please add at least one task.</div>
-                                            </EmptyDataTemplate>
                                         </asp:Repeater>
+                                        
+                                        <!-- Empty state message - displayed using server-side code -->
+                                        <asp:Panel ID="pnlNoTasks" runat="server" CssClass="alert alert-info">
+                                            No tasks added yet. Adding tasks is optional.
+                                        </asp:Panel>
                                     </div>
                                     
                                     <div class="card mb-3">
@@ -226,9 +228,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <asp:CustomValidator ID="cvTasksRequired" runat="server" 
-                                        ErrorMessage="At least one task is required" CssClass="text-danger" 
-                                        OnServerValidate="cvTasksRequired_ServerValidate" Display="Dynamic"></asp:CustomValidator>
+                                    <!-- Removed the CustomValidator that was enforcing tasks requirement -->
                                 </div>
                             </div>
                             
@@ -238,10 +238,10 @@
                                     <a href="Projects.aspx" class="btn btn-outline-secondary me-2">
                                         <i class="fas fa-times me-1"></i> Cancel
                                     </a>
-                                    <asp:Button ID="btnCreateProject" runat="server" Text="Create Project" 
-                                        CssClass="btn btn-primary" OnClick="btnCreateProject_Click">
-                                        <i class="fas fa-save me-1"></i>
-                                    </asp:Button>
+                                    <!-- Fixed Button with icon - using HTML button with server-side event handling -->
+                                    <button type="submit" class="btn btn-primary" id="btnCreateProject" runat="server" onserverclick="btnCreateProject_Click">
+                                        <i class="fas fa-save me-1"></i> Create Project
+                                    </button>
                                 </div>
                             </div>
                         </div>

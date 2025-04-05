@@ -131,14 +131,8 @@ namespace ProjectManagementSystem.Views.Projects
                 // Get resources
                 string Resources = txtResources.Text.Trim();
 
-                // Validate tasks (at least one task required)
+                // Get tasks from session (now optional)
                 var tasks = Session[TASKS_SESSION_KEY] as List<ProjectTask>;
-                if (tasks == null || tasks.Count == 0)
-                {
-                    lblOutput.Text = "Please add at least one task to the project.";
-                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
-                    return;
-                }
 
                 // Debug info
                 System.Diagnostics.Debug.WriteLine($"Inserting Project: {ProjectName}, {Description}, {Location}, {StartDate}, {EndDate}, {TechnicianPayment}, {MaterialsCost}, {Budget}, {ProjectManagerId}, {Resources}");
@@ -146,13 +140,16 @@ namespace ProjectManagementSystem.Views.Projects
                 // Save project to database
                 int projectId = SQLiteHelper.InsertProject(ProjectName, Description, Location, StartDate, EndDate, TechnicianPayment, MaterialsCost, Budget, ProjectManagerId, Resources);
 
-                DateTime defaultStartDate = DateTime.Now; 
-                DateTime defaultEndDate = DateTime.Now.AddDays(7); 
-
-                // Save tasks for this project
-                foreach (var task in tasks)
+                // Save tasks for this project (if any tasks exist)
+                if (tasks != null && tasks.Count > 0)
                 {
-                    SQLiteHelper.InsertProjectTask(projectId, task.Name, task.Description, defaultStartDate, defaultEndDate, task.AssignedToUserId);
+                    DateTime defaultStartDate = DateTime.Now;
+                    DateTime defaultEndDate = DateTime.Now.AddDays(7);
+
+                    foreach (var task in tasks)
+                    {
+                        SQLiteHelper.InsertProjectTask(projectId, task.Name, task.Description, defaultStartDate, defaultEndDate, task.AssignedToUserId);
+                    }
                 }
 
                 // Clear tasks from session

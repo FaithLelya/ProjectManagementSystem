@@ -240,6 +240,15 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Repeater rptTasks;
 
         /// <summary>
+        /// pnlNoTasks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlNoTasks;
+
+        /// <summary>
         /// txtTaskName control.
         /// </summary>
         /// <remarks>
@@ -276,21 +285,12 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Button btnAddTask;
 
         /// <summary>
-        /// cvTasksRequired control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CustomValidator cvTasksRequired;
-
-        /// <summary>
         /// btnCreateProject control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCreateProject;
+        protected global::System.Web.UI.HtmlControls.HtmlButton btnCreateProject;
     }
 }
