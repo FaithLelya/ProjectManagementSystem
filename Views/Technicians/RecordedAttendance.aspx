@@ -17,6 +17,50 @@
         .back-button {
             margin-bottom: 15px;
         }
+        /* Improve date field display */
+        .table .date-column {
+            min-width: 120px;
+            white-space: nowrap;
+        }
+        /* Improve table readability */
+        .table th {
+            background-color: #e9f0f8;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f1f8ff;
+        }
+        /* Badge styling */
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 0.35em 0.65em;
+        }
+        /* Card styling */
+        .card {
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .card-header {
+            border-top-left-radius: 0.5rem !important;
+            border-top-right-radius: 0.5rem !important;
+            font-weight: 600;
+        }
+        /* Button styling */
+        .btn-primary {
+            background-color: #3268c1;
+            border-color: #3268c1;
+        }
+        .btn-primary:hover {
+            background-color: #2a58a5;
+            border-color: #2a58a5;
+        }
+        /* Form control styling */
+        .form-control:focus, .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -98,9 +142,10 @@
                                 <asp:BoundField DataField="AttendanceId" HeaderText="ID" HeaderStyle-CssClass="d-none" ItemStyle-CssClass="d-none" />
                                 <asp:BoundField DataField="Technician" HeaderText="Technician" />
                                 <asp:BoundField DataField="ProjectName" HeaderText="Project" />
-                                <asp:BoundField DataField="Date" HeaderText="Date" DataFormatString="{0:yyyy-MM-dd}" />
-                                <asp:BoundField DataField="HoursWorked" HeaderText="Hours Worked" />
+                                <asp:BoundField DataField="Date" HeaderText="Date" ItemStyle-CssClass="date-column" HeaderStyle-CssClass="date-column" />                                <asp:BoundField DataField="HoursWorked" HeaderText="Hours Worked" />
                                 <asp:BoundField DataField="OvertimeHours" HeaderText="Overtime Hours" />
+                                <asp:BoundField DataField="TotalPayment" HeaderText="Total Payment" DataFormatString="{0:C2}" />
+
                                 <asp:TemplateField HeaderText="Status">
                                     <ItemTemplate>
                                         <!-- Status badge will be added in code-behind -->
@@ -110,20 +155,23 @@
                                 <asp:BoundField DataField="Notes" HeaderText="Notes" />
                                 <asp:TemplateField HeaderText="Actions">
                                     <ItemTemplate>
-                                        <asp:LinkButton ID="btnEdit" runat="server" CssClass="btn btn-sm btn-primary me-1" 
-                                            CommandName="EditItem" CommandArgument='<%# Eval("AttendanceId") %>'
-                                            ToolTip="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </asp:LinkButton>
-                                        <asp:LinkButton ID="btnDelete" runat="server" CssClass="btn btn-sm btn-danger"
-                                            CommandName="DeleteItem" CommandArgument='<%# Eval("AttendanceId") %>'
-                                            ToolTip="Delete" OnClientClick="return confirm('Are you sure you want to delete this attendance record?');">
-                                            <i class="fas fa-trash"></i>
-                                        </asp:LinkButton>
+                                        <div class="d-flex">
+                                            <asp:LinkButton ID="btnEdit" runat="server" CssClass="btn btn-sm btn-primary me-1" 
+                                                CommandName="EditItem" CommandArgument='<%# Eval("AttendanceId") %>'
+                                                ToolTip="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </asp:LinkButton>
+                                            <asp:LinkButton ID="btnDelete" runat="server" CssClass="btn btn-sm btn-danger"
+                                                CommandName="DeleteItem" CommandArgument='<%# Eval("AttendanceId") %>'
+                                                ToolTip="Delete" OnClientClick="return confirm('Are you sure you want to delete this attendance record?');">
+                                                <i class="fas fa-trash"></i>
+                                            </asp:LinkButton>
+                                        </div>
                                     </ItemTemplate>
                                 </asp:TemplateField>
                             </Columns>
                             <HeaderStyle CssClass="table-primary" />
+                            <PagerStyle CssClass="pagination justify-content-center" />
                         </asp:GridView>
                     </div>
                 </div>
@@ -171,6 +219,13 @@
                                 <div class="mb-3">
                                     <label for="txtEditOvertimeHours" class="form-label">Overtime Hours</label>
                                     <asp:TextBox ID="txtEditOvertimeHours" runat="server" CssClass="form-control" TextMode="Number" Step="0.5" Min="0"></asp:TextBox>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="txtEditTotalPayment" class="form-label">Total Payment</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <asp:TextBox ID="txtEditTotalPayment" runat="server" CssClass="form-control" TextMode="Number" Step="0.01" Min="0"></asp:TextBox>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -221,5 +276,5 @@
             }
         });
     </script>
-    </body>
+</body>
 </html>

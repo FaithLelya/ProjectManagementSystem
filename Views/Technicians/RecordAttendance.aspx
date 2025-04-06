@@ -13,7 +13,7 @@
         }
         
         body {
-            background-color: #f8f9fa;
+            background-color: white;
         }
         
         .attendance-card {
@@ -39,13 +39,13 @@
         }
         
         .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
+            color: white;
+            border-color: white;
         }
         
         .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            color: white;
+            background-color: white;
+            color: var(--primary-color);
         }
         
         .radio-group {
@@ -81,28 +81,42 @@
             margin-top: 4px;
             display: none;
         }
+        
+        .total-payment {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
     </style>
     <script type="text/javascript">
         // Regular working hours constant
         const REGULAR_HOURS = 8;
         const MAX_HOURS = 24;
 
+        // Store technician rates
+        var technicianRates = {};
+
         function toggleTimeInputs() {
             var isAbsent = document.getElementById('<%= rbtnAbsent.ClientID %>').checked;
             document.getElementById('<%= txtStartTime.ClientID %>').disabled = isAbsent;
             document.getElementById('<%= txtEndTime.ClientID %>').disabled = isAbsent;
-            document.getElementById('<%= txtHoursWorked.ClientID %>').disabled = isAbsent;
-            document.getElementById('<%= txtOvertimeHours.ClientID %>').disabled = isAbsent;
+            document.getElementById('<%= txtHoursWorked.ClientID %>').disabled = true; // Always disabled as calculated automatically
+            document.getElementById('<%= txtOvertimeHours.ClientID %>').disabled = true; // Always disabled as calculated automatically
+            document.getElementById('<%= txtTotalPayment.ClientID %>').disabled = true; // Always disabled as calculated automatically
 
             if (isAbsent) {
                 // When marked as absent, set hours to 0
                 document.getElementById('<%= txtHoursWorked.ClientID %>').value = "0";
                 document.getElementById('<%= txtOvertimeHours.ClientID %>').value = "0";
                 document.getElementById('<%= hiddenTotalHours.ClientID %>').value = "0";
+                document.getElementById('<%= txtTotalPayment.ClientID %>').value = "0";
+            } else {
+                // Recalculate hours when toggling back to present
+                calculateHours();
             }
         }
 
-        function updateTotalHours() {
+        function calculateHours() {
             // Hide any previous validation messages
             document.getElementById('hoursValidationError').style.display = 'none';
             // Enable submit button by default
@@ -112,15 +126,32 @@
                 document.getElementById('<%= txtHoursWorked.ClientID %>').value = "0";
                 document.getElementById('<%= txtOvertimeHours.ClientID %>').value = "0";
                 document.getElementById('<%= hiddenTotalHours.ClientID %>').value = "0";
+                document.getElementById('<%= txtTotalPayment.ClientID %>').value = "0";
                 return;
             }
 
-            // Get manually entered hours
-            var regularHours = parseFloat(document.getElementById('<%= txtHoursWorked.ClientID %>').value) || 0;
-            var overtimeHours = parseFloat(document.getElementById('<%= txtOvertimeHours.ClientID %>').value) || 0;
+            var startTimeStr = document.getElementById('<%= txtStartTime.ClientID %>').value;
+            var endTimeStr = document.getElementById('<%= txtEndTime.ClientID %>').value;
 
-            // Calculate total hours
-            var totalHours = regularHours + overtimeHours;
+            if (!startTimeStr || !endTimeStr) {
+                return; // Exit if times are not set
+            }
+
+            // Parse time strings to Date objects for calculation
+            var startDate = new Date("2000-01-01T" + startTimeStr + ":00");
+            var endDate = new Date("2000-01-01T" + endTimeStr + ":00");
+
+            // If end time is earlier than start time, assume it's the next day
+            if (endDate < startDate) {
+                endDate.setDate(endDate.getDate() + 1);
+            }
+
+            // Calculate time difference in hours
+            var diffMs = endDate - startDate;
+            var diffHrs = diffMs / (1000 * 60 * 60);
+
+            // Round to nearest half hour
+            var totalHours = Math.round(diffHrs * 2) / 2;
 
             // Validation: Check if total hours is valid
             if (totalHours <= 0 || totalHours > MAX_HOURS) {
@@ -128,14 +159,45 @@
                 document.getElementById('<%= btnSubmit.ClientID %>').disabled = true;
                 return;
             }
+
+            // Calculate regular and overtime hours
+            var regularHours = Math.min(REGULAR_HOURS, totalHours);
+            var overtimeHours = Math.max(0, totalHours - REGULAR_HOURS);
+
+            // Update the form fields
+            document.getElementById('<%= txtHoursWorked.ClientID %>').value = regularHours.toFixed(1);
+            document.getElementById('<%= txtOvertimeHours.ClientID %>').value = overtimeHours.toFixed(1);
+            document.getElementById('<%= hiddenTotalHours.ClientID %>').value = totalHours.toFixed(1);
             
-            // Store total hours in hidden field
-            document.getElementById('<%= hiddenTotalHours.ClientID %>').value = totalHours.toString();
+            // Calculate total payment
+            calculateTotalPayment(regularHours, overtimeHours);
             
             // Debug output to console
+            console.log("Start Time: " + startTimeStr);
+            console.log("End Time: " + endTimeStr);
             console.log("Regular Hours: " + regularHours);
             console.log("Overtime Hours: " + overtimeHours);
             console.log("Total Hours: " + totalHours);
+        }
+        
+        function calculateTotalPayment(regularHours, overtimeHours) {
+            var technicianId = document.getElementById('<%= ddlTechnician.ClientID %>').value;
+            
+            if (!technicianId || !technicianRates[technicianId]) {
+                document.getElementById('<%= txtTotalPayment.ClientID %>').value = "0.00";
+                return;
+            }
+            
+            var hourlyRate = technicianRates[technicianId].hourlyRate;
+            var overtimeRate = technicianRates[technicianId].overtimeRate;
+            
+            var totalPayment = (regularHours * hourlyRate) + (overtimeHours * overtimeRate);
+            document.getElementById('<%= txtTotalPayment.ClientID %>').value = totalPayment.toFixed(2);
+            document.getElementById('<%= hiddenTotalPayment.ClientID %>').value = totalPayment.toFixed(2);
+            
+            console.log("Hourly Rate: " + hourlyRate);
+            console.log("Overtime Rate: " + overtimeRate);
+            console.log("Total Payment: " + totalPayment.toFixed(2));
         }
     
         function validateForm() {
@@ -145,17 +207,8 @@
                 var overtimeHours = parseFloat(document.getElementById('<%= txtOvertimeHours.ClientID %>').value) || 0;
                 var totalHours = regularHours + overtimeHours;
                 
-                // Ensure the hours fields have values before submission
-                if (document.getElementById('<%= txtHoursWorked.ClientID %>').value === "") {
-                    document.getElementById('<%= txtHoursWorked.ClientID %>').value = "0";
-                }
-                
-                if (document.getElementById('<%= txtOvertimeHours.ClientID %>').value === "") {
-                    document.getElementById('<%= txtOvertimeHours.ClientID %>').value = "0";
-                }
-                
                 // Update hidden field with total hours
-                document.getElementById('<%= hiddenTotalHours.ClientID %>').value = totalHours.toString();
+                document.getElementById('<%= hiddenTotalHours.ClientID %>').value = totalHours.toFixed(1);
                 
                 if (isNaN(totalHours) || totalHours <= 0 || totalHours > MAX_HOURS) {
                     document.getElementById('hoursValidationError').style.display = 'block';
@@ -164,8 +217,17 @@
             }
             return true;
         }
+        
+        function updateTechnicianRates() {
+            var technicianId = document.getElementById('<%= ddlTechnician.ClientID %>').value;
+            if (technicianId) {
+                calculateHours();
+            } else {
+                document.getElementById('<%= txtTotalPayment.ClientID %>').value = "0.00";
+            }
+        }
     
-        // Set default date and times on page load
+        // Set default date and times on page load and restrict future dates
         window.onload = function() {
             // Set today's date
             var today = new Date();
@@ -175,16 +237,22 @@
             today = yyyy + '-' + mm + '-' + dd;
             document.getElementById('<%= txtDate.ClientID %>').value = today;
             
+            // Set max date attribute to prevent future date selection
+            document.getElementById('<%= txtDate.ClientID %>').setAttribute("max", today);
+            
             // Set default start time (9:00 AM)
             document.getElementById('<%= txtStartTime.ClientID %>').value = "09:00";
             
             // Set default end time (5:00 PM)
             document.getElementById('<%= txtEndTime.ClientID %>').value = "17:00";
+            
+            // Set up event listeners for time inputs
+            document.getElementById('<%= txtStartTime.ClientID %>').addEventListener('change', calculateHours);
+            document.getElementById('<%= txtEndTime.ClientID %>').addEventListener('change', calculateHours);
+            document.getElementById('<%= ddlTechnician.ClientID %>').addEventListener('change', updateTechnicianRates);
 
-            // Set default hours
-            document.getElementById('<%= txtHoursWorked.ClientID %>').value = "8";
-            document.getElementById('<%= txtOvertimeHours.ClientID %>').value = "0";
-            document.getElementById('<%= hiddenTotalHours.ClientID %>').value = "8";
+            // Calculate initial hours
+            calculateHours();
         };
     </script>
 </head>
@@ -210,7 +278,8 @@
                                 <!-- Technician Dropdown -->
                                 <div class="col-md-6">
                                     <label for="ddlTechnician" class="form-label">Technician</label>
-                                    <asp:DropDownList ID="ddlTechnician" runat="server" CssClass="form-select" required>
+                                    <asp:DropDownList ID="ddlTechnician" runat="server" CssClass="form-select" required 
+                                        OnSelectedIndexChanged="ddlTechnician_SelectedIndexChanged" AutoPostBack="true">
                                         <asp:ListItem Text="-- Select Technician --" Value=""></asp:ListItem>
                                     </asp:DropDownList>
                                 </div>
@@ -230,6 +299,7 @@
                                         <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                                         <asp:TextBox ID="txtDate" runat="server" CssClass="form-control" TextMode="Date" required></asp:TextBox>
                                     </div>
+                                    <div class="overtime-info">Can only select today or past dates</div>
                                 </div>
                                 
                                 <!-- Start Time -->
@@ -252,8 +322,9 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Hidden field to store total hours -->
+                                <!-- Hidden fields to store values -->
                                 <asp:HiddenField ID="hiddenTotalHours" runat="server" />
+                                <asp:HiddenField ID="hiddenTotalPayment" runat="server" />
                                 
                                 <!-- Attendance Type -->
                                 <div class="col-md-4">
@@ -270,26 +341,37 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Hours Worked (Manual Input) -->
+                                <!-- Hours Worked (Calculated Input) -->
                                 <div class="col-md-4">
                                     <label for="txtHoursWorked" class="form-label">Regular Hours Worked</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="far fa-clock"></i></span>
                                         <asp:TextBox ID="txtHoursWorked" runat="server" CssClass="form-control" 
-                                            TextMode="Number" min="0" max="24" step="0.5" onchange="updateTotalHours()"></asp:TextBox>
+                                            TextMode="Number" min="0" max="24" step="0.5" ReadOnly="true"></asp:TextBox>
                                     </div>
-                                    <div class="overtime-info">Standard workday: 8 hours</div>
+                                    <div class="overtime-info">Auto-calculated (max 8 hours)</div>
                                 </div>
                                 
-                                <!-- Overtime Hours (Manual Input) -->
+                                <!-- Overtime Hours (Calculated Input) -->
                                 <div class="col-md-4">
                                     <label for="txtOvertimeHours" class="form-label">Overtime Hours</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-clock"></i></span>
                                         <asp:TextBox ID="txtOvertimeHours" runat="server" CssClass="form-control" 
-                                            TextMode="Number" min="0" max="16" step="0.5" onchange="updateTotalHours()"></asp:TextBox>
+                                            TextMode="Number" min="0" max="16" step="0.5" ReadOnly="true"></asp:TextBox>
                                     </div>
-                                    <div class="overtime-info">Hours worked beyond 8 hours</div>
+                                    <div class="overtime-info">Auto-calculated (hours over 8)</div>
+                                </div>
+                                
+                                <!-- Total Payment (Calculated Input) -->
+                                <div class="col-12">
+                                    <label for="txtTotalPayment" class="form-label">Total Payment</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i style="font-weight: bold; font-size: 1.2em;">KSh</i></span>
+                                        <asp:TextBox ID="txtTotalPayment" runat="server" CssClass="form-control total-payment" 
+                                            TextMode="Number" min="0" step="0.01" ReadOnly="true"></asp:TextBox>
+                                    </div>
+                                    <div class="overtime-info">Auto-calculated based on hourly rates</div>
                                 </div>
                                 
                                 <div id="hoursValidationError" class="validation-error col-12">

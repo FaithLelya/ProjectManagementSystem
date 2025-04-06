@@ -4,6 +4,9 @@ using System.Web.UI.WebControls;
 using System.Data.SQLite;
 using System.Web.UI;
 using ProjectManagementSystem.Models;
+using System.Collections.Generic;
+using System.Text.Json;
+
 namespace ProjectManagementSystem.Views.Technicians
 {
     public partial class RecordAttendance : System.Web.UI.Page
@@ -17,6 +20,7 @@ namespace ProjectManagementSystem.Views.Technicians
                 LoadProjects();
             }
         }
+
         private void LoadTechnicians()
         {
             // Load junior technicians from the database and bind to the dropdown
@@ -28,6 +32,7 @@ namespace ProjectManagementSystem.Views.Technicians
                 using (var reader = command.ExecuteReader())
                 {
                     ddlTechnician.Items.Clear(); // Clear existing items to avoid duplicates
+                    ddlTechnician.Items.Add(new ListItem("-- Select Technician --", ""));
 
                     // Check if there are any rows returned
                     if (reader.HasRows)
@@ -68,6 +73,64 @@ namespace ProjectManagementSystem.Views.Technicians
             }
         }
 
+        protected void ddlTechnician_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Load technician rates when a technician is selected
+            if (!string.IsNullOrEmpty(ddlTechnician.SelectedValue))
+            {
+                LoadTechnicianRates(int.Parse(ddlTechnician.SelectedValue));
+            }
+        }
+
+        private void LoadTechnicianRates(int technicianId)
+        {
+            try
+            {
+                decimal hourlyRate = 0;
+                decimal overtimeRate = 0;
+
+                // Fetch technician hourly rate and overtime rate from database
+                using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
+                {
+                    connection.Open();
+                    string query = "SELECT HourlyRate, OvertimeRate FROM Technician WHERE TechnicianID = @TechnicianId";
+                    using (var command = new SQLiteCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@TechnicianId", technicianId);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                hourlyRate = reader.IsDBNull(reader.GetOrdinal("HourlyRate")) ? 0 :
+                                    Convert.ToDecimal(reader["HourlyRate"]);
+                                overtimeRate = reader.IsDBNull(reader.GetOrdinal("OvertimeRate")) ? 0 :
+                                    Convert.ToDecimal(reader["OvertimeRate"]);
+                            }
+                        }
+                    }
+                }
+
+                // Create JavaScript object with technician rates
+                var technicianRateData = new
+                {
+                    technicianId = technicianId,
+                    hourlyRate = hourlyRate,
+                    overtimeRate = overtimeRate
+                };
+
+                // Serialize to JSON
+                string jsonRates = $"technicianRates[{technicianId}] = {{hourlyRate: {hourlyRate.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)}, overtimeRate: {overtimeRate.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)}}};";
+
+                // Register script to update the JavaScript object
+                ScriptManager.RegisterStartupScript(this, this.GetType(), $"technicianRates_{technicianId}",
+                    jsonRates + " calculateHours();", true);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error loading technician rates: " + ex.ToString());
+            }
+        }
+
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
             try
@@ -84,11 +147,19 @@ namespace ProjectManagementSystem.Views.Technicians
                     return;
                 }
 
-                // Validate the date
+                // Validate the date - not in the future
                 DateTime date;
-                if (!DateTime.TryParse(txtDate.Text, out date) || date > DateTime.Now)
+                if (!DateTime.TryParse(txtDate.Text, out date))
                 {
-                    lblMessage.Text = "Please enter a valid date that is not in the future.";
+                    lblMessage.Text = "Please enter a valid date.";
+                    lblMessage.CssClass = "ms-3 text-danger";
+                    return;
+                }
+
+                // Ensure the date is not in the future
+                if (date.Date > DateTime.Now.Date)
+                {
+                    lblMessage.Text = "Attendance can only be recorded for today or past dates.";
                     lblMessage.CssClass = "ms-3 text-danger";
                     return;
                 }
@@ -99,69 +170,69 @@ namespace ProjectManagementSystem.Views.Technicians
                 // Initialize hours variables
                 decimal hoursWorked = 0;
                 decimal overtimeHours = 0;
+                decimal totalPayment = 0;
 
-                // If not absent, get the calculated hours from the hidden field and text boxes
+                // If not absent, calculate hours from start and end times
                 if (!isAbsent)
                 {
-                    // Try to get regular hours from the text box
-                    if (!decimal.TryParse(txtHoursWorked.Text.Trim(), out hoursWorked))
+                    // Get time values from the time fields
+                    TimeSpan startTime, endTime;
+                    if (!TimeSpan.TryParse(txtStartTime.Text, out startTime) || !TimeSpan.TryParse(txtEndTime.Text, out endTime))
                     {
-                        lblMessage.Text = "Hours worked must be a valid number.";
+                        lblMessage.Text = "Please enter valid start and end times.";
                         lblMessage.CssClass = "ms-3 text-danger";
                         return;
                     }
 
-                    // Try to get overtime hours from the text box
-                    if (!decimal.TryParse(txtOvertimeHours.Text.Trim(), out overtimeHours))
+                    // Calculate hours worked
+                    double totalHours;
+
+                    // If end time is earlier than start time, assume it spans to the next day
+                    if (endTime < startTime)
                     {
-                        lblMessage.Text = "Overtime hours must be a valid number.";
-                        lblMessage.CssClass = "ms-3 text-danger";
-                        return;
+                        totalHours = (24 - startTime.TotalHours) + endTime.TotalHours;
+                    }
+                    else
+                    {
+                        totalHours = endTime.TotalHours - startTime.TotalHours;
                     }
 
-                    // Validate hours worked
-                    if (hoursWorked < 0)
-                    {
-                        lblMessage.Text = "Hours worked must be a positive number.";
-                        lblMessage.CssClass = "ms-3 text-danger";
-                        return;
-                    }
+                    // Round to nearest half hour
+                    totalHours = Math.Round(totalHours * 2) / 2;
 
-                    // Validate overtime hours
-                    if (overtimeHours < 0)
-                    {
-                        lblMessage.Text = "Overtime hours must be a positive number.";
-                        lblMessage.CssClass = "ms-3 text-danger";
-                        return;
-                    }
-
-                    // Check total hours from hidden field for extra validation
-                    decimal totalHours;
-                    if (!decimal.TryParse(hiddenTotalHours.Value, out totalHours) || totalHours <= 0 || totalHours > 24)
+                    // Validate calculated hours
+                    if (totalHours <= 0 || totalHours > 24)
                     {
                         lblMessage.Text = "Total hours must be positive and cannot exceed 24 hours.";
                         lblMessage.CssClass = "ms-3 text-danger";
                         return;
                     }
 
-                    // Make sure the sum of hours worked and overtime matches the total
-                    if (Math.Abs((hoursWorked + overtimeHours) - totalHours) > 0.01m)
-                    {
-                        // If there's a discrepancy, use the values from the total hours calculation
-                        // This ensures the JavaScript calculation takes precedence
-                        hoursWorked = Math.Min(totalHours, 8m);
-                        overtimeHours = Math.Max(0m, totalHours - 8m);
+                    // Calculate regular hours (capped at 8) and overtime
+                    hoursWorked = Math.Min(8m, (decimal)totalHours);
+                    overtimeHours = Math.Max(0m, (decimal)totalHours - 8m);
 
-                        // Round to 2 decimal places
-                        hoursWorked = Math.Round(hoursWorked, 2);
-                        overtimeHours = Math.Round(overtimeHours, 2);
+                    // Round to 1 decimal place
+                    hoursWorked = Math.Round(hoursWorked, 1);
+                    overtimeHours = Math.Round(overtimeHours, 1);
+
+                    // Get payment from hidden field (calculated by JavaScript)
+                    if (!string.IsNullOrEmpty(hiddenTotalPayment.Value) && decimal.TryParse(hiddenTotalPayment.Value, out totalPayment))
+                    {
+                        // Successfully parsed the total payment
+                    }
+                    else
+                    {
+                        // Calculate payment directly if JavaScript calculation failed
+                        totalPayment = CalculateTotalPayment(int.Parse(ddlTechnician.SelectedValue), hoursWorked, overtimeHours);
                     }
                 }
                 else
                 {
-                    // When absent, explicitly set hours to 0
+                    // When absent, explicitly set hours and payment to 0
                     hoursWorked = 0;
                     overtimeHours = 0;
+                    totalPayment = 0;
                 }
 
                 // Check for duplicate attendance record
@@ -173,13 +244,13 @@ namespace ProjectManagementSystem.Views.Technicians
                 }
 
                 // Debug output - log the values being saved
-                System.Diagnostics.Debug.WriteLine($"Saving: Hours={hoursWorked}, Overtime={overtimeHours}, Absent={isAbsent}");
+                System.Diagnostics.Debug.WriteLine($"Saving: Hours={hoursWorked}, Overtime={overtimeHours}, Absent={isAbsent}, Payment={totalPayment}");
 
                 // Insert attendance record into the database
                 using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
                 {
                     connection.Open();
-                    string insertQuery = "INSERT INTO Attendance (TechnicianId, ProjectId, Date, HoursWorked, OvertimeHours, SubmittedBy, Notes, IsAbsent) VALUES (@TechnicianId, @ProjectId, @Date, @HoursWorked, @OvertimeHours, @SubmittedBy, @Notes, @IsAbsent)";
+                    string insertQuery = "INSERT INTO Attendance (TechnicianId, ProjectId, Date, HoursWorked, OvertimeHours, TotalPayment, SubmittedBy, Notes, IsAbsent) VALUES (@TechnicianId, @ProjectId, @Date, @HoursWorked, @OvertimeHours, @TotalPayment, @SubmittedBy, @Notes, @IsAbsent)";
                     using (var command = new SQLiteCommand(insertQuery, connection))
                     {
                         command.Parameters.AddWithValue("@TechnicianId", int.Parse(ddlTechnician.SelectedValue));
@@ -188,6 +259,7 @@ namespace ProjectManagementSystem.Views.Technicians
                         // Always save the calculated hours, don't use DBNull even when absent
                         command.Parameters.AddWithValue("@HoursWorked", hoursWorked);
                         command.Parameters.AddWithValue("@OvertimeHours", overtimeHours);
+                        command.Parameters.AddWithValue("@TotalPayment", totalPayment);
                         command.Parameters.AddWithValue("@SubmittedBy", GetCurrentUserId()); // Get the current user's ID
                         command.Parameters.AddWithValue("@Notes", txtNotes.Text);
                         command.Parameters.AddWithValue("@IsAbsent", isAbsent ? 1 : 0); // Store absence status
@@ -211,21 +283,51 @@ namespace ProjectManagementSystem.Views.Technicians
             }
         }
 
+        private decimal CalculateTotalPayment(int technicianId, decimal regularHours, decimal overtimeHours)
+        {
+            decimal hourlyRate = 0;
+            decimal overtimeRate = 0;
+
+            // Get technician rates from database
+            using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
+            {
+                connection.Open();
+                string query = "SELECT HourlyRate, OvertimeRate FROM Technician WHERE TechnicianID = @TechnicianId";
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@TechnicianId", technicianId);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            hourlyRate = reader.IsDBNull(reader.GetOrdinal("HourlyRate")) ? 0 :
+                                Convert.ToDecimal(reader["HourlyRate"]);
+                            overtimeRate = reader.IsDBNull(reader.GetOrdinal("OvertimeRate")) ? 0 :
+                                Convert.ToDecimal(reader["OvertimeRate"]);
+                        }
+                    }
+                }
+            }
+
+            // Calculate total payment
+            decimal totalPayment = (regularHours * hourlyRate) + (overtimeHours * overtimeRate);
+            return Math.Round(totalPayment, 2);
+        }
+
         private void ResetForm()
         {
             // Reset form fields except for the technician and project dropdowns
             txtDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
             txtStartTime.Text = "09:00";
             txtEndTime.Text = "17:00";
-            txtHoursWorked.Text = "8";
-            txtOvertimeHours.Text = "0";
-            hiddenTotalHours.Value = "8";
+
+            // Re-enable time inputs and recalculate hours
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "resetForm",
+                "toggleTimeInputs(); calculateHours();", true);
+
             rbtnPositive.Checked = true;
             rbtnAbsent.Checked = false;
             txtNotes.Text = "";
-
-            // Re-enable time inputs
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "toggleTimeInputs", "toggleTimeInputs();", true);
         }
 
         private bool IsAttendanceRecordExists(int technicianId, DateTime date)
@@ -254,7 +356,6 @@ namespace ProjectManagementSystem.Views.Technicians
             }
             else
             {
-
                 Response.Redirect("~/Views/Account/Login.aspx");
                 return -1; // This line won't execute due to the redirect
             }

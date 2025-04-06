@@ -37,6 +37,7 @@ namespace ProjectManagementSystem.Models
         {
             //Placeholder for database info(?)
             Role = "Technician";
+            UserName = string.Empty;
         }
         public int TechnicianId { get; set; }
         public string UserName {get; set; }

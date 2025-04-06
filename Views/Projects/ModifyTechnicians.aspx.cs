@@ -89,13 +89,17 @@ namespace ProjectManagementSystem.Views.Projects
                     }
                 }
 
+                // Get the username from the selected item in the dropdown
+                string selectedUsername = ddlTechnicians.SelectedItem.Text;
+
                 // Assign technician
-                string insertQuery = "INSERT INTO ProjectTechnicians (ProjectId, TechnicianId, IsSenior) VALUES (@ProjectId, @TechnicianId, @IsSenior)";
+                string insertQuery = "INSERT INTO ProjectTechnicians (ProjectId, TechnicianId, IsSenior, UserName) VALUES (@ProjectId, @TechnicianId, @IsSenior, @UserName)";
                 using (var command = new SQLiteCommand(insertQuery, connection))
                 {
                     command.Parameters.AddWithValue("@ProjectId", projectId);
                     command.Parameters.AddWithValue("@TechnicianId", selectedTechnicianId);
                     command.Parameters.AddWithValue("@IsSenior", IsSeniorTechnician(selectedTechnicianId));
+                    command.Parameters.AddWithValue("@UserName", selectedUsername);
                     command.ExecuteNonQuery();
                 }
             }

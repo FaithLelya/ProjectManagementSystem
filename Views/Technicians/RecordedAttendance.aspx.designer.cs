@@ -177,6 +177,15 @@ namespace ProjectManagementSystem.Views.Technicians
         protected global::System.Web.UI.WebControls.TextBox txtEditOvertimeHours;
 
         /// <summary>
+        /// txtEditTotalPayment control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtEditTotalPayment;
+
+        /// <summary>
         /// txtEditNotes control.
         /// </summary>
         /// <remarks>

@@ -117,12 +117,13 @@ namespace ProjectManagementSystem.Views.Admin
                     break;
             }
 
-            // Build query with filters
+            // Build query with filters - Modified to include Attendance payments
             StringBuilder sqlBuilder = new StringBuilder();
             sqlBuilder.Append(@"SELECT p.ProjectId, p.ProjectName, p.Budget, 
-                               p.TechnicianPayment, p.MaterialsCost, 
-                               (p.TechnicianPayment + p.MaterialsCost) as TotalExpense,
-                               (p.Budget - (p.TechnicianPayment + p.MaterialsCost)) as Variance
+                               p.TechnicianPayment, p.MaterialsCost,
+                               COALESCE((SELECT SUM(TotalPayment) FROM Attendance WHERE ProjectId = p.ProjectId), 0) as AttendancePayment,
+                               p.TechnicianPayment + p.MaterialsCost + COALESCE((SELECT SUM(TotalPayment) FROM Attendance WHERE ProjectId = p.ProjectId), 0) as TotalExpense,
+                               (p.Budget - (p.TechnicianPayment + p.MaterialsCost + COALESCE((SELECT SUM(TotalPayment) FROM Attendance WHERE ProjectId = p.ProjectId), 0))) as Variance
                                FROM Projects p
                                WHERE 1=1");
 
@@ -164,6 +165,7 @@ namespace ProjectManagementSystem.Views.Admin
                                 Budget = reader.GetDecimal(reader.GetOrdinal("Budget")),
                                 TechnicianPayment = reader.GetDecimal(reader.GetOrdinal("TechnicianPayment")),
                                 MaterialsCost = reader.GetDecimal(reader.GetOrdinal("MaterialsCost")),
+                                AttendancePayment = reader.GetDecimal(reader.GetOrdinal("AttendancePayment")),
                                 TotalExpense = reader.GetDecimal(reader.GetOrdinal("TotalExpense")),
                                 Variance = reader.GetDecimal(reader.GetOrdinal("Variance"))
                             };
@@ -228,6 +230,7 @@ namespace ProjectManagementSystem.Views.Admin
                 new DataColumn("Budget"),
                 new DataColumn("Technician Cost"),
                 new DataColumn("Materials Cost"),
+                new DataColumn("Attendance Payment"),
                 new DataColumn("Total Expenses"),
                 new DataColumn("Variance"),
                 new DataColumn("Status")
@@ -241,9 +244,10 @@ namespace ProjectManagementSystem.Views.Admin
                 dr["Budget"] = row.Cells[2].Text;
                 dr["Technician Cost"] = row.Cells[3].Text;
                 dr["Materials Cost"] = row.Cells[4].Text;
-                dr["Total Expenses"] = row.Cells[5].Text;
-                dr["Variance"] = row.Cells[6].Text;
-                dr["Status"] = (row.Cells[7].FindControl("lblStatus") as Label)?.Text ?? "";
+                dr["Attendance Payment"] = row.Cells[5].Text;
+                dr["Total Expenses"] = row.Cells[6].Text;
+                dr["Variance"] = row.Cells[7].Text;
+                dr["Status"] = (row.Cells[8].FindControl("lblStatus") as Label)?.Text ?? "";
                 dt.Rows.Add(dr);
             }
 
@@ -338,13 +342,13 @@ namespace ProjectManagementSystem.Views.Admin
                 pdfDoc.Add(new Paragraph(" "));
 
                 // Create table for the project data
-                PdfPTable table = new PdfPTable(8);
+                PdfPTable table = new PdfPTable(9);
                 table.WidthPercentage = 100;
-                float[] widths = new float[] { 5f, 20f, 10f, 10f, 10f, 10f, 10f, 15f };
+                float[] widths = new float[] { 5f, 18f, 9f, 9f, 9f, 9f, 9f, 9f, 13f };
                 table.SetWidths(widths);
 
                 // Add header row
-                string[] headers = new string[] { "ID", "Project Name", "Budget", "Technician Cost", "Materials Cost", "Total Expenses", "Variance", "Status" };
+                string[] headers = new string[] { "ID", "Project Name", "Budget", "Technician Cost", "Materials Cost", "Attendance Payment", "Total Expenses", "Variance", "Status" };
                 foreach (string header in headers)
                 {
                     PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
@@ -373,16 +377,19 @@ namespace ProjectManagementSystem.Views.Admin
                     // Add Materials Cost cell
                     table.AddCell(new PdfPCell(new Phrase(row.Cells[4].Text)) { HorizontalAlignment = Element.ALIGN_RIGHT });
 
-                    // Add Total Expenses cell
+                    // Add Attendance Payment cell
                     table.AddCell(new PdfPCell(new Phrase(row.Cells[5].Text)) { HorizontalAlignment = Element.ALIGN_RIGHT });
 
+                    // Add Total Expenses cell
+                    table.AddCell(new PdfPCell(new Phrase(row.Cells[6].Text)) { HorizontalAlignment = Element.ALIGN_RIGHT });
+
                     // Add Variance cell with appropriate styling
-                    PdfPCell varianceCell = new PdfPCell(new Phrase(row.Cells[6].Text)) { HorizontalAlignment = Element.ALIGN_RIGHT };
+                    PdfPCell varianceCell = new PdfPCell(new Phrase(row.Cells[7].Text)) { HorizontalAlignment = Element.ALIGN_RIGHT };
                     table.AddCell(varianceCell);
 
                     // Safely parse the variance value to determine status
                     decimal variance = 0;
-                    string varianceText = row.Cells[6].Text.Replace("$", "").Replace(",", "");
+                    string varianceText = row.Cells[7].Text.Replace("$", "").Replace(",", "");
 
                     // Try to parse the variance, default to 0 if it fails
                     if (!decimal.TryParse(varianceText, out variance))
@@ -462,14 +469,16 @@ namespace ProjectManagementSystem.Views.Admin
             }
         }
     }
-        // Model class for the report data
-        public class ProjectFinanceReport
+
+    // Model class for the report data - Updated with AttendancePayment property
+    public class ProjectFinanceReport
     {
         public int ProjectId { get; set; }
         public string ProjectName { get; set; }
         public decimal Budget { get; set; }
         public decimal TechnicianPayment { get; set; }
         public decimal MaterialsCost { get; set; }
+        public decimal AttendancePayment { get; set; }
         public decimal TotalExpense { get; set; }
         public decimal Variance { get; set; }
     }

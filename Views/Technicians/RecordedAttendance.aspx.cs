@@ -78,16 +78,16 @@ namespace ProjectManagementSystem.Views.Technicians
                 {
                     connection.Open();
 
-                    // Base query with date format handling for SQLite
+                    // Updated query to include TotalPayment
                     string query = @"
-                        SELECT a.AttendanceId, t.Username AS Technician, p.ProjectName, 
-                               a.Date, a.HoursWorked, a.OvertimeHours, a.IsAbsent, a.Notes,
-                               sub.Username AS SubmittedBy
-                        FROM Attendance a
-                        JOIN Technician t ON a.TechnicianId = t.TechnicianId
-                        JOIN Projects p ON a.ProjectId = p.ProjectId
-                        JOIN Technician sub ON a.SubmittedBy = sub.TechnicianId
-                        WHERE 1=1";
+        SELECT a.AttendanceId, t.Username AS Technician, p.ProjectName, 
+               a.Date, a.HoursWorked, a.OvertimeHours, a.IsAbsent, a.Notes,
+               sub.Username AS SubmittedBy, a.TotalPayment
+                FROM Attendance a
+                JOIN Technician t ON a.TechnicianId = t.TechnicianId
+                JOIN Projects p ON a.ProjectId = p.ProjectId
+                JOIN Technician sub ON a.SubmittedBy = sub.TechnicianId
+                WHERE 1=1";
 
                     // Add filters
                     if (!string.IsNullOrEmpty(ddlTechnicianFilter.SelectedValue))
@@ -140,7 +140,6 @@ namespace ProjectManagementSystem.Views.Technicians
 
                         if (DateTime.TryParse(txtStartDate.Text, out startDate))
                         {
-                            // Format date in ISO format for SQLite
                             command.Parameters.AddWithValue("@StartDate", startDate.ToString("yyyy-MM-dd"));
                         }
 
@@ -185,7 +184,7 @@ namespace ProjectManagementSystem.Views.Technicians
             {
                 try
                 {
-                    // Check if the row represents an absent record
+                    // Existing code for absent status
                     bool isAbsent = Convert.ToBoolean(DataBinder.Eval(e.Row.DataItem, "IsAbsent"));
 
                     // Add a badge indicating presence or absence
@@ -195,48 +194,47 @@ namespace ProjectManagementSystem.Views.Technicians
                         lblStatus.Text = "Absent";
                         lblStatus.CssClass = "badge bg-danger";
 
-                        // For absent records, display "-" in hours columns
+                        // For absent records, display "-" in hours columns and payment
                         e.Row.Cells[4].Text = "-"; // HoursWorked column
                         e.Row.Cells[5].Text = "-"; // OvertimeHours column
+                        e.Row.Cells[6].Text = "-"; // TotalPayment column
                     }
                     else
                     {
                         lblStatus.Text = "Present";
                         lblStatus.CssClass = "badge bg-success";
+
+                        // Format payment as currency if present
+                        if (e.Row.Cells[6].Text != null && e.Row.Cells[6].Text != "")
+                        {
+                            if (decimal.TryParse(e.Row.Cells[6].Text, out decimal payment))
+                            {
+                                e.Row.Cells[6].Text = payment.ToString("C");
+                            }
+                        }
                     }
 
                     // Add the badge to the Status column
-                    e.Row.Cells[6].Controls.Add(lblStatus);
+                    e.Row.Cells[7].Controls.Add(lblStatus);
 
-                    // Handle date conversion properly
-                    var dateValue = DataBinder.Eval(e.Row.DataItem, "Date");
-                    DateTime date;
-
-                    if (dateValue is long || dateValue is Int64)
+                    // Properly format the date in yyyy-MM-dd format
+                    var dateValue = DataBinder.Eval(e.Row.DataItem, "Date")?.ToString();
+                    if (!string.IsNullOrEmpty(dateValue))
                     {
-                        // If stored as Unix timestamp (seconds since epoch)
-                        long ticks = Convert.ToInt64(dateValue);
-                        date = new DateTime(1970, 1, 1).AddSeconds(ticks);
+                        DateTime date;
+                        if (DateTime.TryParse(dateValue, out date))
+                        {
+                            // Set the formatted date directly to the cell
+                            e.Row.Cells[3].Text = date.ToString("yyyy-MM-dd");
+                        }
                     }
-                    else if (dateValue is string)
-                    {
-                        // If stored as string
-                        date = DateTime.Parse(dateValue.ToString());
-                    }
-                    else
-                    {
-                        // Try normal conversion
-                        date = Convert.ToDateTime(dateValue);
-                    }
-
-                    e.Row.Cells[3].Text = date.ToString("yyyy-MM-dd");
                 }
                 catch (Exception ex)
                 {
                     // Log the exception
                     System.Diagnostics.Debug.WriteLine("Row binding error: " + ex.ToString());
 
-                    // Safe handling - display raw data or placeholder
+                    // Show the raw date value as fallback
                     e.Row.Cells[3].Text = DataBinder.Eval(e.Row.DataItem, "Date")?.ToString() ?? "Invalid Date";
                 }
             }
@@ -251,21 +249,22 @@ namespace ProjectManagementSystem.Views.Technicians
             Response.Charset = "";
             Response.ContentType = "application/text";
 
-            // Headers
-            Response.Write("Technician,Project,Date,Hours Worked,Overtime Hours,Status,Submitted By,Notes\n");
+            // Updated headers to include TotalPayment
+            Response.Write("Technician,Project,Date,Hours Worked,Overtime Hours,Total Payment,Status,Submitted By,Notes\n");
 
             // Data rows
             foreach (GridViewRow row in gvAttendance.Rows)
             {
                 string technician = row.Cells[1].Text;
                 string project = row.Cells[2].Text;
-                string date = row.Cells[3].Text;
+                string date = row.Cells[3].Text; // This should now contain properly formatted date
                 string hoursWorked = row.Cells[4].Text;
                 string overtimeHours = row.Cells[5].Text;
+                string totalPayment = row.Cells[6].Text;
 
                 // Get the status label text
                 string status = "";
-                foreach (Control ctrl in row.Cells[6].Controls)
+                foreach (Control ctrl in row.Cells[7].Controls)
                 {
                     if (ctrl is Label)
                     {
@@ -274,10 +273,10 @@ namespace ProjectManagementSystem.Views.Technicians
                     }
                 }
 
-                string submittedBy = row.Cells[7].Text;
-                string notes = row.Cells[8].Text.Replace(",", " ");  // Remove commas from notes to avoid CSV issues
+                string submittedBy = row.Cells[8].Text;
+                string notes = row.Cells[9].Text.Replace(",", " ");  // Remove commas from notes to avoid CSV issues
 
-                Response.Write($"{technician},{project},{date},{hoursWorked},{overtimeHours},{status},{submittedBy},{notes}\n");
+                Response.Write($"{technician},{project},{date},{hoursWorked},{overtimeHours},{totalPayment},{status},{submittedBy},{notes}\n");
             }
 
             Response.End();
@@ -323,15 +322,15 @@ namespace ProjectManagementSystem.Views.Technicians
 
                 hdnAttendanceId.Value = attendanceId.ToString();
 
-                // Fetch the attendance record from the database
+                // Updated query to include TotalPayment
                 using (var connection = new SQLiteConnection("Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;"))
                 {
                     connection.Open();
                     string query = @"
-                SELECT a.AttendanceId, a.TechnicianId, a.ProjectId, a.Date, 
-                       a.HoursWorked, a.OvertimeHours, a.IsAbsent, a.Notes
-                FROM Attendance a
-                WHERE a.AttendanceId = @AttendanceId";
+            SELECT a.AttendanceId, a.TechnicianId, a.ProjectId, a.Date, 
+                   a.HoursWorked, a.OvertimeHours, a.IsAbsent, a.Notes, a.TotalPayment
+            FROM Attendance a
+            WHERE a.AttendanceId = @AttendanceId";
 
                     using (var command = new SQLiteCommand(query, connection))
                     {
@@ -349,28 +348,24 @@ namespace ProjectManagementSystem.Views.Technicians
                                 ddlEditTechnician.SelectedValue = technicianId.ToString();
                                 ddlEditProject.SelectedValue = projectId.ToString();
 
-                                // Handle date conversion properly
-                                var dateValue = reader["Date"];
-                                DateTime date;
-
-                                if (dateValue is long || dateValue is Int64)
+                                // Simplified date handling - directly parse the date string
+                                var dateValue = reader["Date"]?.ToString();
+                                if (!string.IsNullOrEmpty(dateValue))
                                 {
-                                    // If stored as Unix timestamp (seconds since epoch)
-                                    long ticks = Convert.ToInt64(dateValue);
-                                    date = new DateTime(1970, 1, 1).AddSeconds(ticks);
-                                }
-                                else if (dateValue is string)
-                                {
-                                    // If stored as string
-                                    date = DateTime.Parse(dateValue.ToString());
+                                    DateTime date;
+                                    if (DateTime.TryParse(dateValue, out date))
+                                    {
+                                        txtEditDate.Text = date.ToString("yyyy-MM-dd");
+                                    }
+                                    else
+                                    {
+                                        txtEditDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
+                                    }
                                 }
                                 else
                                 {
-                                    // Try normal conversion
-                                    date = Convert.ToDateTime(dateValue);
+                                    txtEditDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
                                 }
-
-                                txtEditDate.Text = date.ToString("yyyy-MM-dd");
 
                                 // Set absence status
                                 bool isAbsent = Convert.ToBoolean(reader["IsAbsent"]);
@@ -388,6 +383,14 @@ namespace ProjectManagementSystem.Views.Technicians
                                     txtEditOvertimeHours.Text = "0";
                                 }
 
+                                if (!reader.IsDBNull(reader.GetOrdinal("TotalPayment")))
+                                {
+                                    txtEditTotalPayment.Text = reader["TotalPayment"].ToString();
+                                }
+                                else
+                                {
+                                    txtEditTotalPayment.Text = "0";
+                                }
                                 // Set notes
                                 txtEditNotes.Text = reader["Notes"]?.ToString() ?? string.Empty;
                             }
@@ -461,11 +464,13 @@ namespace ProjectManagementSystem.Views.Technicians
 
                 decimal hoursWorked = 0;
                 decimal overtimeHours = 0;
+                decimal totalPayment = 0;
 
                 if (!isAbsent)
                 {
                     hoursWorked = Convert.ToDecimal(txtEditHoursWorked.Text);
                     overtimeHours = Convert.ToDecimal(txtEditOvertimeHours.Text);
+                    totalPayment = Convert.ToDecimal(txtEditTotalPayment.Text);
                 }
 
                 string notes = txtEditNotes.Text;
@@ -486,7 +491,8 @@ namespace ProjectManagementSystem.Views.Technicians
                     OvertimeHours = @OvertimeHours,
                     IsAbsent = @IsAbsent,
                     Notes = @Notes,
-                    SubmittedBy = @SubmittedBy
+                    SubmittedBy = @SubmittedBy,
+                    TotalPayment = @TotalPayment
                 WHERE AttendanceId = @AttendanceId";
 
                     using (var command = new SQLiteCommand(query, connection))
@@ -499,6 +505,7 @@ namespace ProjectManagementSystem.Views.Technicians
                         command.Parameters.AddWithValue("@IsAbsent", isAbsent ? 1 : 0);
                         command.Parameters.AddWithValue("@Notes", notes);
                         command.Parameters.AddWithValue("@SubmittedBy", submittedBy);
+                        command.Parameters.AddWithValue("@TotalPayment", totalPayment);
                         command.Parameters.AddWithValue("@AttendanceId", attendanceId);
 
                         int rowsAffected = command.ExecuteNonQuery();

@@ -63,10 +63,11 @@ namespace ProjectManagementSystem.Views.ProjectManagers
             using (SQLiteConnection conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
+                // Updated query to use the ProjectTechnicians table
                 string sql = @"SELECT p.ProjectId, p.ProjectName, p.Status 
-                                FROM Projects p
-                                INNER JOIN ProjectAssignment pa ON p.ProjectId = pa.ProjectId
-                                WHERE pa.UserId = @UserId";
+                              FROM Projects p
+                              INNER JOIN ProjectTechnicians pt ON p.ProjectId = pt.ProjectId
+                              WHERE pt.TechnicianId = @UserId";
 
                 using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
                 {

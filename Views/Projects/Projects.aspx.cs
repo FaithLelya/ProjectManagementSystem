@@ -13,13 +13,6 @@ namespace ProjectManagementSystem.Views.Projects
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["Projects"] == null)
-            {
-                ProjectController controller = new ProjectController();
-                controller.InitializeSampleProjects();
-                Session["Projects"] = controller.GetProjects();
-            }
-
             if (!IsPostBack)
             {
                 LoadProjects();
@@ -77,7 +70,7 @@ namespace ProjectManagementSystem.Views.Projects
 
         private void LoadProjectTechnicians(SQLiteConnection conn, Project project)
         {
-            string sql = @"SELECT t.TechnicianID, t.Username, pt.IsSenior 
+            string sql = @"SELECT t.TechnicianID, t.UserName, pt.IsSenior 
                            FROM ProjectTechnicians pt 
                            JOIN Technician t ON pt.TechnicianId = t.TechnicianID 
                            WHERE pt.ProjectId = @ProjectId";
@@ -92,7 +85,7 @@ namespace ProjectManagementSystem.Views.Projects
                         project.AssignedTechnicians.Add(new Models.Technician
                         {
                             TechnicianId = reader.GetInt32(0),
-                            Username = reader.GetString(1),
+                            UserName = reader.GetString(1),
                             IsSenior = reader.GetInt32(2) == 1
                         });
                     }

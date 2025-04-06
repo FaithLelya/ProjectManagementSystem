@@ -87,6 +87,15 @@ namespace ProjectManagementSystem.Views.Technicians
         protected global::System.Web.UI.WebControls.HiddenField hiddenTotalHours;
 
         /// <summary>
+        /// hiddenTotalPayment control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hiddenTotalPayment;
+
+        /// <summary>
         /// rbtnPositive control.
         /// </summary>
         /// <remarks>
@@ -121,6 +130,15 @@ namespace ProjectManagementSystem.Views.Technicians
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtOvertimeHours;
+
+        /// <summary>
+        /// txtTotalPayment control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTotalPayment;
 
         /// <summary>
         /// txtNotes control.
