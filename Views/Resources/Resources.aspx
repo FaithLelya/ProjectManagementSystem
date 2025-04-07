@@ -50,7 +50,7 @@
                                 <td><%# Eval("ResourceName") %></td>
                                 <td><%# Eval("Description") %></td>
                                 <td><%# Eval("Quantity") %></td>
-                                <td>$<%# Eval("CostPerUnit", "{0:F2}") %></td>
+                                <td>KES <%# Eval("CostPerUnit", "{0:F2}") %></td>
                                 <td>
                                     <asp:Button ID="btnEdit" runat="server" Text="Edit" 
                                         CommandName="Edit" 
@@ -103,7 +103,7 @@
                     
                     <div class="mb-3">
                         <label for="txtCostPerUnit" class="form-label">Cost Per Unit:</label>
-                        <asp:TextBox ID="txtCostPerUnit" runat="server" CssClass="form-control" TextMode="Number" min="7000" step="0.01"></asp:TextBox>
+                        <asp:TextBox ID="txtCostPerUnit" runat="server" CssClass="form-control" TextMode="Number" min="2500" step="0.01"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="rfvCostPerUnit" runat="server" 
                             ControlToValidate="txtCostPerUnit" 
                             ErrorMessage="Cost per unit is required." 
@@ -115,8 +115,8 @@
                             CssClass="text-danger" Display="Dynamic"></asp:RegularExpressionValidator>
                         <asp:RangeValidator ID="rvCostPerUnit" runat="server" 
                             ControlToValidate="txtCostPerUnit" 
-                            Type="Double" MinimumValue="7000" MaximumValue="9999999" 
-                            ErrorMessage="Cost per unit must be at least 7,000." 
+                            Type="Double" MinimumValue="2500" MaximumValue="9999999" 
+                            ErrorMessage="Cost per unit must be at least 2,500." 
                             CssClass="text-danger" Display="Dynamic"></asp:RangeValidator>
                     </div>
                     

@@ -52,6 +52,7 @@
         .on-hold { background-color: #fff8e6; color: #997404; border: 1px solid #ffc107; }
         .delayed { background-color: #ffebee; color: #b71c1c; border: 1px solid #dc3545; }
         .not-started { background-color: #f0f0f0; color: #495057; border: 1px solid #6c757d; }
+        .past-due { background-color: #ffebee; color: #b71c1c; border: 1px solid #dc3545; }
 
         .card {
             border: none;
@@ -115,6 +116,11 @@
         .btn-outline-primary:hover {
             background-color: var(--primary);
             color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
         }
 
         .action-button {
@@ -193,6 +199,43 @@
         .resource-list-item:hover, .technician-list-item:hover {
             background-color: #eef2f9;
         }
+        
+        .past-due-alert {
+            background-color: #fff8f8;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .past-due-alert i {
+            color: #dc3545;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .completion-confirm-btn {
+            margin-left: 15px;
+            white-space: nowrap;
+        }
+
+        /* Modal styles */
+        .modal-header {
+            background: linear-gradient(to right, var(--primary), #5482c9);
+            color: white;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+        }
+        
+        .modal-footer .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
     </style>
 </head>
 <body>
@@ -217,6 +260,13 @@
         </div>
         
         <div class="container py-3">
+            <!-- Success Alert for Completion -->
+            <asp:Panel ID="CompletionSuccessPanel" runat="server" Visible="false" CssClass="alert alert-success mb-4" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <asp:Literal ID="CompletionMessage" runat="server"></asp:Literal>
+                <button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Close"></button>
+            </asp:Panel>
+            
             <div class="row row-cols-1 row-cols-lg-2 g-4">
                 <asp:Repeater ID="ProjectRepeater" runat="server">
                     <ItemTemplate>
@@ -246,6 +296,23 @@
                                         <p class="value-text"><%# Eval("Description") %></p>
                                     </div>
                                     
+                                    <!-- Past Due Project Alert -->
+                                    <asp:Panel ID="PastDuePanel" runat="server" 
+                                              Visible='<%# IsProjectPastDue((DateTime)Eval("EndDate")) && Eval("Status").ToString() != "Completed" %>'>
+                                        <div class="past-due-alert">
+                                            <div>
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                Project end date has passed. Is this project complete?
+                                            </div>
+                                            <asp:Button ID="btnConfirmCompletion" runat="server" 
+                                                      Text="Mark as Complete" 
+                                                      CssClass="btn btn-success btn-sm completion-confirm-btn"
+                                                      OnClick="btnConfirmCompletion_Click"
+                                                      CommandArgument='<%# Eval("ProjectId") %>'
+                                                      OnClientClick='<%# "return confirmProjectCompletion(" + Eval("ProjectId") + ", \"" + Eval("ProjectName") + "\");" %>' />
+                                        </div>
+                                    </asp:Panel>
+                                    
                                     <div class="financial-highlight">
                                         <p class="mb-0"><span class="key-label">Budget:</span> <span class="value-text">KES <%# Eval("Budget", "{0:N2}") %></span></p>
                                     </div>
@@ -267,12 +334,19 @@
                                         </div>
                                         
                                         <!-- Modify Budget Button (Only for Admins) -->
-                                        <asp:Panel ID="BudgetButtonPanel" runat="server" Visible='<%# ((ProjectManagementSystem.Views.Projects.Projects)Page).CanModifyBudget() %>'>
+                                        <asp:Panel ID="BudgetButtonPanel" runat="server" Visible='<%# ((ProjectManagementSystem.Views.Projects.Projects)Page).CanModifyBudget() && !((ProjectManagementSystem.Views.Projects.Projects)Page).IsProjectCompleted(Eval("Status").ToString()) %>'>
                                             <asp:Button ID="btnModifyBudget" runat="server" Text="Modify Budget" 
                                                       CssClass="btn btn-outline-primary action-button" OnClick="btnModifyBudget_Click" 
                                                       CommandArgument='<%# Eval("ProjectId") %>' />
                                         </asp:Panel>
                                     </asp:Panel>
+                                    <!-- Delete Project Button (Only for Admins) -->
+                                     <asp:Panel ID="DeleteButtonPanel" runat="server" Visible='<%# Session["UserRole"]?.ToString() == "Admin" %>'>
+                                          <asp:Button ID="btnDeleteProject" runat="server" Text="Delete Project" 
+                                                    CssClass="btn btn-danger action-button mt-3" OnClick="btnDeleteProject_Click" 
+                                                    CommandArgument='<%# Eval("ProjectId") %>'
+                                                    OnClientClick='<%# "return confirm(\"Are you sure you want to delete project \\\"" + Eval("ProjectName") + "\\\"? This action cannot be undone.\");" %>' />
+                                      </asp:Panel>
 
                                     <!-- Allocated Resources Section -->
                                     <div class="mt-4">
@@ -302,7 +376,7 @@
                                         </asp:Panel>
                                         
                                         <!-- Add Resources Button (Only for Project Managers) -->
-                                        <asp:Panel ID="ResourceButtonPanel" runat="server" Visible='<%# ((ProjectManagementSystem.Views.Projects.Projects)Page).CanModifyResources() %>'>
+                                        <asp:Panel ID="ResourceButtonPanel" runat="server" Visible='<%# ((ProjectManagementSystem.Views.Projects.Projects)Page).CanModifyResources() && !((ProjectManagementSystem.Views.Projects.Projects)Page).IsProjectCompleted(Eval("Status").ToString()) %>'>
                                             <asp:Button ID="btnModifyResources" runat="server" Text="Modify Resources" 
                                                         CssClass="btn btn-outline-primary action-button" OnClick="btnModifyResources_Click" 
                                                         CommandArgument='<%# Eval("ProjectId") %>' />
@@ -339,7 +413,7 @@
                                         </asp:Panel>
                                         
                                         <!-- Modify Technicians Button (Only for Project Managers) -->
-                                        <asp:Panel ID="TechnicianButtonPanel" runat="server" Visible='<%# ((ProjectManagementSystem.Views.Projects.Projects)Page).CanModifyTechnicians() %>'>
+                                        <asp:Panel ID="TechnicianButtonPanel" runat="server" Visible='<%# ((ProjectManagementSystem.Views.Projects.Projects)Page).CanModifyTechnicians() && !((ProjectManagementSystem.Views.Projects.Projects)Page).IsProjectCompleted(Eval("Status").ToString()) %>'>
                                             <asp:Button ID="btnModifyTechnicians" runat="server" Text="Modify Technicians" 
                                                         CssClass="btn btn-outline-primary action-button" OnClick="btnModifyTechnicians_Click" 
                                                         CommandArgument='<%# Eval("ProjectId") %>' />
@@ -355,6 +429,12 @@
         
         <!-- Bootstrap JS and dependencies -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <script type="text/javascript">
+            function confirmProjectCompletion(projectId, projectName) {
+                return confirm("Are you sure you want to mark project '" + projectName + "' as complete?");
+            }
+        </script>
     </form>
 </body>
 </html>

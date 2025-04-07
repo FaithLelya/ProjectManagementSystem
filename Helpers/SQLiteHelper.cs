@@ -403,7 +403,7 @@ namespace ProjectManagementSystem.Helpers
 
                 using (var command = new SQLiteCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@User Id", userId);
+                    command.Parameters.AddWithValue("@UserID", userId);
                     command.ExecuteNonQuery();
                 }
             }

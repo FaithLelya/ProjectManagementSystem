@@ -98,6 +98,13 @@ namespace ProjectManagementSystem.Views.Projects
                     lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
                     return;
                 }
+                // Validate that location has sufficient detail
+                if (Location.Split(' ').Length < 3) // Check if location has at least 3 words for detailed address
+                {
+                    lblOutput.Text = "Please provide a more detailed location for the automation project (building name, floor, room, etc.).";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
 
                 // Calculate total budget
                 decimal Budget = TechnicianPayment + MaterialsCost;
@@ -124,6 +131,21 @@ namespace ProjectManagementSystem.Views.Projects
                 if (EndDate <= StartDate)
                 {
                     lblOutput.Text = "End Date must be after Start Date.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+                // Validate project duration (must be at least 2 weeks)
+                TimeSpan projectDuration = EndDate - StartDate;
+                if (projectDuration.TotalDays < 14) // 14 days = 2 weeks
+                {
+                    lblOutput.Text = "Project duration must be at least 2 weeks.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+                // Validate maximum project duration (e.g., 6 months)
+                if (projectDuration.TotalDays > 180) // 180 days = ~6 months
+                {
+                    lblOutput.Text = "Project duration cannot exceed 6 months for standard automation projects.";
                     lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
                     return;
                 }
@@ -191,6 +213,27 @@ namespace ProjectManagementSystem.Views.Projects
                 calEndTime.SelectedDate = calStartTime.SelectedDate.AddDays(1);
                 txtEndTime.Text = calEndTime.SelectedDate.ToString("yyyy-MM-dd");
             }
+
+            DateTime startDate;
+            if (DateTime.TryParse(txtStartTime.Text, out startDate))
+            {
+                if (calEndTime.SelectedDate <= startDate)
+                {
+                    // If selected end date is on or before start date, set it to start date + 1
+                    calEndTime.SelectedDate = startDate.AddDays(1);
+                    lblOutput.Text = "End date must be after the start date.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                }
+                else if ((calEndTime.SelectedDate - startDate).TotalDays < 14)
+                {
+                    // If project duration is less than 2 weeks, set end date to start date + 14 days
+                    calEndTime.SelectedDate = startDate.AddDays(14);
+                    lblOutput.Text = "Project duration must be at least 2 weeks.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                }
+            }
+
+            txtEndTime.Text = calEndTime.SelectedDate.ToString("yyyy-MM-dd");
         }
 
         protected void calEndTime_SelectionChanged(object sender, EventArgs e)

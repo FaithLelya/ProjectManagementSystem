@@ -59,7 +59,7 @@ namespace ProjectManagementSystem.Views.Resources
             Button btnEdit = (Button)sender;
             int resourceId = Convert.ToInt32(btnEdit.CommandArgument);
 
-            // Fetch resource from database (Replace with actual DB call)
+            // Fetch resource from database 
             var resource = GetResourceById(resourceId);
 
             if (resource != null)
@@ -77,19 +77,39 @@ namespace ProjectManagementSystem.Views.Resources
                 formTitle.InnerText = "Edit Resource";
             }
         }
-
-        // Dummy function to simulate fetching data from DB
         private Resource GetResourceById(int resourceId)
         {
-            // Replace this with actual DB logic
-            return new Resource
+            Resource resource = null;
+            string connectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
+
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
             {
-                ResourceId = resourceId,
-                ResourceName = "Sample Resource",
-                Description = "Sample Description",
-                Quantity = 10,
-                CostPerunit = 50.75m
-            };
+                conn.Open();
+                string sql = "SELECT * FROM Resources WHERE ResourceId = @ResourceId";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ResourceId", resourceId);
+
+                    using (SQLiteDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            resource = new Resource
+                            {
+                                ResourceId = reader.GetInt32(reader.GetOrdinal("ResourceId")),
+                                ResourceName = reader.GetString(reader.GetOrdinal("ResourceName")),
+                                Description = reader.IsDBNull(reader.GetOrdinal("Description")) ?
+                                              string.Empty : reader.GetString(reader.GetOrdinal("Description")),
+                                Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                                CostPerunit = reader.IsDBNull(reader.GetOrdinal("CostPerUnit")) ?
+                                              0 : reader.GetDecimal(reader.GetOrdinal("CostPerUnit"))
+                            };
+                        }
+                    }
+                }
+            }
+            return resource;
         }
 
 

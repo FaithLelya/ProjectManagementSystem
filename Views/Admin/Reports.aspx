@@ -134,13 +134,13 @@
                             <asp:BoundField DataField="ProjectId" HeaderText="ID" />
                             <asp:BoundField DataField="ProjectName" HeaderText="Project Name" />
                             <asp:BoundField DataField="Budget" HeaderText="Budget" DataFormatString="{0:C2}" />
-                            <asp:BoundField DataField="TechnicianPayment" HeaderText="Technician Cost" DataFormatString="{0:C2}" />
-                            <asp:BoundField DataField="MaterialsCost" HeaderText="Materials Cost" DataFormatString="{0:C2}" />
-                            <asp:BoundField DataField="TotalExpense" HeaderText="Total Expenses" DataFormatString="{0:C2}" />
+                            <asp:BoundField DataField="TechnicianPayment" HeaderText="Technician Cost" DataFormatString="KES {0:N2}" />
+                            <asp:BoundField DataField="MaterialsCost" HeaderText="Materials Cost" DataFormatString="KES {0:N2}"/>
+                            <asp:BoundField DataField="TotalExpense" HeaderText="Total Expenses" DataFormatString="KES {0:N2}" />
                             <asp:TemplateField HeaderText="Variance">
                                 <ItemTemplate>
                                     <span class='<%# Convert.ToDecimal(Eval("Variance")) < 0 ? "text-danger" : "text-success" %>'>
-                                        <%# Eval("Variance", "{0:C2}") %>
+                                      KES <%# Eval("Variance", "{0:N2}") %>
                                     </span>
                                 </ItemTemplate>
                             </asp:TemplateField>
