@@ -84,7 +84,6 @@ namespace ProjectManagementSystem.Views.Admin
         {
             LoadReportData();
         }
-
         private void LoadReportData()
         {
             List<ProjectFinanceReport> reportData = new List<ProjectFinanceReport>();
@@ -117,15 +116,15 @@ namespace ProjectManagementSystem.Views.Admin
                     break;
             }
 
-            // Build query with filters - Modified to include Attendance payments
+            // Build query with filters - Modified to correctly handle incurred costs
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.Append(@"SELECT p.ProjectId, p.ProjectName, p.Budget, 
-                               p.TechnicianPayment, p.MaterialsCost,
-                               COALESCE((SELECT SUM(TotalPayment) FROM Attendance WHERE ProjectId = p.ProjectId), 0) as AttendancePayment,
-                               p.TechnicianPayment + p.MaterialsCost + COALESCE((SELECT SUM(TotalPayment) FROM Attendance WHERE ProjectId = p.ProjectId), 0) as TotalExpense,
-                               (p.Budget - (p.TechnicianPayment + p.MaterialsCost + COALESCE((SELECT SUM(TotalPayment) FROM Attendance WHERE ProjectId = p.ProjectId), 0))) as Variance
-                               FROM Projects p
-                               WHERE 1=1");
+            sqlBuilder.Append(@"SELECT 
+        p.ProjectId, 
+        p.ProjectName, 
+        p.Budget,
+        p.Status
+        FROM Projects p
+        WHERE 1=1");
 
             if (!string.IsNullOrEmpty(ddlProjects.SelectedValue))
             {
@@ -158,16 +157,38 @@ namespace ProjectManagementSystem.Views.Admin
                     {
                         while (reader.Read())
                         {
+                            int projectId = reader.GetInt32(reader.GetOrdinal("ProjectId"));
+                            string projectName = reader.GetString(reader.GetOrdinal("ProjectName"));
+                            decimal budget = reader.GetDecimal(reader.GetOrdinal("Budget"));
+                            string status = reader.GetString(reader.GetOrdinal("Status"));
+
+                            // Get ACTUAL costs (not planned)
+                            decimal actualTechnicianPayment = GetActualTechnicianCosts(conn, projectId);
+                            //decimal actualMaterialsCost = GetActualMaterialCosts(conn, projectId);
+                            decimal actualResourceCost = GetActualResourceCosts(conn, projectId);
+                            decimal attendancePayment = GetAttendancePayments(conn, projectId);
+
+                            // Calculate total expenses - sum of all ACTUAL costs
+                            decimal totalExpense = actualTechnicianPayment +
+                                                 
+                                                 actualResourceCost +
+                                                 attendancePayment;
+
+                            // Calculate variance (budget - actual expenses)
+                            decimal variance = budget - totalExpense;
+
                             ProjectFinanceReport report = new ProjectFinanceReport
                             {
-                                ProjectId = reader.GetInt32(reader.GetOrdinal("ProjectId")),
-                                ProjectName = reader.GetString(reader.GetOrdinal("ProjectName")),
-                                Budget = reader.GetDecimal(reader.GetOrdinal("Budget")),
-                                TechnicianPayment = reader.GetDecimal(reader.GetOrdinal("TechnicianPayment")),
-                                MaterialsCost = reader.GetDecimal(reader.GetOrdinal("MaterialsCost")),
-                                AttendancePayment = reader.GetDecimal(reader.GetOrdinal("AttendancePayment")),
-                                TotalExpense = reader.GetDecimal(reader.GetOrdinal("TotalExpense")),
-                                Variance = reader.GetDecimal(reader.GetOrdinal("Variance"))
+                                ProjectId = projectId,
+                                ProjectName = projectName,
+                                Budget = budget,
+                                TechnicianPayment = actualTechnicianPayment,
+                                //MaterialsCost = actualMaterialsCost,
+                                ResourceCost = actualResourceCost,
+                                AttendancePayment = attendancePayment,
+                                TotalExpense = totalExpense,
+                                Variance = variance,
+                                Status = status
                             };
 
                             reportData.Add(report);
@@ -180,14 +201,14 @@ namespace ProjectManagementSystem.Views.Admin
             gvProjectData.DataSource = reportData;
             gvProjectData.DataBind();
 
-            // Update summary values
-            decimal totalBudget = reportData.Sum(p => p.Budget);
-            decimal totalExpenses = reportData.Sum(p => p.TotalExpense);
+            // Update summary values (only include active projects)
+            decimal totalBudget = reportData.Where(p => p.Status != "Completed").Sum(p => p.Budget);
+            decimal totalExpenses = reportData.Where(p => p.Status != "Completed").Sum(p => p.TotalExpense);
 
             litTotalBudget.Text = totalBudget.ToString("N2");
             litTotalExpenses.Text = totalExpenses.ToString("N2");
 
-            // Update progress bar
+            // Update progress bar (cap at 100%)
             int percentage = totalBudget > 0 ? (int)Math.Min(100, (totalExpenses / totalBudget * 100)) : 0;
             progressBar.Attributes["style"] = $"width: {percentage}%";
             progressBar.Attributes["aria-valuenow"] = percentage.ToString();
@@ -201,12 +222,13 @@ namespace ProjectManagementSystem.Views.Admin
             else
                 progressBar.Attributes["class"] = "progress-bar bg-danger";
 
-            // Initialize chart data
-            if (reportData.Any())
+            // Initialize chart data (only active projects)
+            var activeProjects = reportData.Where(p => p.Status != "Completed").ToList();
+            if (activeProjects.Any())
             {
-                List<string> projectNames = reportData.Select(p => p.ProjectName).ToList();
-                List<decimal> budgetData = reportData.Select(p => p.Budget).ToList();
-                List<decimal> expenseData = reportData.Select(p => p.TotalExpense).ToList();
+                List<string> projectNames = activeProjects.Select(p => p.ProjectName).ToList();
+                List<decimal> budgetData = activeProjects.Select(p => p.Budget).ToList();
+                List<decimal> expenseData = activeProjects.Select(p => p.TotalExpense).ToList();
 
                 // Convert data to JavaScript arrays
                 string projectNamesJson = "['" + string.Join("', '", projectNames) + "']";
@@ -216,6 +238,63 @@ namespace ProjectManagementSystem.Views.Admin
                 // Initialize chart
                 string chartScript = $"$(document).ready(function() {{ initializeChart('budgetChart', {projectNamesJson}, {budgetDataJson}, {expenseDataJson}); }});";
                 ScriptManager.RegisterStartupScript(this, GetType(), "ChartInit", chartScript, true);
+            }
+        }
+
+        // New method to get actual technician costs
+        private decimal GetActualTechnicianCosts(SQLiteConnection conn, int projectId)
+        {
+            string sql = @"SELECT COALESCE(SUM(TotalPayment), 0) 
+                   FROM Attendance 
+                   WHERE ProjectId = @ProjectId";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                return Convert.ToDecimal(cmd.ExecuteScalar());
+            }
+        }
+
+        // New method to get actual material costs
+        /*private decimal GetActualMaterialCosts(SQLiteConnection conn, int projectId)
+        {
+            string sql = @"SELECT COALESCE(SUM(Amount), 0) 
+                   FROM MaterialPurchases 
+                   WHERE ProjectId = @ProjectId";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                return Convert.ToDecimal(cmd.ExecuteScalar());
+            }
+        } */
+
+        // Updated method to get actual resource costs
+        private decimal GetActualResourceCosts(SQLiteConnection conn, int projectId)
+        {
+            string sql = @"SELECT COALESCE(SUM(pr.Quantity * r.CostPerUnit), 0)
+                   FROM ProjectResources pr
+                   JOIN Resources r ON pr.ResourceId = r.ResourceId
+                   WHERE pr.ProjectId = @ProjectId";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                return Convert.ToDecimal(cmd.ExecuteScalar());
+            }
+        }
+
+        // New method to get attendance payments
+        private decimal GetAttendancePayments(SQLiteConnection conn, int projectId)
+        {
+            string sql = @"SELECT COALESCE(SUM(TotalPayment), 0)
+                   FROM Attendance
+                   WHERE ProjectId = @ProjectId";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                return Convert.ToDecimal(cmd.ExecuteScalar());
             }
         }
 
@@ -475,9 +554,11 @@ namespace ProjectManagementSystem.Views.Admin
     {
         public int ProjectId { get; set; }
         public string ProjectName { get; set; }
+        public string Status { get; set; }
         public decimal Budget { get; set; }
         public decimal TechnicianPayment { get; set; }
         public decimal MaterialsCost { get; set; }
+        public decimal ResourceCost { get; set; }
         public decimal AttendancePayment { get; set; }
         public decimal TotalExpense { get; set; }
         public decimal Variance { get; set; }
