@@ -101,7 +101,41 @@ namespace ProjectManagementSystem.Views.Projects
                 // Validate that location has sufficient detail
                 if (Location.Split(' ').Length < 3) // Check if location has at least 3 words for detailed address
                 {
-                    lblOutput.Text = "Please provide a more detailed location for the automation project (building name, floor, room, etc.).";
+                    lblOutput.Text = "Please provide a more detailed location for the project (building name, floor, room, etc.).";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+                // Validate that Project Name has sufficient detail
+                if (ProjectName.Split(' ').Length < 2) // Check if location has at least 2 words for detailed address
+                {
+                    lblOutput.Text = "Please provide a more detailed Project Name.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+                // Validate that Description has sufficient detail
+                if (Description.Split(' ').Length < 2) // Check if description has at least 2 words for detailed address
+                {
+                    lblOutput.Text = "Please provide a more detailed Description.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+
+                if (ProjectName.Length > 100) //  max length
+                {
+                    lblOutput.Text = "Project Name cannot exceed 100 characters.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+
+                if (Description.Length > 500) // Example max length
+                {
+                    lblOutput.Text = "Description cannot exceed 500 characters.";
+                    lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                    return;
+                }
+                if (Location.Length > 100) //  max length
+                {
+                    lblOutput.Text = "Location cannot exceed 100 characters.";
                     lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
                     return;
                 }
@@ -260,10 +294,30 @@ namespace ProjectManagementSystem.Views.Projects
             string taskDescription = txtTaskDescription.Text.Trim();
             DateTime taskDueDate;
 
-            // Basic validation
-            if (string.IsNullOrEmpty(taskName))
+            // Basic validation for task name
+            if (string.IsNullOrEmpty(taskName) || taskName.Split(' ').Length < 2)
             {
-                lblOutput.Text = "Task name is required.";
+                lblOutput.Text = "Task name is required and must contain at least two words.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                return;
+            }
+            // Basic validation for task description
+            if (string.IsNullOrEmpty(taskDescription) || taskDescription.Split(' ').Length < 2)
+            {
+                lblOutput.Text = "Task description is required and must contain at least two words.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                return;
+            }
+            if (taskName.Length > 100) // Example max length
+            {
+                lblOutput.Text = "Task name cannot exceed 100 characters.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                return;
+            }
+
+            if (taskDescription.Length > 500) // Example max length
+            {
+                lblOutput.Text = "Task description cannot exceed 500 characters.";
                 lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
                 return;
             }
@@ -284,6 +338,18 @@ namespace ProjectManagementSystem.Views.Projects
                 return;
             }
 
+            // Get project start and end dates
+            DateTime projectStartDate = DateTime.Parse(txtStartTime.Text);
+            DateTime projectEndDate = DateTime.Parse(txtEndTime.Text);
+
+            // Validate that the task due date is within the project dates
+            if (taskDueDate < projectStartDate || taskDueDate > projectEndDate)
+            {
+                lblOutput.Text = $"Task due date must be between the project start date ({projectStartDate.ToString("yyyy-MM-dd")}) and end date ({projectEndDate.ToString("yyyy-MM-dd")}).";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                return;
+            }
+
             // Create task object
             var task = new ProjectTask
             {
@@ -298,6 +364,13 @@ namespace ProjectManagementSystem.Views.Projects
             {
                 tasks = new List<ProjectTask>();
                 Session[TASKS_SESSION_KEY] = tasks;
+            }
+            // Check for unique task name within the project
+            if (tasks.Any(t => t.Name.Equals(taskName, StringComparison.OrdinalIgnoreCase)))
+            {
+                lblOutput.Text = "A task with this name already exists. Please use a unique task name.";
+                lblOutput.CssClass = lblOutput.CssClass.Replace("d-none", "").Trim();
+                return;
             }
 
             tasks.Add(task);

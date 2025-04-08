@@ -21,6 +21,7 @@ namespace ProjectManagementSystem.Models
         public decimal BudgetRangeMin { get; set; }
         public decimal BudgetRangeMax { get; set; }
         public decimal TotalResourceCost { get; set; }
+        public decimal ResourceCost { get; set; }
         public decimal MaterialsCost { get; set; }
         public decimal ProjectManagerId { get; set; }
         public decimal TechnicianPayment { get; set; }
@@ -36,6 +37,15 @@ namespace ProjectManagementSystem.Models
         // Additional properties that could be useful - fixed for nullable DateTime?
         public decimal BudgetRemaining => Budget - TotalExpense;
         public decimal BudgetUtilizationPercentage => Budget > 0 ? (TotalExpense / Budget) * 100 : 0;
+
+        public decimal TechnicianPlannedPayment { get; set; } // planned
+        public decimal ResourcePlannedCost { get; set; } // planned
+        public decimal MaterialPlannedCost { get; set; } // planned
+
+        // New actual expenses
+        public decimal TechnicianExpenses { get; set; }
+        public decimal ResourceExpenses { get; set; }
+        public decimal MaterialExpenses { get; set; }
 
         // Fixed properties that handle nullable EndDate
         public int DaysRemaining
@@ -76,8 +86,66 @@ namespace ProjectManagementSystem.Models
         // Method to calculate total expenses
         public void CalculateTotalExpense()
         {
-            TotalExpense = TotalResourceCost + TechnicianPayment;
+            TotalExpense = TechnicianExpenses + ResourceExpenses + MaterialExpenses;
         }
+        // In Project.cs model
+        public void ComputeExpenses()
+        {
+            // Reset all calculated values first
+            TotalResourceCost = 0;
+            ResourceCost = 0;
+
+            // Calculate resource costs from actual resources
+            if (AllocatedResources != null)
+            {
+                foreach (var res in AllocatedResources)
+                {
+                    if (res.Quantity > 0 && res.CostPerunit > 0)
+                    {
+                        decimal itemCost = res.Quantity * res.CostPerunit;
+                        ResourceCost += itemCost;
+                        TotalResourceCost += itemCost;
+                    }
+                }
+            }
+
+            // IMPORTANT: Set total expense to ONLY include actual costs
+            TotalExpense = ResourceCost;
+
+            // Add other costs ONLY if they are greater than zero
+            // (They should be zero by default until costs are incurred)
+            if (TechnicianPayment > 0)
+            {
+                TotalExpense += TechnicianPayment;
+            }
+
+            if (MaterialsCost > 0)
+            {
+                TotalExpense += MaterialsCost;
+            }
+        }
+
+        public string GetBudgetUsagePercentage()
+        {
+            if (Budget <= 0) return "N/A";
+            decimal percentage = (TotalExpense / Budget) * 100;
+            return $"{percentage:N1}% used";
+        }
+
+        public string GetBudgetVarianceText()
+        {
+            if (Budget <= 0) return "";
+
+            decimal variance = Budget - TotalExpense;
+
+            if (variance < 0)
+                return $"<span class='text-danger'>Over Budget by KES {-variance:N2}</span>";
+            else if (variance == 0)
+                return "<span class='text-success'>Exactly On Budget</span>";
+            else
+                return $"<span class='text-success'>Under Budget by KES {variance:N2}</span>";
+        }
+
 
         public Project()
         {

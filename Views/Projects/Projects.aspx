@@ -1,4 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Projects.aspx.cs" Inherits="ProjectManagementSystem.Views.Projects.Projects" %>
+<%@ Import Namespace="ProjectManagementSystem.Models" %>
 
 <!DOCTYPE html>
 
@@ -324,12 +325,25 @@
                                         </h5>
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p><span class="key-label">Resource Cost:</span> <span class="value-text">KES <%# Eval("TotalResourceCost", "{0:N2}") %></span></p>
+                                                <p><span class="key-label">Resource Cost:</span> <span class="value-text">KES <%# Eval("ResourceCost", "{0:N2}") %></span></p>
                                                 <p><span class="key-label">Materials Cost:</span> <span class="value-text">KES <%# Eval("MaterialsCost", "{0:N2}") %></span></p>
                                             </div>
                                             <div class="col-md-6">
                                                 <p><span class="key-label">Technician Payments:</span> <span class="value-text">KES <%# Eval("TechnicianPayment", "{0:N2}") %></span></p>
                                                 <p><span class="key-label">Total Expense:</span> <span class="value-text">KES <%# Eval("TotalExpense", "{0:N2}") %></span></p>
+                                            </div>
+                                            <div class="col-md-6">
+            <h5>Variance</h5>
+            <p class='<%# ((decimal)Eval("Budget") > (decimal)Eval("TotalExpense")) ? "text-success" : "text-danger" %>'>
+    KES <%# ((decimal)Eval("Budget") - (decimal)Eval("TotalExpense")).ToString("N2") %>
+    (<%# ((decimal)Eval("Budget") > (decimal)Eval("TotalExpense")) ? "Under Budget" : "Over Budget" %>)
+</p>
+        </div>
+                                            <div class ="col-md-6">
+                                                 <p><span class="key-label">Variance:</span>
+                                                     <%# GetBudgetVarianceText((Project)Container.DataItem) %>
+                                                 </p>
+
                                             </div>
                                         </div>
                                         
@@ -339,7 +353,8 @@
                                                       CssClass="btn btn-outline-primary action-button" OnClick="btnModifyBudget_Click" 
                                                       CommandArgument='<%# Eval("ProjectId") %>' />
                                         </asp:Panel>
-                                    </asp:Panel>
+                                        </asp:Panel>
+                                    
                                     <!-- Delete Project Button (Only for Admins) -->
                                      <asp:Panel ID="DeleteButtonPanel" runat="server" Visible='<%# Session["UserRole"]?.ToString() == "Admin" %>'>
                                           <asp:Button ID="btnDeleteProject" runat="server" Text="Delete Project" 

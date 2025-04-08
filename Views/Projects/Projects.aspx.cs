@@ -51,8 +51,8 @@ namespace ProjectManagementSystem.Views.Projects
                                 Location = reader.GetString(3),
                                 StartDate = DateTime.Parse(reader.GetString(4)),
                                 EndDate = DateTime.Parse(reader.GetString(5)),
-                                TechnicianPayment = reader.GetDecimal(6),
-                                MaterialsCost = reader.GetDecimal(7),
+                                TechnicianPayment = 0,  // Initialize to zero
+                                MaterialsCost = 0,      // Initialize to zero
                                 Budget = reader.GetDecimal(8),
                                 ProjectManagerId = reader.GetInt32(9),
                                 Resources = reader.GetString(10),
@@ -64,7 +64,8 @@ namespace ProjectManagementSystem.Views.Projects
 
                             LoadProjectTechnicians(conn, project);
                             LoadProjectResources(conn, project);
-                            CalculateTotalResourceCost(project);
+                            project.ComputeExpenses();
+
 
                             projects.Add(project);
                         }
@@ -133,22 +134,15 @@ namespace ProjectManagementSystem.Views.Projects
                 }
             }
         }
-
-        // New method to calculate the total resource cost
-        private void CalculateTotalResourceCost(Project project)
+        protected string GetBudgetUsagePercentage(Project project)
         {
-            decimal totalResourceCost = 0;
-
-            foreach (var resource in project.AllocatedResources)
-            {
-                totalResourceCost += resource.Quantity * resource.CostPerunit;
-            }
-
-            project.TotalResourceCost = totalResourceCost;
-
-            // Update the total expense to include the calculated resource cost
-            project.TotalExpense = project.TechnicianPayment + project.MaterialsCost + totalResourceCost;
+            return project.GetBudgetUsagePercentage();
         }
+        protected string GetBudgetVarianceText(Project project)
+        {
+            return project.GetBudgetVarianceText();
+        }
+
         protected void btnDeleteProject_Click(object sender, EventArgs e)
         {
             if (Session["UserRole"]?.ToString() != "Admin")
