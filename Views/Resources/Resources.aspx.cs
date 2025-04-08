@@ -56,10 +56,30 @@ namespace ProjectManagementSystem.Views.Resources
 
         protected void btnEdit_Click(object sender, EventArgs e)
         {
-            Button btn = (Button)sender;
-            int resourceId = Convert.ToInt32(btn.CommandArgument);
+            Button btnEdit = (Button)sender;
+            int resourceId = Convert.ToInt32(btnEdit.CommandArgument);
 
-            // Retrieve resource details for editing
+            // Fetch resource from database 
+            var resource = GetResourceById(resourceId);
+
+            if (resource != null)
+            {
+                // Populate the form fields
+                txtResourceName.Text = resource.ResourceName;
+                txtDescription.Text = resource.Description;
+                txtQuantity.Text = resource.Quantity.ToString();
+                txtCostPerUnit.Text = resource.CostPerunit.ToString("F2");
+
+                // Store the resource ID in hidden field for tracking
+                hfResourceId.Value = resource.ResourceId.ToString();
+
+                // Change form title to Edit Mode
+                formTitle.InnerText = "Edit Resource";
+            }
+        }
+        private Resource GetResourceById(int resourceId)
+        {
+            Resource resource = null;
             string connectionString = "Data Source=C:\\ProjectsDb\\ProjectTracking\\project_tracking.db;Version=3;";
 
             using (SQLiteConnection conn = new SQLiteConnection(connectionString))
@@ -75,21 +95,23 @@ namespace ProjectManagementSystem.Views.Resources
                     {
                         if (reader.Read())
                         {
-                            hfResourceId.Value = resourceId.ToString();
-                            txtResourceName.Text = reader["ResourceName"].ToString();
-                            txtDescription.Text = reader.IsDBNull(reader.GetOrdinal("Description")) ?
-                                                 string.Empty : reader["Description"].ToString();
-                            txtQuantity.Text = reader["Quantity"].ToString();
-                            txtCostPerUnit.Text = reader.IsDBNull(reader.GetOrdinal("CostPerUnit")) ?
-                                                 "0.00" : Convert.ToDecimal(reader["CostPerUnit"]).ToString("F2");
-
-                            formTitle.InnerText = "Edit Resource";
-                            btnSave.Text = "Update Resource";
+                            resource = new Resource
+                            {
+                                ResourceId = reader.GetInt32(reader.GetOrdinal("ResourceId")),
+                                ResourceName = reader.GetString(reader.GetOrdinal("ResourceName")),
+                                Description = reader.IsDBNull(reader.GetOrdinal("Description")) ?
+                                              string.Empty : reader.GetString(reader.GetOrdinal("Description")),
+                                Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                                CostPerunit = reader.IsDBNull(reader.GetOrdinal("CostPerUnit")) ?
+                                              0 : reader.GetDecimal(reader.GetOrdinal("CostPerUnit"))
+                            };
                         }
                     }
                 }
             }
+            return resource;
         }
+
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
@@ -166,7 +188,8 @@ namespace ProjectManagementSystem.Views.Resources
 
         protected void btnCancel_Click(object sender, EventArgs e)
         {
-            ResetForm();
+            // Redirect to the Dashboard Welcome page
+            Response.Redirect("/Views/Shared/Dashboard/Welcome");
         }
 
         private void ResetForm()

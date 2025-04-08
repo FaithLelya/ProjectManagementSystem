@@ -24,6 +24,114 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// btnDashboard control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnDashboard;
+
+        /// <summary>
+        /// btnProjects control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnProjects;
+
+        /// <summary>
+        /// btnResources control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnResources;
+
+        /// <summary>
+        /// btnAttendance control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnAttendance;
+
+        /// <summary>
+        /// btnPaymentInfo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnPaymentInfo;
+
+        /// <summary>
+        /// btnAssignTechnicians control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnAssignTechnicians;
+
+        /// <summary>
+        /// btnCreateProject control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnCreateProject;
+
+        /// <summary>
+        /// btnReports control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnReports;
+
+        /// <summary>
+        /// btnCreateUser control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnCreateUser;
+
+        /// <summary>
+        /// btnAccount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnAccount;
+
+        /// <summary>
+        /// btnLogout control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnLogout;
+
+        /// <summary>
+        /// ltUserInitial control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal ltUserInitial;
+
+        /// <summary>
         /// lblUsername control.
         /// </summary>
         /// <remarks>
@@ -42,13 +150,13 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         protected global::System.Web.UI.WebControls.Label lblRole;
 
         /// <summary>
-        /// btnLogout control.
+        /// btnLogoutTop control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnLogout;
+        protected global::System.Web.UI.WebControls.LinkButton btnLogoutTop;
 
         /// <summary>
         /// lblRoleSpecificMessage control.
@@ -60,165 +168,138 @@ namespace ProjectManagementSystem.Views.Shared.Dashboard
         protected global::System.Web.UI.WebControls.Label lblRoleSpecificMessage;
 
         /// <summary>
-        /// pnlAttendance control.
+        /// pnlAdminQuickActions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlAttendance;
+        protected global::System.Web.UI.WebControls.Panel pnlAdminQuickActions;
 
         /// <summary>
-        /// btnAttendance control.
+        /// btnNewProject control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnAttendance;
+        protected global::System.Web.UI.WebControls.Button btnNewProject;
 
         /// <summary>
-        /// pnlPaymentInfo control.
+        /// btnAssignTask control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlPaymentInfo;
+        protected global::System.Web.UI.WebControls.Button btnAssignTask;
 
         /// <summary>
-        /// btnPaymentInfo control.
+        /// btnGenerateReport control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnPaymentInfo;
+        protected global::System.Web.UI.WebControls.Button btnGenerateReport;
 
         /// <summary>
-        /// pnlAssignTechnicians control.
+        /// pnlProjectManagerQuickActions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlAssignTechnicians;
+        protected global::System.Web.UI.WebControls.Panel pnlProjectManagerQuickActions;
 
         /// <summary>
-        /// btnAssignTechnicians control.
+        /// btnViewProjects control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnAssignTechnicians;
+        protected global::System.Web.UI.WebControls.Button btnViewProjects;
 
         /// <summary>
-        /// pnlCreateProject control.
+        /// btnViewTechnicians control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlCreateProject;
+        protected global::System.Web.UI.WebControls.Button btnViewTechnicians;
 
         /// <summary>
-        /// btnCreateProject control.
+        /// pnlTechnicianQuickActions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnCreateProject;
+        protected global::System.Web.UI.WebControls.Panel pnlTechnicianQuickActions;
 
         /// <summary>
-        /// pnlReports control.
+        /// btnRecordAttendance control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlReports;
+        protected global::System.Web.UI.WebControls.Button btnRecordAttendance;
 
         /// <summary>
-        /// btnReports control.
+        /// btnViewTasks control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnReports;
+        protected global::System.Web.UI.WebControls.Button btnViewTasks;
 
         /// <summary>
-        /// pnlCreateUser control.
+        /// pnlAssignedProjects control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlCreateUser;
+        protected global::System.Web.UI.WebControls.Panel pnlAssignedProjects;
 
         /// <summary>
-        /// btnCreateUser control.
+        /// rptAssignedProjects control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnCreateUser;
+        protected global::System.Web.UI.WebControls.Repeater rptAssignedProjects;
 
         /// <summary>
-        /// pnlProjects control.
+        /// lblNoProjects control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlProjects;
+        protected global::System.Web.UI.WebControls.Label lblNoProjects;
 
         /// <summary>
-        /// btnProjects control.
+        /// rptRecentActivities control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnProjects;
+        protected global::System.Web.UI.WebControls.Repeater rptRecentActivities;
 
         /// <summary>
-        /// pnlResources control.
+        /// rptUpcomingDeadlines control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlResources;
-
-        /// <summary>
-        /// btnResources control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnResources;
-
-        /// <summary>
-        /// pnlAccount control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlAccount;
-
-        /// <summary>
-        /// btnAccount control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnAccount;
+        protected global::System.Web.UI.WebControls.Repeater rptUpcomingDeadlines;
     }
 }

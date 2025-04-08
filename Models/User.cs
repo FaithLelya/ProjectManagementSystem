@@ -27,6 +27,9 @@ namespace ProjectManagementSystem.Models
             return Role;
         }
     }
+    public class ConcreteUser : User
+    {
+    }
 
     public class Technician : User
     {
@@ -34,8 +37,10 @@ namespace ProjectManagementSystem.Models
         {
             //Placeholder for database info(?)
             Role = "Technician";
+            UserName = string.Empty;
         }
         public int TechnicianId { get; set; }
+        public string UserName {get; set; }
         public double HourlyRate { get; set; }
         public decimal OvertimeRate { get; set; }
         public decimal TotalPayment { get; set; }

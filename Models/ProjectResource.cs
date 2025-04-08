@@ -5,6 +5,8 @@ namespace ProjectManagementSystem.Models
     {
         public int ResourceId { get; set; }
         public string ResourceName { get; set; }
+        public decimal CostPerUnit { get; set; }
+
         public int QuantityUsed { get; set; }
         public int ProjectId { get; set; }
     }

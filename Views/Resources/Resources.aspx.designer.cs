@@ -123,6 +123,15 @@ namespace ProjectManagementSystem.Views.Resources
         protected global::System.Web.UI.WebControls.RegularExpressionValidator revCostPerUnit;
 
         /// <summary>
+        /// rvCostPerUnit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RangeValidator rvCostPerUnit;
+
+        /// <summary>
         /// btnSave control.
         /// </summary>
         /// <remarks>

@@ -1,5 +1,6 @@
 ﻿using System;
 using ProjectManagementSystem.Helpers;
+using System.Web;
 
 namespace ProjectManagementSystem.Views.Shared
 {
@@ -7,9 +8,16 @@ namespace ProjectManagementSystem.Views.Shared
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Disable browser caching
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.Cache.SetNoStore();
+            Response.Cache.SetExpires(DateTime.Now.AddDays(-1));
+
             if (Session["UserID"] != null)
             {
-                Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
+                // Debug: Log redirect from Page_Load
+                System.Diagnostics.Debug.WriteLine($"User already logged in with ID: {Session["UserID"]}, redirecting to dashboard");
+                Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx", false);
             }
 
             if (!IsPostBack)
@@ -24,14 +32,23 @@ namespace ProjectManagementSystem.Views.Shared
             {
                 string email = txtEmail.Text.Trim();
                 string password = txtPassword.Text.Trim();
+
                 // Debug: Print input credentials
-                System.Diagnostics.Debug.WriteLine($"Email: {email}, Password: {password}");
+                System.Diagnostics.Debug.WriteLine($"Login attempt - Email: {email}, Password length: {password.Length}");
+
+                // Validate input
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    lblError.Text = "Email and password are required.";
+                    lblError.Visible = true;
+                    return;
+                }
 
                 // Fetch the user from the database
                 var user = SQLiteHelper.GetUserByEmailAndPassword(email, password);
 
-                //Debug: Print user object
-                System.Diagnostics.Debug.WriteLine($"User: {user}");
+                // Debug: Print user object
+                System.Diagnostics.Debug.WriteLine($"User object retrieved: {(user != null ? "Yes" : "No")}");
 
                 if (user != null)
                 {
@@ -42,36 +59,44 @@ namespace ProjectManagementSystem.Views.Shared
                         return;
                     }
 
-                    //Debug: print session details
-                    Console.WriteLine($"UserID: {user.UserId}, Role: {user.Role}, Email:{user.Username}");
+                    // Debug: Log session details
+                    System.Diagnostics.Debug.WriteLine($"Setting session - UserID: {user.UserId}, Role: {user.Role}, Email: {user.Email}");
 
-
+                    // Store user information in session
                     Session["UserID"] = user.UserId;
-                    Session["UserRole"] = user.Role; 
+                    Session["UserRole"] = user.Role;
                     Session["Username"] = user.Username;
 
                     // Debug: Print redirect message
-                    System.Diagnostics.Debug.WriteLine("Redirecting to Welcome.aspx");
+                    System.Diagnostics.Debug.WriteLine("Preparing to redirect to Welcome.aspx");
 
-                    // Redirect to the dashboard
-                    Response.Redirect("~/Views/Shared/Dashboard/Welcome.aspx");
+                    // Redirect to the dashboard with absolute URL
+                    string redirectUrl = ResolveUrl("~/Views/Shared/Dashboard/Welcome.aspx");
+                    System.Diagnostics.Debug.WriteLine($"Redirecting to: {redirectUrl}");
+
+                    Response.Redirect(redirectUrl, true);
+                    Context.ApplicationInstance.CompleteRequest();
                 }
                 else
                 {
                     // Debug: Print invalid credentials message
-                    System.Diagnostics.Debug.WriteLine("Invalid email or password");
-
+                    System.Diagnostics.Debug.WriteLine("Authentication failed: Invalid email or password");
                     lblError.Text = "Invalid email or password";
                     lblError.Visible = true;
                 }
             }
             catch (Exception ex)
             {
-
                 // Debug: Print exception details
-                System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Login error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
-                lblError.Text = "An error occurred during login. Please try again.";
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+
+                lblError.Text = "An error occurred during login: " + ex.Message;
                 lblError.Visible = true;
             }
         }
@@ -82,6 +107,5 @@ namespace ProjectManagementSystem.Views.Shared
             Session.Abandon();
             Response.Redirect("~/Views/Shared/Login.aspx");
         }
-
     }
 }

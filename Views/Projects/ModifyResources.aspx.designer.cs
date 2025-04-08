@@ -51,13 +51,13 @@ namespace ProjectManagementSystem.Views.Projects
         protected global::System.Web.UI.WebControls.Panel NoResourcesPanel;
 
         /// <summary>
-        /// txtResourceName control.
+        /// ddlResourceName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtResourceName;
+        protected global::System.Web.UI.WebControls.DropDownList ddlResourceName;
 
         /// <summary>
         /// txtQuantity control.
@@ -67,6 +67,15 @@ namespace ProjectManagementSystem.Views.Projects
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtQuantity;
+
+        /// <summary>
+        /// txtCostPerUnit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtCostPerUnit;
 
         /// <summary>
         /// btnAddResource control.
