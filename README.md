@@ -1,10 +1,8 @@
-🛠️ Project Resource Management System
-
-Overview
+# Project Resource Management System
 
 The **Project Resource Management System** is a comprehensive tool designed for companies that manage technicians, project budgets, and resources. It helps streamline financial tracking, technician compensation, and project reporting—all in one centralized system. 
 
-💡 Key Features
+# 💡 Key Features
 
 - 🧾 **Detailed Project Profiles**: Create and manage projects with client details, timelines, budgets, and scope.
 - 🕒 **Technician Payment Tracking**: Calculate payments based on logged hours, apply performance incentives, and track field deployments.
@@ -19,7 +17,7 @@ The **Project Resource Management System** is a comprehensive tool designed for 
 - **Database**: SQLite 
 - **Authentication & Roles**: Admin, Project Manager, Technician (role-based access control)
 
- #Getting Started
+# Getting Started
 
 ### Requirements
 - .NET SDK 6.0 or higher
