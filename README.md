@@ -2,13 +2,13 @@
 
 The **Project Resource Management System** is a comprehensive tool designed for companies that manage technicians, project budgets, and resources. It helps streamline financial tracking, technician compensation, and project reporting—all in one centralized system. 
 
-# 💡 Key Features
+# Features
 
-- 🧾 **Detailed Project Profiles**: Create and manage projects with client details, timelines, budgets, and scope.
-- 🕒 **Technician Payment Tracking**: Calculate payments based on logged hours, apply performance incentives, and track field deployments.
-- 💰 **Project Profitability Reports**: Automatically generate cost, revenue, and profit breakdowns for each project.
-- 🧮 **Resource Management**: Monitor acquisition costs of tools, hardware, and other project resources.
-- 📊 **Comprehensive Reporting**: Export financial and operational reports for transparency and decision-making.
+-  **Detailed Project Profiles**: Create and manage projects with client details, timelines, budgets, and scope.
+-  **Technician Payment Tracking**: Calculate payments based on logged hours, apply performance incentives, and track field deployments.
+-  **Project Profitability Reports**: Automatically generate cost, revenue, and profit breakdowns for each project.
+-  **Resource Management**: Monitor acquisition costs of tools, hardware, and other project resources.
+-  **Comprehensive Reporting**: Export financial and operational reports for transparency and decision-making.
 
 # Tech Stack
 
